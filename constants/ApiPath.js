@@ -7,9 +7,16 @@ const Auth = {
   logout: 'auth/logout',
   set_devtoken: 'auth/set_devtoken',
   change_info_after_signup: 'auth/change_info_after_signup',
-  check_new_version: 'auth/check_new_version',
+  check_new_version: 'auth/check_new_version'
+};
+const Posts = {
+  create: "posts/add_posts",
+  list: "posts/list",
+  delete: "posts/delete",
+  like: 'postLike/action'
 };
 
 export default {
   Auth,
+  Posts
 };
