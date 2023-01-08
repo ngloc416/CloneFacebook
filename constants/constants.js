@@ -6,6 +6,7 @@ const BLUE_COLOR = '#216fdb';
 const TOUCH_BLUE_COLOR = '#2465ba';
 const RED_COLOR = '#ef5a79';
 const GREY_COLOR = '#8a898b';
+const BLACK_COLOR = '#000000';
 
 module.exports = {
   URL_BACKEND,
@@ -16,4 +17,5 @@ module.exports = {
   TOUCH_BLUE_COLOR,
   RED_COLOR,
   GREY_COLOR,
+  BLACK_COLOR,
 };
