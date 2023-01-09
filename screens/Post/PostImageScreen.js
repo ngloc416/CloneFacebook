@@ -86,9 +86,9 @@ const PostImageScreen = ({ navigation }) => {
                     </Animated.View>
                     <View style={styles.postContentWrapper}>
                         <View>
-                            <TouchableOpacity>
+                            <View>
                                 <Text style={styles.name}>{postDetail.author.userName}</Text>
-                            </TouchableOpacity>
+                            </View>
                             <TouchableOpacity onPress={expandDescribed}>
                             {
                               (postDetail.described)

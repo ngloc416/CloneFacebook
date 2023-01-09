@@ -92,18 +92,52 @@ const Post = ({ post }) => {
       )
     : (null)
   }
-    <View style={styles.imageContainer}>
-    {post.image && (
-      post.image.map((image, key) => (
-        <Image
-        source={{ uri: image.url}}
-        style={styles.image}
-        resizeMode="cover"
-        key={key}
-      />
-      ))
-    )}
-    </View>
+
+    {
+      (post.image && (post.image.length === 1) &&
+        <View style={styles.imageContainer1}>
+          <Image source={{uri: post.image[0].url}} resizeMode="cover" style={styles.imageDetail1}/>
+        </View>
+      )
+    }
+
+    {
+      (post.image && (post.image.length === 2) &&
+        <View style={styles.imageContainer2}>
+          <Image source={{uri: post.image[0].url}} resizeMode="cover" style={styles.imageDetail2}/>
+          <Image source={{uri: post.image[0].url}} resizeMode="cover" style={styles.imageDetail2}/>
+        </View>
+      )
+    }
+
+    {
+      (post.image && (post.image.length === 3) &&
+        <View style={styles.imageContainer3}>
+          <View style={styles.imageContainerLeft3}>
+            <Image source={{uri: post.image[0].url}} resizeMode="cover" style={styles.imageDetail31}/>
+          </View>
+          <View style={styles.imageContainerRight3}>
+            <Image source={{uri: post.image[1].url}} resizeMode="cover" style={styles.imageDetail32}/>
+            <Image source={{uri: post.image[2].url}} resizeMode="cover" style={styles.imageDetail32}/>
+          </View>
+        </View>
+      )
+    }
+
+    {
+      (post.image && (post.image.length === 4) &&
+        <View style={styles.imageContainer4}>
+          <View style={styles.imageAboveSubContainer4}>
+            <Image source={{uri: post.image[0].url}} resizeMode="cover" style={styles.imageDetail4}/>
+            <Image source={{uri: post.image[1].url}} resizeMode="cover" style={styles.imageDetail4}/>
+          </View>
+          <View style={styles.imageUnderSubContainer4}>
+            <Image source={{uri: post.image[2].url}} resizeMode="cover" style={styles.imageDetail4}/>
+            <Image source={{uri: post.image[3].url}} resizeMode="cover" style={styles.imageDetail4}/>
+          </View>
+        </View>
+      )
+    }
 
   {/* Footer */}
   <View style={styles.footer}>
@@ -234,6 +268,83 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
+
+  imageContainer1: {
+    marginTop: 15,
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  imageDetail1: {
+    width: '100%',
+    height: 350,
+  },
+
+  imageContainer2: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  imageDetail2: {
+    width: '49%',
+    height: 350,
+  },
+
+  imageContainer3: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '100%',
+    height: 350,
+  },
+  imageContainerLeft3: {
+    marginTop: 15,
+    width: '49%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    height: '100%',
+  },
+  imageContainerRight3: {
+    marginTop: 15,
+    justifyContent: 'space-between',
+    width: '49%',
+    height: '100%',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  imageDetail31: {
+    width: '100%',
+    height: '100%',
+  },
+  imageDetail32: {
+    width: '100%',
+    height: '49%',
+  },
+
+  imageContainer4: {
+    display: 'flex',
+    marginTop: 15,
+    width: '100%',
+    height: 350,
+    flexDirection: 'row',
+  },
+  imageAboveSubContainer4: {
+    width: '50%',
+    height: 350,
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  imageUnderSubContainer4: {
+    width: '50%',
+    height: 350,
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  imageDetail4: {
+    width: '98%',
+    height: '49%',
+  }
 });
 
 export default Post;

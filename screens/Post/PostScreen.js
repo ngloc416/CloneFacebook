@@ -1,12 +1,25 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   ScrollView,
+  TouchableHighlight,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 import Post from '../../components/Post';
+import PostOption from '../../components/PostOption';
 
 export default function PostScreen({ navigation }) {
+  const [option, setOption] = useState(false);
+
+  const onPressOption = () => {
+    if (option) {
+      setOption(false);
+    } else {
+      setOption(true);
+    }
+  }
   const postList = [
     {
       author: {
@@ -44,6 +57,14 @@ export default function PostScreen({ navigation }) {
         id: "63b4d6871870e51c9354c506",
       },
       {
+        url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
+        id: "63b4d6871870e51c9354c506",
+      },
+      {
+        url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
+        id: "63b4d6871870e51c9354c506",
+      },
+      {
         url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
         id: "63b4d6871870e51c9354c506",
       }],
@@ -62,12 +83,19 @@ export default function PostScreen({ navigation }) {
   return (
     <View>
       <ScrollView>
-        {
-          postList.map((post, key) => (
-            <Post key={key} post={post}/>
-          ))
-        }
+          <View>
+          {
+            postList.map((post, key) => (
+              <Post key={key} post={post}/>
+            ))
+          }
+          </View>
       </ScrollView>
+      <TouchableHighlight onPress={onPressOption}>
+        <View>
+          { option && <PostOption />}
+        </View>
+      </TouchableHighlight>
     </View>
 
   );

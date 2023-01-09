@@ -4,7 +4,6 @@ import {
   AntDesign,
   Entypo,
   FontAwesome5,
-  MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { GREY_COLOR, BLACK_COLOR, BLUE_COLOR } from '../../constants/constants';
 import Avatar from "../../components/Avatar";
