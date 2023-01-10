@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,7 +9,7 @@ import {
   TouchableHighlight,
   Text,
   Dimensions,
-  BackHandler,
+  Keyboard,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -28,11 +28,19 @@ export default function FirstLoginScreen({ navigation }) {
   const [passFocus, setPassFocus] = useState(false);
   const [focus, setFocus] = useState(false);
 
-  BackHandler.addEventListener('hardwareBackPress', () => {
-    setFocus(false);
-    if (!focus) BackHandler.exitApp();
-    else return true;
-  });
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setFocus(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setFocus(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -45,7 +53,7 @@ export default function FirstLoginScreen({ navigation }) {
         />
       ) : (
         <Image
-          style={styles.LoginImage}
+          style={styles.loginImage}
           source={require('../../assets/Login/Login.jpg')}
         />
       )}
@@ -60,12 +68,6 @@ export default function FirstLoginScreen({ navigation }) {
             onFocus={() => {
               setAccountFocus(true);
               setPassFocus(false);
-              setFocus(true);
-            }}
-            onPressIn={() => {
-              setAccountFocus(true);
-              setPassFocus(false);
-              setFocus(true);
             }}
           />
 
@@ -80,12 +82,6 @@ export default function FirstLoginScreen({ navigation }) {
               onFocus={() => {
                 setAccountFocus(false);
                 setPassFocus(true);
-                setFocus(true);
-              }}
-              onPressIn={() => {
-                setAccountFocus(false);
-                setPassFocus(true);
-                setFocus(true);
               }}
               onChangeText={(text) => {
                 if (text != null && text != '') setShow(true);
@@ -112,28 +108,33 @@ export default function FirstLoginScreen({ navigation }) {
           </View>
 
           <TouchableHighlight
-            style={styles.SigninButton}
-            onPress={() => {}}
+            style={styles.signinButton}
+            onPress={() => {
+              navigation.navigate('MainTab');
+            }}
             underlayColor={TOUCH_BLUE_COLOR}
           >
             <Text style={styles.textSigninButton}>Đăng nhập</Text>
           </TouchableHighlight>
 
-          <View style={styles.seperate}>
-            <View style={styles.itemSeperate}></View>
-            <Text style={{ fontSize: 12, color: GREY_COLOR }}>HOẶC</Text>
-            <View style={styles.itemSeperate}></View>
-          </View>
-
-          <TouchableHighlight
-            style={styles.signupButton}
-            onPress={() => {}}
-            underlayColor={TOUCH_GREEN_COLOR}
-          >
-            <Text style={styles.textSignupButton}>
-              Tạo tài khoản Facebook mới
-            </Text>
-          </TouchableHighlight>
+          {!focus ? (
+            <View>
+              <View style={styles.separate}>
+                <View style={styles.itemSeparate}></View>
+                <Text style={{ fontSize: 12, color: GREY_COLOR }}>HOẶC</Text>
+                <View style={styles.itemSeparate}></View>
+              </View>
+              <TouchableHighlight
+                style={styles.signupButton}
+                onPress={() => {}}
+                underlayColor={TOUCH_GREEN_COLOR}
+              >
+                <Text style={styles.textSignupButton}>
+                  Tạo tài khoản Facebook mới
+                </Text>
+              </TouchableHighlight>
+            </View>
+          ) : null}
         </View>
       </View>
       <StatusBar style="light" />
@@ -142,16 +143,15 @@ export default function FirstLoginScreen({ navigation }) {
 }
 
 const SCREEN_WIDTH = Math.round(Dimensions.get('window').width);
-const SCREEN_HEIGHT = Math.round(Dimensions.get('window').height);
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: WHITE_COLOR,
     flex: 1,
     padding: 0,
   },
-  LoginImage: {
+  loginImage: {
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH / 1.74,
     resizeMode: 'contain',
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     top: 15,
     display: 'flex',
   },
-  SigninButton: {
+  signinButton: {
     marginVertical: 5,
     paddingVertical: 8,
     backgroundColor: BLUE_COLOR,
@@ -202,13 +202,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  seperate: {
+  separate: {
     paddingTop: 65,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  itemSeperate: {
+  itemSeparate: {
     backgroundColor: GREY_COLOR,
     height: 0.8,
     width: '42%',
