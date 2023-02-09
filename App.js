@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector, Provider } from "react-redux";
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -30,12 +31,13 @@ import PostCommentScreen from './screens/Post/PostCommentScreen';
 import AllFriend from './screens/Friend/AllFriend';
 import FriendScreen from './screens/Friend/FriendScreen';
 import SuggestFriend from './screens/Friend/SuggestFriend';
+import Notice from './components/Notice';
+import store from './redux/store';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
-
-export default function App() {
+const AppComponent = () => {
   const [isHomeFocused, setIsHomeFocused] = useState(false);
 
   const HomeTab = () => {
@@ -158,40 +160,52 @@ export default function App() {
       </Tab.Navigator>
     );
   };
+  const notice = useSelector(state => state.notice);
 
   return (
-    <View style={{ height: '100%' }}>
-      <View style={{ height: STATUSBAR_HEIGHT }}></View>
-      {isHomeFocused ? <Header></Header> : null}
+      <View style={{ height: '100%' }}>
+        {
+          (notice.show) ? <Notice type={notice.type} notice={notice.notice}/> : null
+        }
+        <View style={{ height: STATUSBAR_HEIGHT }}></View>
+        {isHomeFocused ? <Header></Header> : null}
 
-      <NavigationContainer>
-        <rootStack.Navigator screenOptions={{ headerShown: false }}>
-          <rootStack.Screen name="LoginScreen" component={LoginScreen} />
-          <rootStack.Screen
-            name="NextLoginScreen"
-            component={NextLoginScreen}
-          />
-          <rootStack.Screen
-            name="FirstLoginScreen"
-            component={FirstLoginScreen}
-          />
-          <rootStack.Screen name="MainTab" component={MainTab} />
-          <rootStack.Screen
-            name="PostDetailScreen"
-            component={PostDetailScreen}
-          />
-          <rootStack.Screen
-            name="PostImageScreen"
-            component={PostImageScreen}
-          />
-          <rootStack.Screen
-            name="PostCommentScreen"
-            component={PostCommentScreen}
-          />
-          <rootStack.Screen name="AllFriend" component={AllFriend} />
-          <rootStack.Screen name="SuggestFriend" component={SuggestFriend} />
-        </rootStack.Navigator>
-      </NavigationContainer>
-    </View>
+        <NavigationContainer>
+          <rootStack.Navigator screenOptions={{ headerShown: false }}>
+            <rootStack.Screen name="LoginScreen" component={LoginScreen} />
+            <rootStack.Screen
+              name="NextLoginScreen"
+              component={NextLoginScreen}
+            />
+            <rootStack.Screen
+              name="FirstLoginScreen"
+              component={FirstLoginScreen}
+            />
+            <rootStack.Screen name="MainTab" component={MainTab} />
+            <rootStack.Screen
+              name="PostDetailScreen"
+              component={PostDetailScreen}
+            />
+            <rootStack.Screen
+              name="PostImageScreen"
+              component={PostImageScreen}
+            />
+            <rootStack.Screen
+              name="PostCommentScreen"
+              component={PostCommentScreen}
+            />
+            <rootStack.Screen name="AllFriend" component={AllFriend} />
+            <rootStack.Screen name="SuggestFriend" component={SuggestFriend} />
+          </rootStack.Navigator>
+        </NavigationContainer>
+      </View>
   );
+}
+
+export default App = () => {
+  return(
+    <Provider store={store}>
+      <AppComponent />
+    </Provider>
+  )
 }
