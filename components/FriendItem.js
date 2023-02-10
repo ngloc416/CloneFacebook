@@ -15,7 +15,12 @@ import {
 
 export default function FriendItem(props) {
   return (
-    <TouchableHighlight underlayColor={LIGHT_GREY_COLOR} onPress={() => {}}>
+    <TouchableHighlight
+      underlayColor={LIGHT_GREY_COLOR}
+      onPress={() => {
+        props.navigation.navigate('ProfileScreen');
+      }}
+    >
       <View style={styles.container}>
         <Image source={{ uri: props.urlAvatar }} style={styles.image}></Image>
         <View style={styles.user}>
@@ -23,10 +28,10 @@ export default function FriendItem(props) {
           <Text style={{ color: GREY_COLOR }}>{props.mutual} bạn chung</Text>
           <View style={styles.areaButton}>
             <TouchableOpacity style={styles.buttonA}>
-              <Text style={styles.textA}>Chấp nhận</Text>
+              <Text style={styles.textA}>{props.firstLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.buttonB}>
-              <Text style={styles.textB}>Xóa</Text>
+              <Text style={styles.textB}>{props.secondLabel}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     height: 35,
-    width: 130,
+    width: 134,
     marginRight: 10,
   },
 
@@ -81,7 +86,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 8,
     height: 35,
-    width: 130,
+    width: 134,
   },
 
   textA: {

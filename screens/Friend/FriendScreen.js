@@ -1,4 +1,4 @@
-import FriendItem from '../../components/FriendItem';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,14 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
+import FriendItem from '../../components/FriendItem';
 
-import { FontAwesome5 } from '@expo/vector-icons';
-import React from 'react';
-
-function FriendScreen(navigation) {
-  const messengers = [
+function FriendScreen({ navigation }) {
+  const friends = [
     {
       id: 1,
       fullname: 'Vũ Hoàng Long',
@@ -86,7 +85,7 @@ function FriendScreen(navigation) {
   ];
 
   const listFriend = () => {
-    return messengers.map((element) => {
+    return friends.map((element) => {
       return (
         <View key={element.id}>
           <View>
@@ -94,6 +93,9 @@ function FriendScreen(navigation) {
               urlAvatar={element.avatar}
               mutual={element.mutual}
               name={element.fullname}
+              firstLabel="Chấp nhận"
+              secondLabel="Xóa"
+              navigation={navigation}
             ></FriendItem>
           </View>
         </View>
@@ -103,18 +105,35 @@ function FriendScreen(navigation) {
 
   return (
     <View>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.textHeader}>Bạn bè</Text>
-          <TouchableOpacity style={styles.buttonSearch}>
+          <TouchableOpacity
+            style={styles.buttonSearch}
+            onPress={() => navigation.navigate('SearchScreen')}
+          >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>
         </View>
         <View style={styles.buttonHeader}>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate('SuggestFriend');
+            }}
+          >
             <Text style={styles.textButton}>Gợi ý</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              navigation.navigate('AllFriend');
+            }}
+          >
             <Text style={styles.textButton}>Tất cả bạn bè</Text>
           </TouchableOpacity>
         </View>
@@ -128,13 +147,9 @@ function FriendScreen(navigation) {
         ></View>
         <View style={styles.invite}>
           <Text style={styles.textInvite}>Lời mời kết bạn</Text>
-          <Text style={styles.countFriends}>{messengers.length}</Text>
+          <Text style={styles.countFriends}>{friends.length}</Text>
         </View>
-        <View style={styles.lstFriend}>
-          <ScrollView showsHorizontalScrollIndicator={false}>
-            {listFriend()}
-          </ScrollView>
-        </View>
+        <View style={styles.listFriend}>{listFriend()}</View>
         <View style={{ height: 20 }}></View>
       </ScrollView>
     </View>
@@ -158,11 +173,6 @@ const styles = StyleSheet.create({
   textHeader: {
     fontSize: 25,
     fontWeight: 'bold',
-  },
-
-  buttonSearch: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 
   buttonHeader: {
@@ -192,7 +202,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  lstFriend: {
+  listFriend: {
     paddingTop: 15,
   },
 

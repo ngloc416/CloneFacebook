@@ -240,7 +240,7 @@ export default function PostDetailScreen({ navigation }) {
 
       {post.image &&
         post.image.map((image, key) => (
-          <View>
+          <View key={key}>
             <View style={styles.seperatorLine}></View>
             <Image
               source={{ uri: image.url }}
@@ -248,6 +248,21 @@ export default function PostDetailScreen({ navigation }) {
               resizeMode="cover"
               key={key}
             />
+            <View style={styles.bottomFooter}>
+              <TouchableHighlight>
+                <View style={styles.groupItemFooter}>
+                  <EvilIcons name="like" size={30} color="#6b6d6e" />
+
+                  <Text style={styles.textIconFooter}>Thích</Text>
+                </View>
+              </TouchableHighlight>
+              <TouchableHighlight>
+                <View style={styles.groupItemFooter}>
+                  <EvilIcons name="comment" size={30} color="#6b6d6e" />
+                  <Text style={styles.textIconFooter}>Bình luận</Text>
+                </View>
+              </TouchableHighlight>
+            </View>
           </View>
         ))}
       <View style={styles.seperatorLine}></View>
@@ -291,7 +306,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 350,
   },
   seperatorLine: {
     width: '100%',

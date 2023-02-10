@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
 import Item from './Item';
 
 import PostTool from './PostTool';
@@ -186,8 +185,13 @@ export default function HomeScreen({ navigation }) {
   if (posts.length === 0) return <View></View>;
   return (
     <View>
-      <ScrollView bounces={false} style={{ backgroundColor: '#cacad2' }}>
-        <PostTool></PostTool>
+      <ScrollView
+        bounces={false}
+        style={{ backgroundColor: '#cacad2' }}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+      >
+        <PostTool navigation={navigation}></PostTool>
         <View>
           {posts.map((item, index) => (
             <View key={index}>

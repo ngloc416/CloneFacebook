@@ -14,14 +14,21 @@ export default function PostTool({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.postToolWrapper}>
-        <TouchableOpacity activeOpacity={0.5} onPress={() => {}}>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          onPress={() => {
+            navigation.navigate('ProfileScreen');
+          }}
+        >
           <Image
             source={require('../../assets/Login/Avatar.jpg')}
             style={styles.userAvatar}
           ></Image>
         </TouchableOpacity>
         <TouchableHighlight
-          onPress={() => {}}
+          onPress={() => {
+            navigation.navigate('AddPostScreen');
+          }}
           style={styles.postInputWrapper}
           underlayColor={LIGHT_GREY_COLOR}
         >

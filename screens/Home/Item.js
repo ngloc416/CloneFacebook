@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   TouchableHighlight,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
@@ -60,7 +61,12 @@ export default function Item({ navigation, item }) {
           }}
         >
           <View style={styles.customListView}>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => {}}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => {
+                navigation.navigate('ProfileScreen');
+              }}
+            >
               <Image
                 style={styles.avatar}
                 source={{ uri: item.author.avatar }}
@@ -70,7 +76,9 @@ export default function Item({ navigation, item }) {
               <View style={styles.namesWrapper}>
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
-                  onPress={() => {}}
+                  onPress={() => {
+                    navigation.navigate('ProfileScreen');
+                  }}
                 >
                   <Text style={{ fontSize: 16, fontWeight: '700' }}>
                     {item.author.userName}
@@ -153,7 +161,7 @@ export default function Item({ navigation, item }) {
       </TouchableHighlight>
 
       {item.image && item.image.length === 1 && (
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           style={styles.imageContainer1}
           onPress={() => {
             navigation.navigate('PostImageScreen');
@@ -164,7 +172,7 @@ export default function Item({ navigation, item }) {
             resizeMode="cover"
             style={styles.imageDetail1}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       )}
 
       {item.image && item.image.length === 2 && (
