@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { useSelector, Provider } from "react-redux";
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -31,6 +32,8 @@ import PostCommentScreen from './screens/Post/PostCommentScreen';
 import AllFriend from './screens/Friend/AllFriend';
 import FriendScreen from './screens/Friend/FriendScreen';
 import SuggestFriend from './screens/Friend/SuggestFriend';
+import Notice from './components/Notice';
+import store from './redux/store';
 
 import SearchScreen from './screens/Search/SearchScreen';
 import SearchHistory from './screens/Search/SearchHistory';
@@ -48,7 +51,7 @@ const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
 
-export default function App() {
+const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(true);
 
   const HomeTab = () => {
@@ -177,6 +180,7 @@ export default function App() {
       </>
     );
   };
+  const notice = useSelector(state => state.notice);
 
   return (
     <View
@@ -185,6 +189,9 @@ export default function App() {
         paddingTop: STATUSBAR_HEIGHT,
       }}
     >
+      {
+          (notice.show) ? <Notice type={notice.type} notice={notice.notice}/> : null
+        }
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
           {!isSignIn ? (
@@ -243,5 +250,13 @@ export default function App() {
 
       <StatusBar style="dark" />
     </View>
-  );
+ );
+}
+
+export default App = () => {
+  return(
+    <Provider store={store}>
+      <AppComponent />
+    </Provider>
+  )
 }
