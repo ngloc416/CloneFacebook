@@ -95,7 +95,7 @@ const PostImageScreen = ({ navigation, route }) => {
                       </Text>
                     )
                   ) : (
-                    <Text style={styles.description}>
+                    <Text style={styles.content}>
                       {postDetail.described}
                     </Text>
                   )
