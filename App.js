@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { useSelector, Provider } from "react-redux";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -52,7 +53,7 @@ const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
 
 const AppComponent = () => {
-  const [isSignIn, setIsSignIn] = useState(true);
+  const [isSignIn, setIsSignIn] = useState(false);
 
   const HomeTab = () => {
     return (
@@ -181,6 +182,7 @@ const AppComponent = () => {
     );
   };
   const notice = useSelector(state => state.notice);
+  const token = AsyncStorage.getItem('token');
 
   return (
     <View
@@ -194,7 +196,7 @@ const AppComponent = () => {
         }
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
-          {!isSignIn ? (
+          {!token ? (
             <>
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
               <rootStack.Screen

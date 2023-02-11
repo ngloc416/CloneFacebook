@@ -15,43 +15,13 @@ import { Entypo, AntDesign, EvilIcons } from '@expo/vector-icons';
 
 import { GREY_COLOR, BLUE_COLOR } from '../../constants/constants';
 
-const PostImageScreen = ({ navigation }) => {
+const PostImageScreen = ({ navigation, route }) => {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
+  const postDetail = route.params.postDetail;
+  const index = route.params.index;
 
   const expandDescribed = () => {
     setShortcutDescribed(!shortcutDescribed);
-  };
-
-  const postDetail = {
-    author: {
-      id: '63b4d6871870e51c9354c506',
-      userName: 'Abc',
-      avatar:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-    },
-    described:
-      'There are some common things that people do during this occasion but I think the most popular activity is that people decorate their houses with different ' +
-      'decorations such as Christmas Tree, Fairy Lights, Snowman and Wreaths. In addition, many well-known places in big cities are immersed in exciting and colorful tinsels ' +
-      'and cheerful melodies of Christmas songs. Another popular activity is that Vietnamese people are keen on gathering for sharing big meals with their families and exchanging gifts. ',
-    image: [
-      {
-        url: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191101/Facebook/Post/img2_vjqtfl.jpg',
-        id: '63b4d6871870e51c9354c506',
-      },
-      {
-        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-        id: '63b4d6871870e51c9354c506',
-      },
-    ],
-    video: null,
-    created: '1667879990',
-    like: '15',
-    comment: '33',
-    is_liked: '1',
-    is_blocked: '0',
-    can_comment: '1',
-    can_edit: '0',
-    state: 'hạnh phúc',
   };
 
   const time = Date.now() / 1000 - parseInt(postDetail.created);
@@ -64,7 +34,7 @@ const PostImageScreen = ({ navigation }) => {
             <Image
               style={styles.image}
               resizeMode="contain"
-              source={{ uri: postDetail.image[0].url }}
+              source={{ uri: postDetail.image[index].url }}
             ></Image>
           </View>
           <View style={styles.optionIconWrapper}>
@@ -105,7 +75,7 @@ const PostImageScreen = ({ navigation }) => {
           <View style={styles.postContentWrapper}>
             <View>
               <View>
-                <Text style={styles.name}>{postDetail.author.userName}</Text>
+                <Text style={styles.name}>{postDetail.author.username}</Text>
               </View>
               <TouchableOpacity onPress={expandDescribed}>
                 {postDetail.described ? (
