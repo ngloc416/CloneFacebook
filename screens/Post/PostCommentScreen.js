@@ -1,4 +1,6 @@
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   Animated,
   View,
@@ -12,59 +14,45 @@ import {
 } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 import Comment from '../../components/Comment';
+import { setComment, getComment } from '../../services/comment.service';
 
-const PostCommentScreen = () => {
-  const comments = [
-    {
-      id: '63bc1891008c6e79573d08d1',
-      comment: 'Happy happy Happy',
-      created: '1673271441',
-      poster: {
-        id: '63b4d6871870e51c9354c506',
-        name: 'Hoang',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      is_blocked: '0',
-    },
-    {
-      id: '63bc1891008c6e79573d08d1',
-      comment: 'Happy happy Happy',
-      created: '1673271441',
-      poster: {
-        id: '63b4d6871870e51c9354c506',
-        name: 'Hoang',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      is_blocked: '0',
-    },
-    {
-      id: '63bc1891008c6e79573d08d1',
-      comment: 'Happy happy Happy',
-      created: '1673271441',
-      poster: {
-        id: '63b4d6871870e51c9354c506',
-        name: 'Hoang',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      is_blocked: '0',
-    },
-    {
-      id: '63bc1891008c6e79573d08d1',
-      comment: 'Happy happy Happy',
-      created: '1673271441',
-      poster: {
-        id: '63b4d6871870e51c9354c506',
-        name: 'Hoang',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      is_blocked: '0',
-    },
-  ];
+const PostCommentScreen = ({navigation, route}) => {
+  const [index, setIndex] = useState(0);
+  const [count, setCount] = useState(20);
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState([]);
+  const [noComment, setNoComment] = useState(false);
+
+  const postId = route.params.postId;
+  useEffect(() => {
+    const fetchComment = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const response = await getComment({ token, postId, index, count});
+      if (response.code === '1000') {
+        setNoComment(false);
+        setComments(response.data);
+      }
+      if (response.code === '9994' && response.message === 'No data or end of list data') {
+        setNoComment(true);
+      }
+    }
+    fetchComment();
+  }, [])
+
+  const acceptAddComment = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await setComment({postId, token, commentText, index, count});
+    if (response.code === '1000') {
+      setNoComment(false);
+      setCommentText('');
+      setComments(response.data);
+    } else {
+      dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    }
+  }
 
   return (
     <View>
@@ -77,7 +65,7 @@ const PostCommentScreen = () => {
         <Animated.View style={styles.wrapper}>
           <View style={styles.navigationStackBar}>
             <TouchableOpacity style={styles.btnBack}>
-              <FontAwesome5Icon name="arrow-left" size={24}></FontAwesome5Icon>
+              <FontAwesome5Icon name="arrow-left" size={24} onPress={() => navigation.goBack()}></FontAwesome5Icon>
             </TouchableOpacity>
             <View style={styles.stackBarTitle}>
               <Text style={{ fontSize: 16 }}>Bình luận</Text>
@@ -88,18 +76,30 @@ const PostCommentScreen = () => {
             scrollEventThrottle={40}
             style={styles.container}
           >
-            {comments.map((comment, index) => (
-              <Comment key={index} comment={comment}>
-                Detail
-              </Comment>
-            ))}
+            {
+              noComment ? 
+              <View>
+                <FontAwesome5Icon name='comment-alt' size={20} styles={{color: '#F5F5F5'}}></FontAwesome5Icon>
+                <Text>Chưa có bình luận nào</Text>
+                <Text>Hãy là người đầu tiên bình luận</Text>
+              </View>
+              : null
+            }
+            {comments.map((comment, index) =>
+              (
+                <Comment key={index} comment={comment}>
+                  Detail
+                </Comment>
+              ))
+            }
           </ScrollView>
           <View style={styles.commentInputWrapper}>
             <TouchableOpacity style={styles.cameraIconWrapper}>
               <FontAwesome5Icon name="camera" size={20}></FontAwesome5Icon>
             </TouchableOpacity>
             <View style={styles.textInputWrapper}>
-              <TextInput autoFocus={true} style={styles.textInput}></TextInput>
+              <TextInput autoFocus={true} style={styles.textInput} value={commentText}
+              onChangeText={(text) => setCommentText(text)}></TextInput>
             </View>
             <View style={styles.iconWrapper}>
               <TouchableOpacity style={styles.iconItem}>
@@ -110,6 +110,9 @@ const PostCommentScreen = () => {
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconItem}>
                 <FontAwesome5Icon name="grin-wink" size={20}></FontAwesome5Icon>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconItem} onPress={acceptAddComment}>
+                <FontAwesome5Icon name="paper-plane" size={20}></FontAwesome5Icon>
               </TouchableOpacity>
             </View>
           </View>

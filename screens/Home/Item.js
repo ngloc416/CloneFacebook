@@ -310,7 +310,7 @@ export default function Item({ navigation, item }) {
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
             onPress={() => {
-              navigation.navigate('PostCommentScreen');
+              navigation.navigate('PostCommentScreen', {postId: item.id});
             }}
           >
             <View style={styles.groupItemFooter}>
