@@ -75,7 +75,7 @@ const PostImageScreen = ({ navigation, route }) => {
           <View style={styles.postContentWrapper}>
             <View>
               <View>
-                <Text style={styles.name}>{postDetail.author.username}</Text>
+                <Text style={styles.name}>{postDetail.author.username || postDetail.author.name}</Text>
               </View>
               <TouchableOpacity onPress={expandDescribed}>
                 {postDetail.described ? (

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -19,9 +19,24 @@ import {
   LIGHT_BLUE_COLOR,
   LIGHT_GREY_COLOR,
 } from '../../constants/constants.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const fetchUser = async () => {
+  const userSaved = await AsyncStorage.getItem('user');
+  return JSON.parse(userSaved);
+}
 
 export default function FirstLoginScreen({ navigation }) {
   const [showOption, setShowOption] = useState(false);
+  const [user, setUser] = useState(fetchUser());
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userSaved = await AsyncStorage.getItem('user');
+      setUser(JSON.parse(userSaved));
+    }
+    fetchUser();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -42,10 +57,10 @@ export default function FirstLoginScreen({ navigation }) {
           <View style={styles.account}>
             <Image
               style={styles.avatar}
-              source={require('../../assets/Login/Avatar.jpg')}
+              source={{uri: user.avatar}}
             />
 
-            <Text style={styles.username}>Nguyễn Đình Lộc</Text>
+            <Text style={styles.username}>{user.username}</Text>
           </View>
         </TouchableHighlight>
 
