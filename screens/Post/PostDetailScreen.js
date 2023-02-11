@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableHighlight,
   Dimensions,
+  TouchableWithoutFeedback,
 } from 'react-native';
 
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
@@ -19,39 +20,10 @@ import {
   LIGHT_GREY_COLOR,
 } from '../../constants/constants';
 
-export default function PostDetailScreen({ navigation }) {
-  const post = {
-    author: {
-      id: '63b4d6871870e51c9354c506',
-      userName: 'Abc',
-      avatar:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-    },
-    described: 'Merry Christmas',
-    image: [
-      {
-        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-        id: '63b4d6871870e51c9354c506',
-      },
-      {
-        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-        id: '63b4d6871870e51c9354c506',
-      },
-      {
-        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-        id: '63b4d6871870e51c9354c506',
-      },
-    ],
-    video: null,
-    created: '1667879990',
-    like: '15',
-    comment: '33',
-    is_liked: '1',
-    is_blocked: '0',
-    can_comment: '1',
-    can_edit: '0',
-    state: 'hạnh phúc',
-  };
+import { likePost } from '../../services/like.service';
+
+export default function PostDetailScreen({ navigation, route }) {
+  const post = route.params.post;
 
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(post.is_liked);
@@ -64,7 +36,7 @@ export default function PostDetailScreen({ navigation }) {
     setShortcutDescribed(!shortcutDescribed);
   };
 
-  const onPressLike = () => {
+  const onPressLike = async () => {
     if (liked === '0') {
       setLiked('1');
       setNumberOfLike(numberOfLike + 1);
@@ -72,6 +44,8 @@ export default function PostDetailScreen({ navigation }) {
       setLiked('0');
       setNumberOfLike(numberOfLike - 1);
     }
+    const token = await AsyncStorage.getItem('token');
+    await likePost({postId: post.id, token});
   };
 
   const onPressPostOption = () => {
@@ -104,7 +78,7 @@ export default function PostDetailScreen({ navigation }) {
                 onPress={() => {}}
               >
                 <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                  {post.author.userName}
+                  {post.author.username || post.author.name}
                 </Text>
               </TouchableHighlight>
             </View>
@@ -240,6 +214,9 @@ export default function PostDetailScreen({ navigation }) {
 
       {post.image &&
         post.image.map((image, key) => (
+          <TouchableWithoutFeedback
+            onPress={() => navigation.navigate('PostImageScreen', { postDetail: post, index: key})}
+          >
           <View key={key}>
             <View style={styles.seperatorLine}></View>
             <Image
@@ -264,6 +241,7 @@ export default function PostDetailScreen({ navigation }) {
               </TouchableHighlight>
             </View>
           </View>
+          </TouchableWithoutFeedback>
         ))}
       <View style={styles.seperatorLine}></View>
     </ScrollView>
