@@ -1,4 +1,5 @@
 import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -15,7 +16,20 @@ import {
 } from '@expo/vector-icons';
 import { GREY_COLOR } from '../../constants/constants';
 
+import { logout } from '../../services/auth.service';
+
 export default function SettingScreen({ navigation }) {
+  const acceptLogout = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await logout(token);
+    if (response.code === '1000') {
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('LoginScreen');
+    } else {
+
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView bounces={false}>
@@ -77,7 +91,7 @@ export default function SettingScreen({ navigation }) {
             <Text style={styles.setting}>Cài đặt và quyền riêng tư</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnOption} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.btnOption} activeOpacity={0.8} onPress={() => acceptLogout()}>
           <MaterialCommunityIcons name="logout" size={30} color={GREY_COLOR} />
           <View>
             <Text style={styles.setting}>Đăng xuất </Text>

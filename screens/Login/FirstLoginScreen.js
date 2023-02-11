@@ -56,7 +56,7 @@ export default function FirstLoginScreen({ navigation }) {
     if (response.code === '1000') {
       await AsyncStorage.setItem('token', response.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(response.data));
-      navigation.navigate('HomeScreen');
+      navigation.navigate('MainTab');
     } else {
       dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
       setTimeout(() => dispatch(closeNotice()), 2000);

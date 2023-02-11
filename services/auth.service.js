@@ -5,6 +5,12 @@ const login = ({phone, password}) => {
   return axiosClient.post(url, {});
 }
 
+const logout = (token) => {
+  const url = `/auth/logout?token=${token}`;
+  return axiosClient.post(url, {});
+}
+
 export {
   login,
+  logout,
 }

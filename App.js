@@ -51,9 +51,19 @@ import NotificationScreen from './screens/Notification/NotificationScreen';
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
-
 const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const tokenValue = await AsyncStorage.getItem('token');
+      if (tokenValue) {
+        setToken(tokenValue);
+      }
+    }
+    fetchToken();
+  }, [token]);
 
   const HomeTab = () => {
     return (
@@ -182,7 +192,6 @@ const AppComponent = () => {
     );
   };
   const notice = useSelector(state => state.notice);
-  const token = AsyncStorage.getItem('token');
 
   return (
     <View
@@ -196,6 +205,7 @@ const AppComponent = () => {
         }
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
+          <>
           {!token ? (
             <>
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
@@ -207,10 +217,23 @@ const AppComponent = () => {
                 name="FirstLoginScreen"
                 component={FirstLoginScreen}
               />
+              <rootStack.Screen name="MainTab" component={MainTab} />
             </>
           ) : (
             <>
-              <rootStack.Screen name="MainTab" component={MainTab} />
+            <rootStack.Screen name="MainTab" component={MainTab} />
+            <rootStack.Screen name="LoginScreen" component={LoginScreen} />
+              <rootStack.Screen
+                name="NextLoginScreen"
+                component={NextLoginScreen}
+              />
+              <rootStack.Screen
+                name="FirstLoginScreen"
+                component={FirstLoginScreen}
+              />
+            </>
+          )}
+            <>
               <rootStack.Screen
                 name="PostDetailScreen"
                 component={PostDetailScreen}
@@ -246,7 +269,7 @@ const AppComponent = () => {
                 component={AddPostScreen}
               />
             </>
-          )}
+        </>
         </rootStack.Navigator>
       </NavigationContainer>
 
