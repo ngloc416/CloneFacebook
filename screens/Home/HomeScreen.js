@@ -12,15 +12,24 @@ export default function HomeScreen({ navigation }) {
   const [index, setIndex] = useState(0);
   useEffect(() => {
     async function fetchPostList () {
-      const postList = await AsyncStorage.getItem('post_list');
-      if (postList) {
-        setPosts(JSON.parse(postList));
-      } else {
-        const response = await getListPost({ last_id: lastId, index, count: 20});
-        if (response.code === '1000') {
-          setPosts(response.data.posts);
-          setTimeout(async () => await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts)), 100);
-        }
+      // let response;
+      // const postList = await AsyncStorage.getItem('post_list');
+      // if (postList) {
+      //   setPosts(JSON.parse(postList));
+      //   response = await getListPost({ last_id: lastId, index, count: 20});
+      //   await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts));
+      // } else {
+      //   if (response.code === '1000') {
+      //     response = await getListPost({ last_id: lastId, index, count: 20});
+      //     setPosts(response.data.posts);
+      //     setTimeout(async () => await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts)), 100);
+      //   }
+      // }
+
+      const token = await AsyncStorage.getItem('token');
+      const response = await getListPost({ last_id: lastId, index, count: 20, token});
+      if (response.code === '1000') {
+        setPosts(response.data.posts);
       }
     }
     fetchPostList();

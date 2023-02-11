@@ -11,10 +11,6 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(async (config) => {
-  const currentToken = AsyncStorage.token;
-  if (currentToken) {
-    config.query.token = currentToken;
-  }
   return config;
 })
 axiosClient.interceptors.response.use((response) => {
@@ -23,6 +19,7 @@ axiosClient.interceptors.response.use((response) => {
   }
   return response;
   }, (error) => {
+    console.log(error);
     return error.response.data;
 });
 export default axiosClient;

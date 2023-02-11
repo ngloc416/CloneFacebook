@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -17,6 +18,7 @@ import {
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import { likePost } from '../../services/like.service';
 
 export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
@@ -30,7 +32,8 @@ export default function Item({ navigation, item }) {
     setShortcutDescribed(!shortcutDescribed);
   };
 
-  const onPressLike = () => {
+  const onPressLike = async (postId) => {
+    console.log(item)
     if (liked === '0') {
       setLiked('1');
       setNumberOfLike(numberOfLike + 1);
@@ -38,6 +41,8 @@ export default function Item({ navigation, item }) {
       setLiked('0');
       setNumberOfLike(numberOfLike - 1);
     }
+    const token = await AsyncStorage.getItem('token');
+    await likePost({postId, token});
   };
 
   const onPressPostOption = () => {
@@ -287,7 +292,7 @@ export default function Item({ navigation, item }) {
         <View style={styles.bottomFooter}>
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
-            onPress={onPressLike}
+            onPress={() => onPressLike(item.id)}
           >
             <View style={styles.groupItemFooter}>
               {liked === '0' ? (
