@@ -81,7 +81,7 @@ export default function Item({ navigation, item }) {
                   }}
                 >
                   <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                    {item.author.userName}
+                    {item.author.username}
                   </Text>
                 </TouchableHighlight>
               </View>
@@ -164,7 +164,7 @@ export default function Item({ navigation, item }) {
         <TouchableWithoutFeedback
           style={styles.imageContainer1}
           onPress={() => {
-            navigation.navigate('PostImageScreen');
+            navigation.navigate('PostImageScreen', { postDetail: item, index: 0});
           }}
         >
           <Image
@@ -176,18 +176,33 @@ export default function Item({ navigation, item }) {
       )}
 
       {item.image && item.image.length === 2 && (
-        <View style={styles.imageContainer2}>
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail2}
-          />
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail2}
-          />
-        </View>
+          <View style={styles.imageContainer2}>
+            <TouchableWithoutFeedback
+              style={styles.imageContainer1}
+              onPress={() => {
+                navigation.navigate('PostImageScreen', { postDetail: item, index: 0});
+              }}
+            >
+            <Image
+              source={{ uri: item.image[0].url }}
+              resizeMode="cover"
+              style={styles.imageDetail2}
+            />
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              style={styles.imageContainer1}
+              onPress={() => {
+                navigation.navigate('PostImageScreen', { postDetail: item, index: 1});
+              }}
+            >
+            <Image
+              source={{ uri: item.image[0].url }}
+              resizeMode="cover"
+              style={styles.imageDetail2}
+            />
+            </TouchableWithoutFeedback>
+          </View>
+
       )}
 
       {item.image && item.image.length === 3 && (
