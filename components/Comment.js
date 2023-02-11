@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
       marginRight: 10
   },
   centerContainer: {
-      width: screenWidth * 0.7
-
+      width: screenWidth * 0.7,
+      marginLeft: 10,
   },
   contentContainer: {
       marginBottom: 5,
