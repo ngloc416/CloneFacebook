@@ -1,4 +1,5 @@
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   StyleSheet,
@@ -11,6 +12,15 @@ import {
 import { WHITE_COLOR, LIGHT_GREY_COLOR } from '../../constants/constants.js';
 
 export default function PostTool({ navigation }) {
+
+  const [currentUser, setCurrentUser] = useState({});
+  useEffect(() => {
+    async function fetchCurrentUser () {
+      const user = await AsyncStorage.getItem('user');
+      setCurrentUser(JSON.parse(user));
+    }
+    fetchCurrentUser();
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.postToolWrapper}>
@@ -21,7 +31,7 @@ export default function PostTool({ navigation }) {
           }}
         >
           <Image
-            source={require('../../assets/Login/Avatar.jpg')}
+            source={{uri: currentUser.avatar}}
             style={styles.userAvatar}
           ></Image>
         </TouchableOpacity>
