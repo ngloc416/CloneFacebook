@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   Text,
@@ -10,8 +11,29 @@ import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/FriendItem';
+import { getRequestFriendList } from '../../services/friend.service'
 
 function FriendScreen({ navigation }) {
+  const [requestedFriends, setRequestedFriends] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [noRequest, setNoRequest] = useState(false);
+
+  useEffect(() => {
+    const fetchRequestedFriends = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const response = await getRequestFriendList({ token, index, count: 20 });
+      if (response.code === '1000') {
+        setRequestedFriends(response.data.request);
+        setTotal(response.data.total);
+      }
+      if (response.code === '9994') {
+        setNoRequest(true);
+      }
+    }
+    fetchRequestedFriends();
+  }, [])
+
   const friends = [
     {
       id: 1,
@@ -85,14 +107,14 @@ function FriendScreen({ navigation }) {
   ];
 
   const listFriend = () => {
-    return friends.map((element) => {
+    return requestedFriends.map((element) => {
       return (
         <View key={element.id}>
           <View>
             <FriendItem
               urlAvatar={element.avatar}
-              mutual={element.mutual}
-              name={element.fullname}
+              mutual={element.same_friends}
+              name={element.username}
               firstLabel="Chấp nhận"
               secondLabel="Xóa"
               navigation={navigation}
@@ -147,9 +169,15 @@ function FriendScreen({ navigation }) {
         ></View>
         <View style={styles.invite}>
           <Text style={styles.textInvite}>Lời mời kết bạn</Text>
-          <Text style={styles.countFriends}>{friends.length}</Text>
+          <Text style={styles.countFriends}>{total}</Text>
         </View>
-        <View style={styles.listFriend}>{listFriend()}</View>
+        <View style={styles.listFriend}>
+          {
+            (!noRequest) ?
+            listFriend()
+            : <Text>Tạm thời không có lời mòi kết bạn</Text>
+          }
+        </View>
         <View style={{ height: 20 }}></View>
       </ScrollView>
     </View>
