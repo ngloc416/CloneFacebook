@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, ScrollView } from 'react-native';
 import Item from './Item';
 
@@ -11,9 +12,15 @@ export default function HomeScreen({ navigation }) {
   const [index, setIndex] = useState(0);
   useEffect(() => {
     async function fetchPostList () {
-      const response = await getListPost({ last_id: lastId, index, count: 20});
-      if (response.code === '1000') {
-        setPosts(response.data.posts);
+      const postList = await AsyncStorage.getItem('post_list');
+      if (postList) {
+        setPosts(JSON.parse(postList));
+      } else {
+        const response = await getListPost({ last_id: lastId, index, count: 20});
+        if (response.code === '1000') {
+          setPosts(response.data.posts);
+          setTimeout(async () => await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts)), 100);
+        }
       }
     }
     fetchPostList();
