@@ -31,7 +31,7 @@ import {
 import state from '../../constants/state';
 import { likePost } from '../../services/like.service';
 import { getPostById } from '../../services/post.service';
-import { authMsg } from '../../constants/message';
+import { authMsg, networkErrorMsg } from '../../constants/message';
 
 export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
@@ -74,6 +74,9 @@ export default function Item({ navigation, item }) {
       await AsyncStorage.removeItem('token');
       navigation.navigate('LoginScreen');
       dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    } else if (response.code === 'ERR_NETWORK') {
+      dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
       setTimeout(() => dispatch(closeNotice()), 2000);
     }
   }
@@ -121,11 +124,14 @@ export default function Item({ navigation, item }) {
                       fontWeight: '700',
                     }}
                   >
-                    {item.author.userName}{' '}
-                    <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
-                      đang {state.icon[state.state.indexOf(item.state)]} cảm
-                      thấy {item.state}.
-                    </Text>
+                    {item.author.username}{' '}
+                    {
+                      (item.state) ? 
+                      <Text style={{ fontSize: 12, fontWeight: 'normal', color:'#8a898b' }}>
+                        đang cảm
+                        thấy {item.state} {state.icon[state.state.indexOf(item.state)]}.
+                      </Text>: null
+                    }
                   </Text>
                 </TouchableHighlight>
               </View>

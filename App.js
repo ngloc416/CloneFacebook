@@ -213,7 +213,14 @@ const AppComponent = () => {
           {!token ? (
             <>
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
-              <rootStack.Screen
+              <rootStack.Screen name="MainTab" component={MainTab} />
+            </>
+          ) :
+            <>
+              <rootStack.Screen name="MainTab" component={MainTab} />
+              <rootStack.Screen name="LoginScreen" component={LoginScreen} />
+            </>}
+          <rootStack.Screen
                 name="NextLoginScreen"
                 component={NextLoginScreen}
               />
@@ -225,9 +232,6 @@ const AppComponent = () => {
               <rootStack.Screen name="BeginSignup" component={BeginSignUp} />
               <rootStack.Screen name="SignupScreen" component={SignupScreen} />
               <rootStack.Screen name="CheckVerify" component={CheckVerify} />
-            </>
-          ) : null}
-          <rootStack.Screen name="MainTab" component={MainTab} />
           <rootStack.Screen
             name="PostDetailScreen"
             component={PostDetailScreen}

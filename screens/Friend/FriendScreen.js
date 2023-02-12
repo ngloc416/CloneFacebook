@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import {
   StyleSheet,
   Text,
@@ -11,14 +12,17 @@ import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/FriendItem';
-import { getRequestFriendList } from '../../services/friend.service'
+import { getRequestFriendList } from '../../services/friend.service';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { authMsg, networkErrorMsg } from '../../constants/message';
 
 function FriendScreen({ navigation }) {
   const [requestedFriends, setRequestedFriends] = useState([]);
   const [total, setTotal] = useState(0);
   const [index, setIndex] = useState(0);
   const [noRequest, setNoRequest] = useState(false);
-  const [reloadList, setReloadList] = useState(false)
+  const [reloadList, setReloadList] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchRequestedFriends = async () => {
@@ -32,6 +36,15 @@ function FriendScreen({ navigation }) {
         setNoRequest(true);
         setTotal(0);
       }
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
     }
     fetchRequestedFriends();
   }, [reloadList])
@@ -43,78 +56,6 @@ function FriendScreen({ navigation }) {
       setReloadList(true);
     }
   }
-
-  const friends = [
-    {
-      id: 1,
-      fullname: 'Vũ Hoàng Long',
-      name: 'Long',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
-
-    {
-      id: 2,
-      fullname: 'Nguyễn Đức Thắng',
-      name: 'Thắng',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
-
-    {
-      id: 4,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 5,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 6,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 7,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 8,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 9,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-  ];
 
   const listFriend = () => {
     return requestedFriends.map((element) => {
