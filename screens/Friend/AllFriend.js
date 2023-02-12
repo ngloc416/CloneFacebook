@@ -5,14 +5,42 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR, BLUE_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/AllFriendItem';
+import { getUserListFriend } from '../../services/friend.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { authMsg } from '../../constants/message';
 
 function AllFriend({ navigation }) {
+  const [friendList, setFriendList] = useState([]);
+  const [total, setTotal] = useState(0);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const userData = await AsyncStorage.getItem('user');
+      const user = JSON.parse(userData);
+      const response = await getUserListFriend({ token, userId: user.id, index: 0, count: 20});
+      if (response.code === '1000') {
+        setFriendList(response.data.friends);
+        setTotal(response.data.total);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+    fetchFriendList();
+  }, [])
   const allFriends = [
     {
       id: 1,
@@ -137,23 +165,30 @@ function AllFriend({ navigation }) {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.subHeader}>
-              <Text style={styles.textCount}>{allFriends.length} bạn bè</Text>
+              <Text style={styles.textCount}>{total} bạn bè</Text>
               <TouchableOpacity style={styles.buttonSort}>
                 <Text style={{ color: BLUE_COLOR, fontSize: 17 }}>Sắp xếp</Text>
               </TouchableOpacity>
             </View>
 
             <View>
-              {allFriends.map((item, index) => (
-                <View style={styles.friend} key={index}>
-                  <FriendItem
-                    urlAvatar={item.avatar}
-                    mutual={item.mutual}
-                    name={item.fullname}
-                    navigation={navigation}
-                  ></FriendItem>
-                </View>
-              ))}
+              {
+                (total !== 0) ? 
+                friendList.map((item, index) => {
+
+                  return (
+                  <View style={styles.friend} key={index}>
+                    <FriendItem
+                      userId={item.id}
+                      urlAvatar={item.avatar}
+                      mutual={item.same_friends}
+                      name={item.fullname}
+                      navigation={navigation}
+                    ></FriendItem>
+                  </View>
+                )})
+                : <Text>Hiện chưa có bạn bè</Text>
+              }
             </View>
           </ScrollView>
         </View>
