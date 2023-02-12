@@ -30,6 +30,7 @@ function FriendScreen({ navigation }) {
       }
       if (response.code === '9994') {
         setNoRequest(true);
+        setTotal(0);
       }
     }
     fetchRequestedFriends();

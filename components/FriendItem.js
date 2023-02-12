@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   Text,
@@ -21,16 +21,17 @@ import { authMsg } from '../constants/message';
 
 export default function FriendItem(props) {
   const dispatch = useDispatch();
+
   const acceptFriend = async () => {
-    const token = AsyncStorage.getItem('token');
+    const token = await AsyncStorage.getItem('token');
     const response = await setAcceptFriend({token, userId: props.userId, isAccept: 1});
     if (response.code === '1000') {
       const reloadRequestedFriendList = props.setReload;
-      reloadRequestedFriendList()
+      reloadRequestedFriendList();
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
-        navigation.navigate('LoginScreen');
+        props.navigation.navigate('LoginScreen');
         dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
@@ -46,7 +47,7 @@ export default function FriendItem(props) {
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
-        navigation.navigate('LoginScreen');
+        props.navigation.navigate('LoginScreen');
         dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
