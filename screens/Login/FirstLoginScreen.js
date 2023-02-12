@@ -25,6 +25,7 @@ import {
 
 import { login } from '../../services/auth.service';
 import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { networkErrorMsg } from '../../constants/message.js';
 
 export default function FirstLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
@@ -58,8 +59,13 @@ export default function FirstLoginScreen({ navigation }) {
       await AsyncStorage.setItem('user', JSON.stringify(response.data));
       navigation.navigate('MainTab');
     } else {
-      dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
-      setTimeout(() => dispatch(closeNotice()), 2000);
+      if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else {
+        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
     }
   }
 

@@ -18,6 +18,7 @@ function FriendScreen({ navigation }) {
   const [total, setTotal] = useState(0);
   const [index, setIndex] = useState(0);
   const [noRequest, setNoRequest] = useState(false);
+  const [reloadList, setReloadList] = useState(false)
 
   useEffect(() => {
     const fetchRequestedFriends = async () => {
@@ -32,7 +33,15 @@ function FriendScreen({ navigation }) {
       }
     }
     fetchRequestedFriends();
-  }, [])
+  }, [reloadList])
+
+  const reloadRequestedFriendList = () => {
+    if (reloadList) {
+      setReloadList(false);
+    } else {
+      setReloadList(true);
+    }
+  }
 
   const friends = [
     {
@@ -112,6 +121,8 @@ function FriendScreen({ navigation }) {
         <View key={element.id}>
           <View>
             <FriendItem
+              setReload={reloadRequestedFriendList}
+              userId={element.id}
               urlAvatar={element.avatar}
               mutual={element.same_friends}
               name={element.username}
