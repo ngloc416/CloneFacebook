@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   View,
@@ -19,7 +20,6 @@ import {
   LIGHT_BLUE_COLOR,
   LIGHT_GREY_COLOR,
 } from '../../constants/constants.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const fetchUser = async () => {
   const userSaved = await AsyncStorage.getItem('user');
