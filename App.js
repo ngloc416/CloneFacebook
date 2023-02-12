@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { useSelector, Provider } from "react-redux";
+import { useSelector, Provider } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,12 +23,17 @@ import FirstLoginScreen from './screens/Login/FirstLoginScreen';
 import LoginScreen from './screens/Login/LoginScreen';
 import NextLoginScreen from './screens/Login/NextLoginScreen';
 
+import BeginSignUp from './screens/Signup/BeginSignup';
+import SignupScreen from './screens/Signup/SignupScreen';
+import CheckVerify from './screens/Signup/CheckVerify';
+
 import HomeScreen from './screens/Home/HomeScreen';
 import Header from './screens/Home/Header';
 
 import PostDetailScreen from './screens/Post/PostDetailScreen';
 import PostImageScreen from './screens/Post/PostImageScreen';
 import PostCommentScreen from './screens/Post/PostCommentScreen';
+import EditPostScreen from './screens/Post/EditPostScreen';
 
 import AllFriend from './screens/Friend/AllFriend';
 import FriendScreen from './screens/Friend/FriendScreen';
@@ -61,7 +66,7 @@ const AppComponent = () => {
       if (tokenValue) {
         setToken(tokenValue);
       }
-    }
+    };
     fetchToken();
   }, [token]);
 
@@ -191,7 +196,7 @@ const AppComponent = () => {
       </>
     );
   };
-  const notice = useSelector(state => state.notice);
+  const notice = useSelector((state) => state.notice);
 
   return (
     <View
@@ -200,12 +205,11 @@ const AppComponent = () => {
         paddingTop: STATUSBAR_HEIGHT,
       }}
     >
-      {
-          (notice.show) ? <Notice type={notice.type} notice={notice.notice}/> : null
-        }
+      {notice.show ? (
+        <Notice type={notice.type} notice={notice.notice} />
+      ) : null}
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
-          <>
           {!token ? (
             <>
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
@@ -217,71 +221,43 @@ const AppComponent = () => {
                 name="FirstLoginScreen"
                 component={FirstLoginScreen}
               />
-              <rootStack.Screen name="MainTab" component={MainTab} />
+
+              <rootStack.Screen name="BeginSignup" component={BeginSignUp} />
+              <rootStack.Screen name="SignupScreen" component={SignupScreen} />
+              <rootStack.Screen name="CheckVerify" component={CheckVerify} />
             </>
-          ) : (
-            <>
-            <rootStack.Screen name="MainTab" component={MainTab} />
-            <rootStack.Screen name="LoginScreen" component={LoginScreen} />
-              <rootStack.Screen
-                name="NextLoginScreen"
-                component={NextLoginScreen}
-              />
-              <rootStack.Screen
-                name="FirstLoginScreen"
-                component={FirstLoginScreen}
-              />
-            </>
-          )}
-            <>
-              <rootStack.Screen
-                name="PostDetailScreen"
-                component={PostDetailScreen}
-              />
-              <rootStack.Screen
-                name="PostImageScreen"
-                component={PostImageScreen}
-              />
-              <rootStack.Screen
-                name="PostCommentScreen"
-                component={PostCommentScreen}
-              />
-              <rootStack.Screen name="AllFriend" component={AllFriend} />
-              <rootStack.Screen
-                name="SuggestFriend"
-                component={SuggestFriend}
-              />
-              <rootStack.Screen name="SearchScreen" component={SearchScreen} />
-              <rootStack.Screen
-                name="SearchHistory"
-                component={SearchHistory}
-              />
-              <rootStack.Screen
-                name="ProfileScreen"
-                component={ProfileScreen}
-              />
-              <rootStack.Screen
-                name="ProfileSetting"
-                component={ProfileSetting}
-              />
-              <rootStack.Screen
-                name="AddPostScreen"
-                component={AddPostScreen}
-              />
-            </>
-        </>
+          ) : null}
+          <rootStack.Screen name="MainTab" component={MainTab} />
+          <rootStack.Screen
+            name="PostDetailScreen"
+            component={PostDetailScreen}
+          />
+          <rootStack.Screen
+            name="PostImageScreen"
+            component={PostImageScreen}
+          />
+          <rootStack.Screen
+            name="PostCommentScreen"
+            component={PostCommentScreen}
+          />
+          <rootStack.Screen name="AllFriend" component={AllFriend} />
+          <rootStack.Screen name="SuggestFriend" component={SuggestFriend} />
+          <rootStack.Screen name="SearchScreen" component={SearchScreen} />
+          <rootStack.Screen name="SearchHistory" component={SearchHistory} />
+          <rootStack.Screen name="ProfileScreen" component={ProfileScreen} />
+          <rootStack.Screen name="ProfileSetting" component={ProfileSetting} />
+          <rootStack.Screen name="AddPostScreen" component={AddPostScreen} />
         </rootStack.Navigator>
       </NavigationContainer>
 
       <StatusBar style="dark" />
     </View>
- );
-}
-
+  );
+};
 export default App = () => {
-  return(
+  return (
     <Provider store={store}>
       <AppComponent />
     </Provider>
-  )
-}
+  );
+};

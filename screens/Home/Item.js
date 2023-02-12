@@ -11,15 +11,24 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
+  Modal,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import { EvilIcons, AntDesign } from '@expo/vector-icons';
+import {
+  EvilIcons,
+  AntDesign,
+  FontAwesome,
+  Feather,
+  Ionicons,
+} from '@expo/vector-icons';
 import {
   LIGHT_GREY_COLOR,
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import state from '../../constants/state';
 import { likePost } from '../../services/like.service';
 import { getPostById } from '../../services/post.service';
 import { authMsg } from '../../constants/message';
@@ -28,7 +37,8 @@ export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
-  const [postOption, setPostOption] = useState(false);
+  const [options, setOptions] = useState(false);
+  const [isMe, setIsMe] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -51,7 +61,7 @@ export default function Item({ navigation, item }) {
   };
 
   const onPressPostOption = () => {
-    setPostOption(!postOption);
+    setOptions(!options);
   };
 
   const navigateToPostDetail = async (postId) => {
@@ -103,9 +113,19 @@ export default function Item({ navigation, item }) {
                   onPress={() => {
                     navigation.navigate('ProfileScreen');
                   }}
+                  style={{ flex: 1 }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                    {item.author.username || item.author.name}
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '700',
+                    }}
+                  >
+                    {item.author.userName}{' '}
+                    <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                      đang {state.icon[state.state.indexOf(item.state)]} cảm
+                      thấy {item.state}.
+                    </Text>
                   </Text>
                 </TouchableHighlight>
               </View>
@@ -346,6 +366,129 @@ export default function Item({ navigation, item }) {
           </TouchableHighlight>
         </View>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={options}
+        onRequestClose={() => {
+          setOptions(!options);
+        }}
+        style={styles.avatarOptionsContainer}
+      >
+        <View style={styles.backdrop}>
+          <TouchableOpacity
+            onPress={() => {
+              setOptions(!options);
+            }}
+            style={{ width: '100%', height: '100%' }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.postOptionsWrapper}>
+          {isMe ? (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Tắt thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  Alert.alert('', 'Bạn muốn xóa bài viết?', [
+                    { text: 'KHÔNG', onPress: () => console.log('OK Pressed') },
+                    { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                  ]);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Xóa</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  navigation.navigate('EditPostScreen');
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <AntDesign
+                      name="closesquare"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Bật thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -363,6 +506,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 18,
     flexDirection: 'row',
+    width: '92%',
   },
   avatar: {
     width: 40,
@@ -371,10 +515,12 @@ const styles = StyleSheet.create({
   },
   infoWrapper: {
     marginLeft: 8,
+    flex: 1,
   },
   namesWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   extraInfoWrapper: {
     flexDirection: 'row',
@@ -496,5 +642,43 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 13,
     color: BLUE_COLOR,
+  },
+  avatarOptionsContainer: {
+    position: 'relative',
+  },
+  backdrop: {
+    zIndex: 1,
+  },
+  postOptionsWrapper: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    zIndex: 2,
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    backgroundColor: '#fff',
+  },
+  postOptionItemWrapper: {
+    paddingBottom: 20,
+  },
+  postOptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: LIGHT_GREY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postOptionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 15,
   },
 });
