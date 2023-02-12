@@ -141,7 +141,7 @@ export default function FirstLoginScreen({ navigation }) {
 
       <TouchableHighlight
         style={styles.signupButton}
-        onPress={() => {}}
+        onPress={() => {navigation.navigate('BeginSignup')}}
         underlayColor={LIGHT_GREY_COLOR}
       >
         <Text style={styles.textSignupButton}>TẠO TÀI KHOẢN FACEBOOK MỚI</Text>

@@ -8,8 +8,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  BackHandler,
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -24,12 +22,10 @@ import {
   GREY_COLOR,
   BLUE_COLOR,
   STATUSBAR_HEIGHT,
-  LIGHT_GREY_COLOR,
   SCREEN_HEIGHT,
 } from '../../constants/constants';
-import state from '../../constants/state';
 
-export default function AddPostScreen({ navigation }) {
+export default function EditPostScreen({ navigation }) {
   let post = {
     author: {
       id: '63b4d6871870e51c9354c506',
@@ -38,7 +34,16 @@ export default function AddPostScreen({ navigation }) {
         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
     },
     described: 'Merry Christmas',
-    image: [],
+    image: [
+      {
+        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
+        id: '63b4d6871870e51c9354c506',
+      },
+      {
+        url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
+        id: '63b4d6871870e51c9354c506',
+      },
+    ],
     video: null,
     created: '1667879990',
     like: '15',
@@ -49,23 +54,23 @@ export default function AddPostScreen({ navigation }) {
     can_edit: '0',
     state: 'hạnh phúc',
   };
-  //   useEffect(() => {
-  //     const backAction = () => {
-  //       if (chooseState) return false;
-  //       else return true;
-  //     };
 
-  //     const backHandler = BackHandler.addEventListener(
-  //       'hardwareBackPress',
-  //       backAction
-  //     );
+  useEffect(() => {
+    if (post.video) {
+      imagesURL.push(post.video.url);
+      setImagesURL(imagesURL);
+      setVideoNumber(1);
+    } else {
+      post.image.forEach((element) => {
+        imagesURL.push(element.url);
+      });
+      setImagesURL(imagesURL);
+      setImageNumber(post.image.length);
+    }
+  }, []);
 
-  //     return () => backHandler.remove();
-  //   }, [chooseState]);
   const [vertical, setVertical] = useState(true);
-  const [cancel, setCancel] = useState(false);
-  const [chooseState, setChooseState] = useState(false);
-  const [userState, setUserState] = useState(null);
+  const [described, setDescribed] = useState(post.described);
 
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
@@ -134,50 +139,26 @@ export default function AddPostScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* chọn cảm xúc */}
-      {chooseState && (
-        <View style={styles.container}>
-          <View style={styles.contentHeader}>
-            <View style={styles.contentHeaderLeft}>
-              <TouchableOpacity onPress={() => setChooseState(false)}>
-                <AntDesign name="arrowleft" size={28} color="black" />
-              </TouchableOpacity>
-              <Text style={styles.textHeader}>Bạn đang cảm thấy thế nào?</Text>
-            </View>
-          </View>
-          <View
-            style={{
-              paddingHorizontal: 15,
-              alignItems: 'center',
-              flexDirection: 'row',
-            }}
-          >
-            <FontAwesome5Icon name="search" size={18} color="gray" />
-            <TextInput
-              value={userState}
-              onChangeText={(text) => {
-                if (text) {
-                  setUserState(text);
-                } else setUserState(null);
-              }}
-              style={{ marginLeft: 10 }}
-              placeholder="Tìm kiếm"
-              placeholderTextColor={GREY_COLOR}
-              autoFocus={true}
-            />
-          </View>
-
-          <ScrollView style={{ marginTop: 10 }}></ScrollView>
-        </View>
-      )}
-
-      {/* trang tạo bài viết */}
       <View style={styles.contentHeader}>
         <View style={styles.contentHeaderLeft}>
-          <TouchableOpacity onPress={() => setCancel(true)}>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                'Bỏ thay đổi?',
+                'Nếu bỏ bây giờ thì bạn sẽ mất mọi thay đổi trên bài viết này.',
+                [
+                  {
+                    text: 'CHỈNH SỬA TIẾP',
+                    onPress: () => console.log('CHỈNH SỬA TIẾP'),
+                  },
+                  { text: 'BỎ', onPress: () => navigation.goBack() },
+                ]
+              )
+            }
+          >
             <AntDesign name="arrowleft" size={28} color="black" />
           </TouchableOpacity>
-          <Text style={styles.textHeader}>Tạo bài viết</Text>
+          <Text style={styles.textHeader}>Chỉnh sửa bài viết</Text>
         </View>
         <TouchableOpacity
           style={styles.button}
@@ -185,7 +166,7 @@ export default function AddPostScreen({ navigation }) {
             navigation.goBack();
           }}
         >
-          <Text style={styles.textButton}>ĐĂNG</Text>
+          <Text style={styles.textButton}>Lưu</Text>
         </TouchableOpacity>
       </View>
       <ScrollView>
@@ -226,6 +207,12 @@ export default function AddPostScreen({ navigation }) {
               }
               onFocus={() => {
                 setVertical(false);
+              }}
+              value={described}
+              onChangeText={(text) => {
+                if (text) {
+                  setDescribed(text);
+                } else setDescribed(null);
               }}
             />
           </View>
@@ -457,188 +444,76 @@ export default function AddPostScreen({ navigation }) {
           )}
         </View>
       </ScrollView>
-      {!chooseState && (
-        <View style={{ height: 47 }}>
-          <View style={styles.footer}>
-            {vertical ? (
-              <View style={styles.iconFooterCol}>
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => {
-                    console.log(imageNumber + ' ' + videoNumber);
-                    if (imageNumber < 4 && videoNumber == 0) pickImages();
-                    else
-                      Alert.alert(
-                        'Cảnh báo',
-                        'Chọn tối đa 4 bức ảnh hoặc 1 video.',
-                        [
-                          {
-                            text: 'OK',
-                            onPress: () => console.log('OK Pressed'),
-                          },
-                        ]
-                      );
-                  }}
-                >
-                  <Ionicons
-                    name="md-images"
-                    size={24}
-                    color="green"
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Ảnh/video</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => {
-                    setChooseState(true);
-                  }}
-                >
-                  <Entypo
-                    name="emoji-happy"
-                    size={24}
-                    color="#F5C33B"
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Cảm xúc</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.item}>
-                  <Entypo
-                    name="camera"
-                    size={24}
-                    color={BLUE_COLOR}
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Camera</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.iconFooter}>
-                <TouchableOpacity
-                  onPress={() => {
-                    {
-                      console.log(imageNumber + ' ' + videoNumber);
-                      if (imageNumber < 4 && videoNumber == 0) pickImages();
-                      else
-                        Alert.alert(
-                          'Cảnh báo',
-                          'Chọn tối đa 4 bức ảnh hoặc 1 video.',
-                          [
-                            {
-                              text: 'OK',
-                              onPress: () => console.log('OK Pressed'),
-                            },
-                          ]
-                        );
-                    }
-                  }}
-                >
-                  <Ionicons name="md-images" size={24} color="green" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setChooseState(true);
-                  }}
-                >
-                  <Entypo name="emoji-happy" size={24} color="#F5C33B" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Entypo name="camera" size={24} color={BLUE_COLOR} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setVertical(!vertical)}>
-                  <MaterialCommunityIcons
-                    name="dots-horizontal-circle"
-                    size={26}
-                    color={GREY_COLOR}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-      )}
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={cancel}
-        onRequestClose={() => {
-          setCancel(!cancel);
-        }}
-        style={styles.avatarOptionsContainer}
-      >
-        <View style={styles.backdrop}>
-          <TouchableOpacity
-            onPress={() => {
-              setCancel(!cancel);
-            }}
-            style={{ width: '100%', height: '100%' }}
-          ></TouchableOpacity>
-        </View>
-        <View style={styles.postOptionsWrapper}>
-          <View style={{ height: 60 }}>
-            <Text style={{ fontSize: 16, marginBottom: 4 }}>
-              Bạn muốn hoàn thành bài viết của mình sau?
-            </Text>
-            <Text style={{ fontSize: 14, color: GREY_COLOR }}>
-              Hãy lưu làm bản nháp hoặc tiếp tục chỉnh sửa.
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-              navigation.goBack();
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
+      <View style={{ height: 47 }}>
+        <View style={styles.footer}>
+          {vertical ? (
+            <View style={styles.iconFooterCol}>
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  console.log(imageNumber + ' ' + videoNumber);
+                  if (imageNumber < 4 && videoNumber == 0) pickImages();
+                  else
+                    Alert.alert(
+                      'Cảnh báo',
+                      'Chọn tối đa 4 bức ảnh hoặc 1 video.',
+                      [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+                    );
+                }}
+              >
                 <Ionicons
-                  name="ios-bookmark-outline"
+                  name="md-images"
                   size={24}
+                  color="green"
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Ảnh/video</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.item}>
+                <Entypo
+                  name="emoji-happy"
+                  size={24}
+                  color="#F5C33B"
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Cảm xúc</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.item}>
+                <Entypo
+                  name="camera"
+                  size={24}
+                  color={BLUE_COLOR}
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Camera</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.iconFooter}>
+              <TouchableOpacity
+                onPress={() => {
+                  pickImages;
+                }}
+              >
+                <Ionicons name="md-images" size={24} color="green" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Entypo name="emoji-happy" size={24} color="#F5C33B" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Entypo name="camera" size={24} color={BLUE_COLOR} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setVertical(!vertical)}>
+                <MaterialCommunityIcons
+                  name="dots-horizontal-circle"
+                  size={26}
                   color={GREY_COLOR}
                 />
-              </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Lưu làm bản nháp</Text>
-              </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-              navigation.goBack();
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
-              </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Bỏ bài viết</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <AntDesign name="check" size={24} color={BLUE_COLOR} />
-              </View>
-              <View>
-                <Text style={{ ...styles.postOptionTitle, color: BLUE_COLOR }}>
-                  Tiếp tục chỉnh sửa
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+          )}
         </View>
-      </Modal>
+      </View>
     </View>
   );
 }
@@ -828,44 +703,5 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 15,
-  },
-
-  //thông báo
-  avatarOptionsContainer: {
-    position: 'relative',
-  },
-  backdrop: {
-    zIndex: 1,
-  },
-  postOptionsWrapper: {
-    borderColor: '#ddd',
-    borderWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 2,
-    paddingHorizontal: 15,
-    paddingTop: 20,
-    backgroundColor: '#fff',
-  },
-  postOptionItemWrapper: {
-    paddingBottom: 20,
-  },
-  postOptionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 50,
-    backgroundColor: LIGHT_GREY_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  postOptionTitle: {
-    fontSize: 16,
-    marginLeft: 15,
   },
 });
