@@ -19,6 +19,8 @@ import { authMsg } from '../../constants/message';
 
 function SuggestFriend({ navigation }) {
   const [friendList, setFriendList] = useState([]);
+  const [reloadSuggested, setReloadSuggested] = useState(false);
+
   const dispatch = useDispatch();
   useEffect(() => {
     const fetchFriendList = async () => {
@@ -35,11 +37,22 @@ function SuggestFriend({ navigation }) {
         } else if (response.code === 'ERR_NETWORK') {
           dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
           setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
     }
     fetchFriendList();
-  }, [])
+  }, [reloadSuggested])
+
+  const changeReloadSuggested = () => {
+    if (reloadSuggested) {
+      setReloadSuggested(false);
+    } else {
+      setReloadSuggested(false);
+    }
+  }
 
   return (
     <View>
@@ -97,6 +110,8 @@ function SuggestFriend({ navigation }) {
               {friendList.map((item, index) => (
                 <View style={styles.friend} key={index}>
                   <FriendItem
+                    userId={item.user_id}
+                    setReloadSuggested={changeReloadSuggested}
                     urlAvatar={item.avatar}
                     mutual={item.same_friends}
                     name={item.username}
