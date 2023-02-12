@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosClient = axios.create({
@@ -20,6 +20,11 @@ axiosClient.interceptors.response.use((response) => {
   return response;
   }, (error) => {
     console.log(error);
+    if (error.code === 'ERR_NETWORK') {
+      return {
+        code: 'ERR_NETWORK',
+      }
+    }
     return error.response.data;
 });
 export default axiosClient;

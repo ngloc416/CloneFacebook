@@ -39,7 +39,6 @@ export default function Item({ navigation, item }) {
   };
 
   const onPressLike = async (postId) => {
-    console.log(item)
     if (liked === '0') {
       setLiked('1');
       setNumberOfLike(numberOfLike + 1);
@@ -58,7 +57,6 @@ export default function Item({ navigation, item }) {
   const navigateToPostDetail = async (postId) => {
     const token = await AsyncStorage.getItem('token');
     const response = await getPostById({ postId, token });
-    console.log(response);
     if ( response.code === '1000' ) {
       navigation.navigate('PostDetailScreen', { post: response.data });
     }
@@ -75,7 +73,7 @@ export default function Item({ navigation, item }) {
       <TouchableHighlight
         underlayColor={LIGHT_GREY_COLOR}
         onPress={() => {
-          navigation.navigate('PostDetailScreen');
+          navigateToPostDetail(item.id);
         }}
       >
         <View

@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import {
   StyleSheet,
   Text,
@@ -13,7 +15,43 @@ import {
   GREY_COLOR,
 } from '../constants/constants.js';
 
+import { setAcceptFriend } from '../services/friend.service';
+import { openNotice, closeNotice } from '../redux/actions/notice.action';
+import { authMsg } from '../constants/message';
+
 export default function FriendItem(props) {
+  const dispatch = useDispatch();
+  const acceptFriend = async () => {
+    const token = AsyncStorage.getItem('token');
+    const response = await setAcceptFriend({token, userId: props.userId, isAccept: 1});
+    if (response.code === '1000') {
+      const reloadRequestedFriendList = props.setReload;
+      reloadRequestedFriendList()
+    } else {
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
+
+  const rejectFriend = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await setAcceptFriend({token, userId: props.userId, isAccept: 0});
+    if (response.code === '1000') {
+      const reloadRequestedFriendList = props.setReload;
+      reloadRequestedFriendList()
+    } else {
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
   return (
     <TouchableHighlight
       underlayColor={LIGHT_GREY_COLOR}
@@ -27,10 +65,10 @@ export default function FriendItem(props) {
           <Text style={styles.textName}>{props.name}</Text>
           <Text style={{ color: GREY_COLOR }}>{props.mutual} bạn chung</Text>
           <View style={styles.areaButton}>
-            <TouchableOpacity style={styles.buttonA}>
+            <TouchableOpacity style={styles.buttonA} onPress={acceptFriend}>
               <Text style={styles.textA}>{props.firstLabel}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.buttonB}>
+            <TouchableOpacity style={styles.buttonB} onPress={rejectFriend}>
               <Text style={styles.textB}>{props.secondLabel}</Text>
             </TouchableOpacity>
           </View>

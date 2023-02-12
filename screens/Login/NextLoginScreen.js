@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {} from 'react';
 import {
@@ -20,6 +21,8 @@ import {
 } from '../../constants/constants.js';
 
 import { login } from '../../services/auth.service';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { networkErrorMsg } from '../../constants/message.js';
 
 export default function NextLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
@@ -27,6 +30,8 @@ export default function NextLoginScreen({ navigation }) {
   const [show, setShow] = useState(false);
   const [user, setUser] = useState({});
   const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -104,10 +109,14 @@ export default function NextLoginScreen({ navigation }) {
             await AsyncStorage.setItem('user', JSON.stringify(response.data));
             navigation.navigate('MainTab');
           } else {
-            dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
-            setTimeout(() => dispatch(closeNotice()), 2000);
+            if (response.code === 'ERR_NETWORK') {
+              dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+              setTimeout(() => dispatch(closeNotice()), 2000);
+            } else {
+              dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+              setTimeout(() => dispatch(closeNotice()), 2000);
+            }
           }
-          navigation.navigate('MainTab');
         }}
         underlayColor={TOUCH_BLUE_COLOR}
       >
