@@ -47,22 +47,26 @@ export default function FirstLoginScreen({ navigation }) {
         style={{ paddingTop: '55%', marginBottom: 20 }}
       />
       <View style={{ width: '100%' }}>
-        <TouchableHighlight
-          style={styles.accountFrame}
-          underlayColor={LIGHT_GREY_COLOR}
-          onPress={() => {
-            navigation.navigate('NextLoginScreen');
-          }}
-        >
-          <View style={styles.account}>
-            <Image
-              style={styles.avatar}
-              source={{uri: user.avatar}}
-            />
+        {
+          (user) ?
+          <TouchableHighlight
+            style={styles.accountFrame}
+            underlayColor={LIGHT_GREY_COLOR}
+            onPress={() => {
+              navigation.navigate('NextLoginScreen');
+            }}
+          >
+            <View style={styles.account}>
+              <Image
+                style={styles.avatar}
+                source={{uri: user.avatar}}
+              />
 
-            <Text style={styles.username}>{user.username}</Text>
-          </View>
-        </TouchableHighlight>
+              <Text style={styles.username}>{user.username}</Text>
+            </View>
+          </TouchableHighlight>
+          : null
+        }
 
         <TouchableHighlight
           style={styles.setting}
