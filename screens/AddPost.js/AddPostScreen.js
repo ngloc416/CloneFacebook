@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Text,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { useDispatch } from 'react-redux';
 
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { AntDesign } from '@expo/vector-icons';
@@ -28,27 +30,11 @@ import {
   SCREEN_HEIGHT,
 } from '../../constants/constants';
 import state from '../../constants/state';
+import { addPost } from '../../services/post.service';
+import { authMsg, networkErrorMsg } from '../../constants/message';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 
 export default function AddPostScreen({ navigation }) {
-  let post = {
-    author: {
-      id: '63b4d6871870e51c9354c506',
-      userName: 'Abc',
-      avatar:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-    },
-    described: 'Merry Christmas',
-    image: [],
-    video: null,
-    created: '1667879990',
-    like: '15',
-    comment: '33',
-    is_liked: '1',
-    is_blocked: '0',
-    can_comment: '1',
-    can_edit: '0',
-    state: 'hạnh phúc',
-  };
   //   useEffect(() => {
   //     const backAction = () => {
   //       if (chooseState) return false;
@@ -62,18 +48,32 @@ export default function AddPostScreen({ navigation }) {
 
   //     return () => backHandler.remove();
   //   }, [chooseState]);
+  const dispatch = useDispatch();
   const [vertical, setVertical] = useState(true);
   const [cancel, setCancel] = useState(false);
   const [chooseState, setChooseState] = useState(false);
   const [userState, setUserState] = useState(null);
+  const [describedText, setDescribedText] = useState('');
+  const [status, setStatus] = useState('');
+  const [currentUser, setCurrentUser] = useState({});
 
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
   const [imageNumber, setImageNumber] = useState(0);
   const [videoNumber, setVideoNumber] = useState(0);
 
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const user = await AsyncStorage.getItem('user');
+      const userData = JSON.parse(user);
+      setCurrentUser(userData);
+    }
+    fetchCurrentUser();
+  }, []);
+
   const pickImages = async () => {
     setImagesURL([]);
+    setImages([]);
     // lấy item
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -111,6 +111,7 @@ export default function AddPostScreen({ navigation }) {
               imgCount++;
               setImageNumber(imgCount);
               imagesURL.push(item.uri);
+              images.push(item);
             });
           }
         }
@@ -119,9 +120,11 @@ export default function AddPostScreen({ navigation }) {
         if (result.type === 'image' && videoNumber == 0) {
           setImageNumber(imageNumber + 1);
           imagesURL.push(result.uri);
+          images.push(result);
         } else if (result.type === 'video' && imageNumber == 0) {
           setVideoNumber(videoNumber + 1);
           imagesURL.push(result.uri);
+          images.push(result);
         } else {
           Alert.alert('Cảnh báo', 'Không được chọn cả ảnh và video.', [
             { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -129,8 +132,54 @@ export default function AddPostScreen({ navigation }) {
         }
       }
       setImagesURL(imagesURL);
-    } else setImagesURL(imagesURL);
+      setImages(images);
+    } else {
+      setImagesURL(imagesURL);
+      setImages(images);
+    }
   };
+
+  const addNewPost = async () => {
+    const token = await AsyncStorage.getItem('token');
+    let body = {token};
+    if (status !== '') {
+      body.status = status;
+    }
+    if (describedText !== '') {
+      body.described = describedText;
+    }
+    let formData = new FormData();
+    if (imageNumber > 0) {
+      images.forEach((image) => {
+        formData.append('image', image);
+      })
+    }
+    if (videoNumber) {
+      images.forEach((image) => {
+        formData.append('video', image);
+      })
+    }
+    body.formData = formData;
+    console.log(formData._parts);
+    const response = await addPost(body);
+    console.log(response);
+    if (response.code === '1000') {
+      navigation.goBack();
+    } else {
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else {
+        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -181,9 +230,7 @@ export default function AddPostScreen({ navigation }) {
         </View>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            navigation.goBack();
-          }}
+          onPress={() => addNewPost()}
         >
           <Text style={styles.textButton}>ĐĂNG</Text>
         </TouchableOpacity>
@@ -192,7 +239,7 @@ export default function AddPostScreen({ navigation }) {
         <View style={styles.contentBody}>
           <View style={styles.headerBody}>
             <Image
-              source={require('../../assets/Login/Avatar.jpg')}
+              source={{uri: currentUser.avatar}}
               style={{
                 width: 50,
                 height: 50,
@@ -201,7 +248,7 @@ export default function AddPostScreen({ navigation }) {
               }}
             ></Image>
             <View>
-              <Text style={styles.textInfor}>{'Nguyễn Đình Lộc'}</Text>
+              <Text style={styles.textInfor}>{currentUser.username}</Text>
               <TouchableOpacity style={styles.inforBottom}>
                 <FontAwesome5Icon
                   style={{ marginRight: 3 }}
@@ -227,6 +274,8 @@ export default function AddPostScreen({ navigation }) {
               onFocus={() => {
                 setVertical(false);
               }}
+              value={describedText}
+              onChangeText={(text) => setDescribedText(text)}
             />
           </View>
           {imagesURL && imagesURL.length === 1 && (

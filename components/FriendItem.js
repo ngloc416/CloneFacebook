@@ -45,8 +45,6 @@ export default function FriendItem(props) {
 
     if (props.firstLabel === 'Thêm bạn bè') {
       response = await sendRequestFriend({token, userId: props.userId});
-      console.log(props.userId);
-      console.log(response);
       if (response === '1000') {
         const changeReloadSuggested = props.setReloadSuggested;
         changeReloadSuggested();
