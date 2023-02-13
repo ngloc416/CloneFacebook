@@ -4,8 +4,12 @@ import { FontAwesome5, AntDesign, Feather } from '@expo/vector-icons';
 import { BLUE_COLOR, LIGHT_GREY_COLOR } from '../../constants/constants.js';
 
 export default function Header({ navigation }) {
-  const addPost = () => {};
-  const search = () => {};
+  const addPost = () => {
+    navigation.navigate('AddPostScreen');
+  };
+  const search = () => {
+    navigation.navigate('SearchScreen');
+  };
   const messenger = () => {};
   return (
     <View style={styles.header}>
@@ -44,6 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 50,
     paddingHorizontal: 15,
+    backgroundColor: '#fff',
   },
   textHeader: {
     fontSize: 28,

@@ -1,6 +1,10 @@
 import { getStatusBarHeight } from 'react-native-status-bar-height';
+import { Dimensions } from 'react-native';
+
 const URL_BACKEND = 'https://localhost:5000/it4788/';
 const STATUSBAR_HEIGHT = getStatusBarHeight();
+const SCREEN_WIDTH = Math.round(Dimensions.get('window').width);
+const SCREEN_HEIGHT = Math.round(Dimensions.get('window').height);
 const WHITE_COLOR = '#ffffff';
 const GREEN_COLOR = '#2ea34b';
 const TOUCH_GREEN_COLOR = '#00684a';
@@ -15,6 +19,8 @@ const BLACK_COLOR = '#000000';
 module.exports = {
   URL_BACKEND,
   STATUSBAR_HEIGHT,
+  SCREEN_HEIGHT,
+  SCREEN_WIDTH,
   WHITE_COLOR,
   GREEN_COLOR,
   TOUCH_GREEN_COLOR,

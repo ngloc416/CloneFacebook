@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 import {
   View,
   Text,
@@ -7,6 +10,7 @@ import {
   Dimensions,
   TouchableOpacity,
   TouchableHighlight,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
@@ -16,6 +20,9 @@ import {
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import { likePost } from '../../services/like.service';
+import { getPostById } from '../../services/post.service';
+import { authMsg } from '../../constants/message';
 
 export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
@@ -23,13 +30,16 @@ export default function Item({ navigation, item }) {
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
   const [postOption, setPostOption] = useState(false);
 
+  const dispatch = useDispatch();
+
   const time = Date.now() / 1000 - parseInt(item.created);
 
   const expandDescribed = () => {
     setShortcutDescribed(!shortcutDescribed);
   };
 
-  const onPressLike = () => {
+  const onPressLike = async (postId) => {
+    console.log(item)
     if (liked === '0') {
       setLiked('1');
       setNumberOfLike(numberOfLike + 1);
@@ -37,11 +47,28 @@ export default function Item({ navigation, item }) {
       setLiked('0');
       setNumberOfLike(numberOfLike - 1);
     }
+    const token = await AsyncStorage.getItem('token');
+    await likePost({postId, token});
   };
 
   const onPressPostOption = () => {
     setPostOption(!postOption);
   };
+
+  const navigateToPostDetail = async (postId) => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await getPostById({ postId, token });
+    console.log(response);
+    if ( response.code === '1000' ) {
+      navigation.navigate('PostDetailScreen', { post: response.data });
+    }
+    if (response.code === '9995' || response.code === '9998') {
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('LoginScreen');
+      dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    }
+  }
 
   return (
     <View style={styles.item}>
@@ -60,7 +87,12 @@ export default function Item({ navigation, item }) {
           }}
         >
           <View style={styles.customListView}>
-            <TouchableOpacity activeOpacity={0.5} onPress={() => {}}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => {
+                navigation.navigate('ProfileScreen');
+              }}
+            >
               <Image
                 style={styles.avatar}
                 source={{ uri: item.author.avatar }}
@@ -70,10 +102,12 @@ export default function Item({ navigation, item }) {
               <View style={styles.namesWrapper}>
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
-                  onPress={() => {}}
+                  onPress={() => {
+                    navigation.navigate('ProfileScreen');
+                  }}
                 >
                   <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                    {item.author.userName}
+                    {item.author.username || item.author.name}
                   </Text>
                 </TouchableHighlight>
               </View>
@@ -153,10 +187,10 @@ export default function Item({ navigation, item }) {
       </TouchableHighlight>
 
       {item.image && item.image.length === 1 && (
-        <TouchableOpacity
+        <TouchableWithoutFeedback
           style={styles.imageContainer1}
           onPress={() => {
-            navigation.navigate('PostImageScreen');
+            navigation.navigate('PostImageScreen', { postDetail: item, index: 0});
           }}
         >
           <Image
@@ -164,25 +198,39 @@ export default function Item({ navigation, item }) {
             resizeMode="cover"
             style={styles.imageDetail1}
           />
-        </TouchableOpacity>
+        </TouchableWithoutFeedback>
       )}
 
       {item.image && item.image.length === 2 && (
-        <View style={styles.imageContainer2}>
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail2}
-          />
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail2}
-          />
-        </View>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
+            navigateToPostDetail(item.id);
+          }}
+        >
+          <View style={styles.imageContainer2}>
+            <Image
+              source={{ uri: item.image[0].url }}
+              resizeMode="cover"
+              style={styles.imageDetail2}
+            />
+            <Image
+              source={{ uri: item.image[1].url }}
+              resizeMode="cover"
+              style={styles.imageDetail2}
+            />
+            
+          </View>
+        </TouchableWithoutFeedback>
       )}
 
       {item.image && item.image.length === 3 && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
+            navigateToPostDetail(item.id);
+          }}
+        >
         <View style={styles.imageContainer3}>
           <View style={styles.imageContainerLeft3}>
             <Image
@@ -204,9 +252,16 @@ export default function Item({ navigation, item }) {
             />
           </View>
         </View>
+        </TouchableWithoutFeedback>
       )}
 
       {item.image && item.image.length === 4 && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
+            navigateToPostDetail(item.id);
+          }}
+        >
         <View style={styles.imageContainer4}>
           <View style={styles.imageAboveSubContainer4}>
             <Image
@@ -233,6 +288,7 @@ export default function Item({ navigation, item }) {
             />
           </View>
         </View>
+        </TouchableWithoutFeedback>
       )}
 
       <View style={styles.footer}>
@@ -264,7 +320,7 @@ export default function Item({ navigation, item }) {
         <View style={styles.bottomFooter}>
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
-            onPress={onPressLike}
+            onPress={() => onPressLike(item.id)}
           >
             <View style={styles.groupItemFooter}>
               {liked === '0' ? (
@@ -282,7 +338,7 @@ export default function Item({ navigation, item }) {
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
             onPress={() => {
-              navigation.navigate('PostCommentScreen');
+              navigation.navigate('PostCommentScreen', {postId: item.id});
             }}
           >
             <View style={styles.groupItemFooter}>

@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {} from 'react';
 import {
   SafeAreaView,
@@ -18,10 +19,22 @@ import {
   GREY_COLOR,
 } from '../../constants/constants.js';
 
+import { login } from '../../services/auth.service';
+
 export default function NextLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
   const [show, setShow] = useState(false);
+  const [user, setUser] = useState({});
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userSaved = await AsyncStorage.getItem('user');
+      setUser(JSON.parse(userSaved));
+    }
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -42,9 +55,9 @@ export default function NextLoginScreen({ navigation }) {
       <View style={!passFocus ? styles.account : styles.accountFocus}>
         <Image
           style={styles.avatar}
-          source={require('../../assets/Login/Avatar.jpg')}
+          source={{uri: user.avatar}}
         />
-        <Text style={styles.username}>Nguyễn Đình Lộc</Text>
+        <Text style={styles.username}>{user.username}</Text>
       </View>
 
       <View style={styles.passContainer}>
@@ -55,12 +68,14 @@ export default function NextLoginScreen({ navigation }) {
           placeholder="Mật khẩu"
           placeholderTextColor={GREY_COLOR}
           secureTextEntry={visible === false ? true : false}
+          value={password}
           onFocus={() => {
             setPassFocus(true);
           }}
           onChangeText={(text) => {
             if (text != null && text != '') setShow(true);
             else setShow(false);
+            setPassword(text);
           }}
         />
         {!visible ? (
@@ -82,7 +97,16 @@ export default function NextLoginScreen({ navigation }) {
 
       <TouchableHighlight
         style={styles.signinButton}
-        onPress={() => {
+        onPress={async () => {
+          const response = await login({ password, phone: user.phone });
+          if (response.code === '1000') {
+            await AsyncStorage.setItem('token', response.data.token);
+            await AsyncStorage.setItem('user', JSON.stringify(response.data));
+            navigation.navigate('MainTab');
+          } else {
+            dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+            setTimeout(() => dispatch(closeNotice()), 2000);
+          }
           navigation.navigate('MainTab');
         }}
         underlayColor={TOUCH_BLUE_COLOR}

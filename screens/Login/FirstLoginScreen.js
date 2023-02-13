@@ -1,5 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   View,
@@ -21,12 +23,19 @@ import {
   WHITE_COLOR,
 } from '../../constants/constants.js';
 
+import { login } from '../../services/auth.service';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+
 export default function FirstLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
   const [show, setShow] = useState(false);
   const [accountFocus, setAccountFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
   const [focus, setFocus] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -41,6 +50,18 @@ export default function FirstLoginScreen({ navigation }) {
       hideSubscription.remove();
     };
   }, []);
+
+  const clickLogin = async () => {
+    const response = await login({ password, phone });
+    if (response.code === '1000') {
+      await AsyncStorage.setItem('token', response.data.token);
+      await AsyncStorage.setItem('user', JSON.stringify(response.data));
+      navigation.navigate('MainTab');
+    } else {
+      dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,6 +90,8 @@ export default function FirstLoginScreen({ navigation }) {
               setAccountFocus(true);
               setPassFocus(false);
             }}
+            value={phone}
+            onChangeText={(text) => setPhone(text)}
           />
 
           <View>
@@ -83,7 +106,9 @@ export default function FirstLoginScreen({ navigation }) {
                 setAccountFocus(false);
                 setPassFocus(true);
               }}
+              value={password}
               onChangeText={(text) => {
+                setPassword(text)
                 if (text != null && text != '') setShow(true);
                 else setShow(false);
               }}
@@ -109,8 +134,8 @@ export default function FirstLoginScreen({ navigation }) {
 
           <TouchableHighlight
             style={styles.signinButton}
-            onPress={() => {
-              navigation.navigate('MainTab');
+            onPress={async () => {
+              await clickLogin();
             }}
             underlayColor={TOUCH_BLUE_COLOR}
           >
