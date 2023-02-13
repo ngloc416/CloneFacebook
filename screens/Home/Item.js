@@ -45,7 +45,6 @@ export default function Item({ navigation, item }) {
 
   const time = Date.now() / 1000 - parseInt(item.created);
 
-  const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
 
   const expandDescribed = () => {
@@ -90,7 +89,8 @@ export default function Item({ navigation, item }) {
       <TouchableHighlight
         underlayColor={LIGHT_GREY_COLOR}
         onPress={() => {
-          navigateToPostDetail(item.id);
+          if (item.video != null) navigation.navigate('VideoScreen');
+          else navigateToPostDetail(item.id);
         }}
       >
         <View
@@ -105,7 +105,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen', {userId: item.author.id});
+                navigation.navigate('ProfileScreen', { userId: item.author });
               }}
             >
               <Image
@@ -118,7 +118,7 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen', {user: item.author.id});
+                    navigation.navigate('ProfileScreen', { user: item.author });
                   }}
                   style={{ flex: 1 }}
                 >
@@ -142,7 +142,10 @@ export default function Item({ navigation, item }) {
 
               <View style={styles.extraInfoWrapper}>
                 <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
-                  {time < 1 * 60 * 60 ? 'Vừa xong' : null}
+                  {time < 1 * 60 ? 'Vừa xong' : null}
+                  {time >= 1 * 60 && time < 60 * 60
+                    ? `${Math.floor(time / 60)} phút`
+                    : null}
                   {time >= 1 * 60 * 60 && time < 24 * 60 * 60
                     ? `${Math.floor(time / 3600)} giờ`
                     : null}
@@ -214,15 +217,12 @@ export default function Item({ navigation, item }) {
         ) : null}
       </TouchableHighlight>
 
-      {item.video && (
+      {item.video !== null ? (
         <View>
           <Video
-            ref={video}
             style={{
-              video: {
-                height: 300,
-                width: '100%',
-              },
+              height: 300,
+              width: '100%',
             }}
             source={{ uri: item.video.url }}
             useNativeControls
@@ -231,7 +231,7 @@ export default function Item({ navigation, item }) {
             onPlaybackStatusUpdate={setStatus}
           />
         </View>
-      )}
+      ) : null}
 
       {item.image && item.image.length === 1 && (
         <TouchableWithoutFeedback

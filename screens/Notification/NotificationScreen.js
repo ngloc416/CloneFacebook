@@ -141,7 +141,10 @@ export default function Notification({ navigation }) {
                 </Text>
                 {calTime(item)}
                 <Text style={styles.time}>
-                  {time < 1 * 60 * 60 ? 'Vừa xong' : null}
+                  {time < 1 * 60 ? 'Vừa xong' : null}
+                  {time >= 1 * 60 && time < 60 * 60
+                    ? `${Math.floor(time / 60)} phút`
+                    : null}
                   {time >= 1 * 60 * 60 && time < 24 * 60 * 60
                     ? `${Math.floor(time / 3600)} giờ`
                     : null}
@@ -204,7 +207,10 @@ export default function Notification({ navigation }) {
                 </Text>
                 {calTime(item)}
                 <Text style={styles.time}>
-                  {time < 1 * 60 * 60 ? 'Vừa xong' : null}
+                  {time < 1 * 60 ? 'Vừa xong' : null}
+                  {time >= 1 * 60 && time < 60 * 60
+                    ? `${Math.floor(time / 60)} phút`
+                    : null}
                   {time >= 1 * 60 * 60 && time < 24 * 60 * 60
                     ? `${Math.floor(time / 3600)} giờ`
                     : null}

@@ -104,8 +104,8 @@ export default function NextLoginScreen({ navigation }) {
           if (response.code === '1000') {
             await AsyncStorage.setItem('token', response.data.token);
             await AsyncStorage.setItem('user', JSON.stringify(response.data));
-
-            navigation.navigate('MainTab');
+            navigation.pop();
+            navigation.replace('MainTab');
           } else {
             if (response.code === '9995' || response.code === '9998') {
               await AsyncStorage.removeItem('token');

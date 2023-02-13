@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
@@ -25,16 +25,16 @@ export default function SettingScreen({ navigation }) {
       const currentUser = await AsyncStorage.getItem('user');
       const userData = JSON.parse(currentUser);
       setUser(userData);
-    }
+    };
     fetchUser();
-  }, [])
+  }, []);
 
   const acceptLogout = async () => {
     const token = await AsyncStorage.getItem('token');
     const response = await logout(token);
     if (response.code === '1000') {
       await AsyncStorage.removeItem('token');
-      navigation.navigate('LoginScreen');
+      navigation.replace('LoginScreen');
     } else {
     }
   };
@@ -73,7 +73,9 @@ export default function SettingScreen({ navigation }) {
         </View>
         <TouchableOpacity
           style={styles.btnProfile}
-          onPress={() => navigation.navigate('ProfileScreen', {userId: user.id})}
+          onPress={() =>
+            navigation.navigate('ProfileScreen', { userId: user.id })
+          }
           activeOpacity={0.8}
         >
           <Image
