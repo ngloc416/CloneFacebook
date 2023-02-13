@@ -39,15 +39,19 @@ function FriendScreen({ navigation }) {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
         navigation.navigate('LoginScreen');
-        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else if (response.code === 'ERR_NETWORK') {
-        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
-    }
+    };
     fetchRequestedFriends();
-  }, [reloadList])
+  }, [reloadList]);
 
   const reloadRequestedFriendList = () => {
     if (reloadList) {
@@ -55,7 +59,7 @@ function FriendScreen({ navigation }) {
     } else {
       setReloadList(true);
     }
-  }
+  };
 
   const listFriend = () => {
     return requestedFriends.map((element) => {
@@ -89,7 +93,9 @@ function FriendScreen({ navigation }) {
           <Text style={styles.textHeader}>Bạn bè</Text>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>
@@ -125,11 +131,13 @@ function FriendScreen({ navigation }) {
           <Text style={styles.countFriends}>{total}</Text>
         </View>
         <View style={styles.listFriend}>
-          {
-            (!noRequest) ?
+          {!noRequest ? (
             listFriend()
-            : <Text>Tạm thời không có lời mòi kết bạn</Text>
-          }
+          ) : (
+            <Text style={{ alignSelf: 'center' }}>
+              Không có lời mời kết bạn
+            </Text>
+          )}
         </View>
         <View style={{ height: 20 }}></View>
       </ScrollView>

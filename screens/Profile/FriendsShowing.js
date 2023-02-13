@@ -26,7 +26,9 @@ export default function FriendsShowing(props) {
           </View>
           {props.isMe && (
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => {
+                props.navigation.navigate('SuggestFriend');
+              }}
               activeOpacity={0.8}
               style={styles.btnFindFriends}
             >
@@ -55,7 +57,9 @@ export default function FriendsShowing(props) {
         ))}
       </View>
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => {
+          props.navigation.navigate('AllFriend');
+        }}
         activeOpacity={0.8}
         style={styles.btnViewAllFriends}
       >

@@ -101,7 +101,8 @@ export default function BeginSignUp({ navigation }) {
                 {
                   text: 'OK',
                   onPress: () => {
-                    navigation.navigate('MainTab');
+                    navigation.pop();
+                    navigation.navigate('ChangeInfoAfterSignup');
                   },
                 },
               ]

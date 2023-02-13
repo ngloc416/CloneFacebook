@@ -1,5 +1,4 @@
-// Chưa sửa
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   StyleSheet,
@@ -7,235 +6,258 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  TextInput,
 } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import { SCREEN_HEIGHT, STATUSBAR_HEIGHT } from '../../constants';
-import * as navigation from '../../rootNavigation';
-import HighlightPhotos from '../../components/HighlightPhotos';
-import ExTouchableOpacity from '../../components/ExTouchableOpacity';
-export default class EditPublicInfo extends Component {
-  constructor(props) {
-    super(props);
-  }
-  onPressGoBackHandler() {
-    navigation.goBack();
-  }
-  render() {
-    const { userInfo, highlightPhotos } = this.props.route.params;
-    return (
-      <View style={styles.container}>
-        <View style={styles.navigationBar}>
-          <ExTouchableOpacity
-            onPress={this.onPressGoBackHandler}
-            style={styles.btnBack}
-          >
-            <FontAwesome5Icon name="arrow-left" color="#000" size={20} />
-          </ExTouchableOpacity>
-          <Text style={styles.navigationTitle}>Edit your profile</Text>
+
+import * as ImagePicker from 'expo-image-picker';
+import {
+  SCREEN_HEIGHT,
+  STATUSBAR_HEIGHT,
+  BLUE_COLOR,
+} from '../../constants/constants';
+
+export default function EditPublicInfo({ navigation, route }) {
+  const userInfo = route.params.userInfo;
+
+  const [avatar, setAvatar] = useState(userInfo.avatar);
+  const [coverImage, setCoverImage] = useState(userInfo.coverImage);
+  const [username, setUsername] = useState(userInfo.username);
+  const [description, setDescription] = useState(userInfo.description);
+  const [city, setCity] = useState(userInfo.city);
+  const [link, setLink] = useState(userInfo.link);
+  const [editUsername, setEditUsername] = useState(false);
+  const [editDescription, setEditDescription] = useState(false);
+  const [editDetail, setEditDetail] = useState(false);
+
+  const pickImages = async (type) => {
+    // lấy item
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
+    // nếu lấy item thành công
+    if (!result.cancelled) {
+      if (type == 'avatar') {
+        setAvatar(result.uri);
+      } else {
+        setCoverImage(result.uri);
+      }
+    }
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.navigationBar}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+          style={styles.btnBack}
+        >
+          <FontAwesome5Icon name="arrow-left" color="#000" size={20} />
+        </TouchableOpacity>
+        <Text style={styles.navigationTitle}>Chỉnh sửa trang cá nhân</Text>
+      </View>
+      <ScrollView bounces={false} style={styles.detailsWrapper}>
+        <View style={{ ...styles.detail, paddingTop: 0 }}>
+          <View style={styles.detailTitleWrapper}>
+            <Text style={styles.detailTitle}>Ảnh đại diện</Text>
+            <TouchableOpacity onPress={() => pickImages('avatar')}>
+              <Text style={{ fontSize: 16, color: '#318bfb' }}>Chỉnh sửa</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity activeOpacity={0.8}>
+            <Image source={{ uri: avatar }} style={styles.avatar}></Image>
+          </TouchableOpacity>
         </View>
-        <ScrollView bounces={false} style={styles.detailsWrapper}>
-          <View style={{ ...styles.detail, paddingTop: 0 }}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>Avatar</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Modify</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Image
-                source={{ uri: userInfo.avatar_url }}
-                style={styles.avatar}
-              ></Image>
+        <View style={styles.detail}>
+          <View style={styles.detailTitleWrapper}>
+            <Text style={styles.detailTitle}>Ảnh bìa</Text>
+            <TouchableOpacity onPress={() => pickImages('coverImage')}>
+              <Text style={{ fontSize: 16, color: '#318bfb' }}>Chỉnh sửa</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.detail}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>Cover</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Modify</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Image
-                source={{ uri: userInfo.cover_url }}
-                style={styles.cover}
-              ></Image>
+          <TouchableOpacity activeOpacity={0.8}>
+            <Image source={{ uri: coverImage }} style={styles.cover}></Image>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.detail}>
+          <View style={styles.detailTitleWrapper}>
+            <Text style={styles.detailTitle}>Tên tài khoản</Text>
+            <TouchableOpacity onPress={() => setEditUsername(true)}>
+              <Text style={{ fontSize: 16, color: '#318bfb' }}>Chỉnh sửa</Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.detail}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>Introduction</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Modify</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Text style={styles.introTxt}>{userInfo.introTxt}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.detail}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>Details</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Modify</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.introListWrapper}>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="briefcase"
-                />
-                <Text style={styles.introLineText}>
-                  Work at{' '}
-                  <Text style={styles.introHightLight}>{userInfo.work_at}</Text>
-                </Text>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="home"
-                />
-                <Text style={styles.introLineText}>
-                  Live in{' '}
-                  <Text style={styles.introHightLight}>{userInfo.live_in}</Text>
-                </Text>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="map-marker-alt"
-                />
-                <Text style={styles.introLineText}>
-                  From{' '}
-                  <Text style={styles.introHightLight}>{userInfo.from}</Text>
-                </Text>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="heart"
-                />
-                <Text style={styles.introLineText}>
-                  Relationship{' '}
-                  <Text style={styles.introHightLight}>
-                    {userInfo.relationship}
-                  </Text>
-                </Text>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="rss"
-                />
-                <Text style={styles.introLineText}>
-                  Followed by{' '}
-                  <Text style={styles.introHightLight}>
-                    {userInfo.follower}{' '}
-                  </Text>
-                  followers
-                </Text>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="github"
-                />
-                <TouchableOpacity>
-                  <Text style={styles.introLineText}>
-                    {userInfo.links.github}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="link"
-                />
-                <TouchableOpacity>
-                  <Text style={styles.introLineText}>
-                    {userInfo.links.repl}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.introLine}>
-                <FontAwesome5Icon
-                  size={20}
-                  color="#333"
-                  style={styles.introIcon}
-                  name="ellipsis-h"
-                />
-                <TouchableOpacity>
-                  <Text style={styles.introLineText}>
-                    View more introductory information
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-          <View style={styles.detail}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>Hobbies</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={{ ...styles.detail }}>
-            <View style={styles.detailTitleWrapper}>
-              <Text style={styles.detailTitle}>HighLight Photos</Text>
-              <TouchableOpacity>
-                <Text style={{ fontSize: 16, color: '#318bfb' }}>Modify</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              activeOpacity={0.9}
-              style={styles.highlightGallery}
+          <TouchableOpacity activeOpacity={0.8}>
+            <TextInput
+              style={{
+                ...styles.introTxt,
+                color: editUsername ? '#318bfb' : '#000',
+              }}
+              editable={editUsername}
+              onChangeText={(text) => setUsername(text)}
             >
-              <HighlightPhotos isFullRadius={true} photos={highlightPhotos} />
-            </TouchableOpacity>
-          </View>
-          <View
-            activeOpacity={0.9}
-            style={{ ...styles.detail, ...styles.lastDetail }}
-          >
-            <TouchableOpacity style={styles.btnModifyMore}>
-              <FontAwesome5Icon />
-              <Text
-                style={{ color: '#318bfb', fontSize: 16, fontWeight: '500' }}
+              {username}
+            </TextInput>
+            {editUsername ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  right: 15,
+                  top: 15,
+                }}
+                onPress={() => {
+                  setEditUsername(false);
+                }}
               >
-                Modify introduction informations
+                <Text style={{ fontSize: 15, color: '#318bfb' }}>Lưu</Text>
+              </TouchableOpacity>
+            ) : null}
+          </TouchableOpacity>
+        </View>
+        <View style={styles.detail}>
+          <View style={styles.detailTitleWrapper}>
+            <Text style={styles.detailTitle}>Tiểu sử</Text>
+            <TouchableOpacity onPress={() => setEditDescription(true)}>
+              <Text style={{ fontSize: 16, color: '#318bfb' }}>
+                {description ? 'Chỉnh sửa' : 'Thêm'}
               </Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </View>
-    );
-  }
+          <TouchableOpacity activeOpacity={0.8}>
+            <TextInput
+              style={{
+                ...styles.introTxt,
+                color: editDescription ? '#318bfb' : '#000',
+              }}
+              editable={editDescription}
+              onChangeText={(text) => setDescription(text)}
+            >
+              {description}
+            </TextInput>
+            {editDescription ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  right: 15,
+                  top: 15,
+                }}
+                onPress={() => {
+                  setEditDescription(false);
+                }}
+              >
+                <Text style={{ fontSize: 15, color: '#318bfb' }}>Lưu</Text>
+              </TouchableOpacity>
+            ) : null}
+          </TouchableOpacity>
+        </View>
+        <View style={styles.detail}>
+          <View style={styles.detailTitleWrapper}>
+            <Text style={styles.detailTitle}>Chi tiết</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setEditDetail(true);
+              }}
+            >
+              <Text style={{ fontSize: 16, color: '#318bfb' }}>Chỉnh sửa</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.introListWrapper}>
+            <View style={styles.introLine}>
+              <FontAwesome5Icon
+                size={20}
+                color="#333"
+                style={styles.introIcon}
+                name="home"
+              />
+              <Text style={styles.introLineText}>Sống tại </Text>
+              <TextInput
+                editable={editDetail}
+                style={{
+                  ...styles.introHightLight,
+                  color: editDetail ? '#318bfb' : '#000',
+                }}
+                onChangeText={(text) => setCity(text)}
+              >
+                {city}
+              </TextInput>
+            </View>
+            <View style={styles.introLine}>
+              <FontAwesome5Icon
+                size={20}
+                color="#333"
+                style={styles.introIcon}
+                name="map-marker-alt"
+              />
+              <Text style={styles.introLineText}>Đến từ </Text>
+              <TextInput
+                editable={editDetail}
+                style={{
+                  ...styles.introHightLight,
+                  color: editDetail ? '#318bfb' : '#000',
+                }}
+                onChangeText={(text) => setCity(text)}
+              >
+                {city}
+              </TextInput>
+            </View>
+
+            <View style={styles.introLine}>
+              <FontAwesome5Icon
+                size={20}
+                color="#333"
+                style={styles.introIcon}
+                name="link"
+              />
+              <TouchableOpacity>
+                <TextInput
+                  editable={editDetail}
+                  style={{
+                    ...styles.introLineText,
+                    color: editDetail ? '#318bfb' : '#000',
+                  }}
+                  onChangeText={(text) => setLink(text)}
+                >
+                  {link}
+                </TextInput>
+              </TouchableOpacity>
+            </View>
+            {editDetail ? (
+              <TouchableOpacity
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  right: 15,
+                  top: 15,
+                }}
+                onPress={() => {
+                  setEditDetail(false);
+                }}
+              >
+                <Text style={{ fontSize: 15, color: '#318bfb' }}>Lưu</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
+    height: '100%',
   },
   navigationBar: {
-    paddingTop: STATUSBAR_HEIGHT,
     flexDirection: 'row',
-    height: 94,
+    height: 60,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
@@ -280,6 +302,7 @@ const styles = StyleSheet.create({
     color: '#333',
     alignSelf: 'center',
     marginVertical: 10,
+    fontSize: 18,
   },
   introListWrapper: {
     paddingVertical: 10,

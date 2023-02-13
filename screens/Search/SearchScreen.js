@@ -18,7 +18,7 @@ import {
 } from '../../constants/constants';
 import Item from '../Home/Item';
 
-export default function SearchScreen({ navigation }) {
+export default function SearchScreen({ navigation, route }) {
   const posts = [
     {
       author: {
@@ -187,6 +187,7 @@ export default function SearchScreen({ navigation }) {
     },
   ];
 
+  const searchUserId = route.params.userId;
   const [keyword, setKeyword] = useState(null);
   return (
     <View style={styles.container}>
@@ -207,7 +208,9 @@ export default function SearchScreen({ navigation }) {
             } else setKeyword(null);
           }}
           style={styles.searchInput}
-          placeholder="Tìm kiếm"
+          placeholder={
+            searchUserId ? 'Tìm kiếm trên trang cá nhân' : 'Tìm kiếm'
+          }
           placeholderTextColor={GREY_COLOR}
           autoFocus={true}
         />

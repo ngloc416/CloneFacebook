@@ -25,26 +25,36 @@ function SuggestFriend({ navigation }) {
   useEffect(() => {
     const fetchFriendList = async () => {
       const token = await AsyncStorage.getItem('token');
-      const response = await getSuggestedFriendList({ token, index: 0, count: 20});
+      const response = await getSuggestedFriendList({
+        token,
+        index: 0,
+        count: 20,
+      });
       if (response.code === '1000') {
         setFriendList(response.data.list_users);
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else {
-          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: response.message, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
-    }
+    };
     fetchFriendList();
-  }, [reloadSuggested])
+  }, [reloadSuggested]);
 
   const changeReloadSuggested = () => {
     if (reloadSuggested) {
@@ -52,7 +62,7 @@ function SuggestFriend({ navigation }) {
     } else {
       setReloadSuggested(false);
     }
-  }
+  };
 
   return (
     <View>
@@ -80,7 +90,9 @@ function SuggestFriend({ navigation }) {
           </View>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={21} color="black" />
           </TouchableOpacity>

@@ -26,9 +26,8 @@ export default function SettingScreen({ navigation }) {
       await AsyncStorage.removeItem('token');
       navigation.navigate('LoginScreen');
     } else {
-
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,7 +54,9 @@ export default function SettingScreen({ navigation }) {
           </Text>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>
@@ -91,7 +92,11 @@ export default function SettingScreen({ navigation }) {
             <Text style={styles.setting}>Cài đặt và quyền riêng tư</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnOption} activeOpacity={0.8} onPress={() => acceptLogout()}>
+        <TouchableOpacity
+          style={styles.btnOption}
+          activeOpacity={0.8}
+          onPress={() => acceptLogout()}
+        >
           <MaterialCommunityIcons name="logout" size={30} color={GREY_COLOR} />
           <View>
             <Text style={styles.setting}>Đăng xuất </Text>

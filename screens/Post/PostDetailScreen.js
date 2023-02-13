@@ -24,6 +24,7 @@ import {
 } from '../../constants/constants';
 
 import { likePost } from '../../services/like.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PostDetailScreen({ navigation, route }) {
   const post = route.params.post;
@@ -31,7 +32,6 @@ export default function PostDetailScreen({ navigation, route }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(post.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(post.like));
-  const [postOption, setPostOption] = useState(false);
 
   const [options, setOptions] = useState(false);
   const [isMe, setIsMe] = useState(true);
@@ -51,11 +51,7 @@ export default function PostDetailScreen({ navigation, route }) {
       setNumberOfLike(numberOfLike - 1);
     }
     const token = await AsyncStorage.getItem('token');
-    await likePost({postId: post.id, token});
-  };
-
-  const onPressPostOption = () => {
-    setPostOption(!postOption);
+    await likePost({ postId: post.id, token });
   };
 
   return (
@@ -165,7 +161,14 @@ export default function PostDetailScreen({ navigation, route }) {
       </TouchableHighlight>
 
       <View style={styles.footer}>
-        <TouchableHighlight underlayColor={LIGHT_GREY_COLOR} onPress={() => {}}>
+        <TouchableHighlight
+          underlayColor={LIGHT_GREY_COLOR}
+          onPress={() =>
+            navigation.navigate('PostCommentScreen', {
+              postId: post.id,
+            })
+          }
+        >
           <View style={styles.topFooter}>
             <View style={styles.countLike}>
               <AntDesign name="like1" size={16} color={BLUE_COLOR} />
@@ -178,7 +181,9 @@ export default function PostDetailScreen({ navigation, route }) {
                 }}
               >
                 {liked === '1'
-                  ? `Bạn và ${numberOfLike - 1} người khác`
+                  ? numberOfLike > 1
+                    ? `Bạn và ${numberOfLike - 1} người khác`
+                    : 'Bạn'
                   : numberOfLike}
               </Text>
             </View>
@@ -210,7 +215,11 @@ export default function PostDetailScreen({ navigation, route }) {
           </TouchableHighlight>
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
-            onPress={() => {}}
+            onPress={() =>
+              navigation.navigate('PostCommentScreen', {
+                postId: post.id,
+              })
+            }
           >
             <View style={styles.groupItemFooter}>
               <EvilIcons name="comment" size={30} color="#6b6d6e" />
@@ -223,32 +232,37 @@ export default function PostDetailScreen({ navigation, route }) {
       {post.image &&
         post.image.map((image, key) => (
           <TouchableWithoutFeedback
-            onPress={() => navigation.navigate('PostImageScreen', { postDetail: post, index: key})}
+            onPress={() =>
+              navigation.navigate('PostImageScreen', {
+                postDetail: post,
+                index: key,
+              })
+            }
           >
-          <View key={key}>
-            <View style={styles.seperatorLine}></View>
-            <Image
-              source={{ uri: image.url }}
-              style={styles.image}
-              resizeMode="cover"
-              key={key}
-            />
-            <View style={styles.bottomFooter}>
-              <TouchableHighlight>
-                <View style={styles.groupItemFooter}>
-                  <EvilIcons name="like" size={30} color="#6b6d6e" />
+            <View>
+              <View style={styles.seperatorLine}></View>
+              <Image
+                source={{ uri: image.url }}
+                style={styles.image}
+                resizeMode="cover"
+                key={key}
+              />
+              <View style={styles.bottomFooter}>
+                <TouchableHighlight>
+                  <View style={styles.groupItemFooter}>
+                    <EvilIcons name="like" size={30} color="#6b6d6e" />
 
-                  <Text style={styles.textIconFooter}>Thích</Text>
-                </View>
-              </TouchableHighlight>
-              <TouchableHighlight>
-                <View style={styles.groupItemFooter}>
-                  <EvilIcons name="comment" size={30} color="#6b6d6e" />
-                  <Text style={styles.textIconFooter}>Bình luận</Text>
-                </View>
-              </TouchableHighlight>
+                    <Text style={styles.textIconFooter}>Thích</Text>
+                  </View>
+                </TouchableHighlight>
+                <TouchableHighlight>
+                  <View style={styles.groupItemFooter}>
+                    <EvilIcons name="comment" size={30} color="#6b6d6e" />
+                    <Text style={styles.textIconFooter}>Bình luận</Text>
+                  </View>
+                </TouchableHighlight>
+              </View>
             </View>
-          </View>
           </TouchableWithoutFeedback>
         ))}
       <View style={styles.seperatorLine}></View>
@@ -297,10 +311,18 @@ export default function PostDetailScreen({ navigation, route }) {
                 style={styles.postOptionItemWrapper}
                 onPress={() => {
                   setOptions(!options);
-                  Alert.alert('', 'Bạn muốn xóa bài viết?', [
-                    { text: 'KHÔNG', onPress: () => console.log('OK Pressed') },
-                    { text: 'XÓA', onPress: () => console.log('OK Pressed') },
-                  ]);
+                  Alert.alert(
+                    'Xóa bài viết?',
+                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
+                    [
+                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      {
+                        text: 'CHỈNH SỬA',
+                        onPress: () => navigation.navigate('EditPostScreen'),
+                      },
+                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                    ]
+                  );
                 }}
               >
                 <View style={styles.postOptionItem}>

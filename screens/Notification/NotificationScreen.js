@@ -103,7 +103,9 @@ export default function Notification({ navigation }) {
           <Text style={styles.textHeader}>Thông báo</Text>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>

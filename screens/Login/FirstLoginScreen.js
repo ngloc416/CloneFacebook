@@ -53,26 +53,33 @@ export default function FirstLoginScreen({ navigation }) {
   }, []);
 
   const clickLogin = async () => {
-    const response = await login({ password, phone });
+    const response = await login({ phone, password });
     if (response.code === '1000') {
       await AsyncStorage.setItem('token', response.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(response.data));
+
       navigation.navigate('MainTab');
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
         navigation.navigate('LoginScreen');
-        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else if (response.code === 'ERR_NETWORK') {
-        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
-        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: response.message, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,7 +126,7 @@ export default function FirstLoginScreen({ navigation }) {
               }}
               value={password}
               onChangeText={(text) => {
-                setPassword(text)
+                setPassword(text);
                 if (text != null && text != '') setShow(true);
                 else setShow(false);
               }}
