@@ -85,21 +85,6 @@ export default function Item({ navigation, item }) {
     }
   };
 
-  const navigateToPostDetail = async (postId) => {
-    const token = await AsyncStorage.getItem('token');
-    const response = await getPostById({ postId, token });
-    console.log(response);
-    if ( response.code === '1000' ) {
-      navigation.navigate('PostDetailScreen', { post: response.data });
-    }
-    if (response.code === '9995' || response.code === '9998') {
-      await AsyncStorage.removeItem('token');
-      navigation.navigate('LoginScreen');
-      dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
-      setTimeout(() => dispatch(closeNotice()), 2000);
-    }
-  }
-
   return (
     <View style={styles.item}>
       <TouchableHighlight

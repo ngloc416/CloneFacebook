@@ -18,7 +18,8 @@ export default Sent;
 const styles = StyleSheet.create({
     container:{
         marginVertical:25,
-        alignSelf:'flex-end'
+        alignSelf:'flex-end',
+        marginRight: 10,
     },
     duration:{
         color:'#b6b6b6',
@@ -27,10 +28,11 @@ const styles = StyleSheet.create({
         alignSelf:'flex-end'
     },
     gradient:{
+        display: 'flex',
         maxWidth:220,
-        alignItems:'center',
-        justifyContent:'center',
-        paddingHorizontal:20,
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        justifyContent:'flex-end',
         paddingVertical:10,
         borderTopLeftRadius:25,
         borderTopRightRadius:25,
