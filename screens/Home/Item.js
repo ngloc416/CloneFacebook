@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { openNotice, closeNotice } from '../../redux/actions/notice.action';
@@ -41,6 +41,11 @@ export default function Item({ navigation, item }) {
   const [options, setOptions] = useState(false);
   const [isMe, setIsMe] = useState(true);
 
+  useEffect(() => {
+    setLiked(item.is_liked);
+    setNumberOfLike(Number(item.like));
+  }, [item]);
+
   const dispatch = useDispatch();
 
   const time = Date.now() / 1000 - parseInt(item.created);
@@ -72,6 +77,26 @@ export default function Item({ navigation, item }) {
     const response = await getPostById({ postId, token });
     if (response.code === '1000') {
       navigation.navigate('PostDetailScreen', { post: response.data });
+    }
+    if (response.code === '9995' || response.code === '9998') {
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('LoginScreen');
+      dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    } else if (response.code === 'ERR_NETWORK') {
+      dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    }
+  };
+
+  const navigateToPostImageDetail = async (postId, index) => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await getPostById({ postId, token });
+    if (response.code === '1000') {
+      navigation.navigate('PostImageScreen', {
+        postDetail: response.data,
+        index: index,
+      });
     }
     if (response.code === '9995' || response.code === '9998') {
       await AsyncStorage.removeItem('token');
@@ -237,10 +262,7 @@ export default function Item({ navigation, item }) {
         <TouchableWithoutFeedback
           style={styles.imageContainer1}
           onPress={() => {
-            navigation.navigate('PostImageScreen', {
-              postDetail: item,
-              index: 0,
-            });
+            navigateToPostImageDetail(item.id, 0);
           }}
         >
           <Image

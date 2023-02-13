@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   StyleSheet,
@@ -12,10 +12,9 @@ import {
 import { WHITE_COLOR, LIGHT_GREY_COLOR } from '../../constants/constants.js';
 
 export default function PostTool({ navigation }) {
-
   const [currentUser, setCurrentUser] = useState({});
   useEffect(() => {
-    async function fetchCurrentUser () {
+    async function fetchCurrentUser() {
       const user = await AsyncStorage.getItem('user');
       setCurrentUser(JSON.parse(user));
     }
@@ -27,11 +26,11 @@ export default function PostTool({ navigation }) {
         <TouchableOpacity
           activeOpacity={0.5}
           onPress={() => {
-            navigation.navigate('ProfileScreen', {userId: currentUser.id});
+            navigation.navigate('ProfileScreen', { userId: currentUser.id });
           }}
         >
           <Image
-            source={{uri: currentUser.avatar}}
+            source={{ uri: currentUser.avatar }}
             style={styles.userAvatar}
           ></Image>
         </TouchableOpacity>
@@ -62,6 +61,8 @@ const styles = StyleSheet.create({
     borderTopColor: '#ddd',
     borderTopWidth: 0.5,
     backgroundColor: WHITE_COLOR,
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 0.8,
   },
   postToolWrapper: {
     padding: 15,
