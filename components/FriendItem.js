@@ -15,7 +15,7 @@ import {
   GREY_COLOR,
 } from '../constants/constants.js';
 
-import { setAcceptFriend } from '../services/friend.service';
+import { setAcceptFriend, sendRequestFriend } from '../services/friend.service';
 import { openNotice, closeNotice } from '../redux/actions/notice.action';
 import { authMsg } from '../constants/message';
 
@@ -24,16 +24,40 @@ export default function FriendItem(props) {
 
   const acceptFriend = async () => {
     const token = await AsyncStorage.getItem('token');
-    const response = await setAcceptFriend({token, userId: props.userId, isAccept: 1});
-    if (response.code === '1000') {
-      const reloadRequestedFriendList = props.setReload;
-      reloadRequestedFriendList();
-    } else {
-      if (response.code === '9995' || response.code === '9998') {
-        await AsyncStorage.removeItem('token');
-        props.navigation.navigate('LoginScreen');
-        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
-        setTimeout(() => dispatch(closeNotice()), 2000);
+    let response;
+    if (props.firstLabel === 'Chấp nhận') {
+      response = await setAcceptFriend({token, userId: props.userId, isAccept: 1});
+      if (response.code === '1000') {
+        const reloadRequestedFriendList = props.setReload;
+        reloadRequestedFriendList();
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          props.navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+
+    if (props.firstLabel === 'Thêm bạn bè') {
+      response = await sendRequestFriend({token, userId: props.userId});
+      if (response === '1000') {
+        const changeReloadSuggested = props.setReloadSuggested;
+        changeReloadSuggested();
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          props.navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
       }
     }
   }

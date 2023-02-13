@@ -20,9 +20,15 @@ const getSuggestedFriendList = ({index, count, token}) => {
   return axiosClient.post(url, {token, index, count });
 }
 
+const sendRequestFriend = ({token, userId}) => {
+  const url = `/friend/set_request_friend?&user_id=${userId}&token=${token}`;
+  return axiosClient.post(url, {token, user_id: userId });
+}
+
 export {
   getRequestFriendList,
   setAcceptFriend,
   getUserListFriend,
   getSuggestedFriendList,
+  sendRequestFriend,
 }

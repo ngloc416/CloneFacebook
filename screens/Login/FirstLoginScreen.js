@@ -25,7 +25,7 @@ import {
 
 import { login } from '../../services/auth.service';
 import { openNotice, closeNotice } from '../../redux/actions/notice.action';
-import { networkErrorMsg } from '../../constants/message.js';
+import { networkErrorMsg, authMsg } from '../../constants/message.js';
 
 export default function FirstLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
@@ -59,7 +59,12 @@ export default function FirstLoginScreen({ navigation }) {
       await AsyncStorage.setItem('user', JSON.stringify(response.data));
       navigation.navigate('MainTab');
     } else {
-      if (response.code === 'ERR_NETWORK') {
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === 'ERR_NETWORK') {
         dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
