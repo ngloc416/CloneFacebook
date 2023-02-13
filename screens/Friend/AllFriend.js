@@ -18,8 +18,8 @@ import {
 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR, BLUE_COLOR } from '../../constants/constants.js';
-import FriendItem from '../../components/AllFriendItem';
 import { getUserListFriend } from '../../services/friend.service';
+import FriendItem from '../../components/AllFriendItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 import { authMsg } from '../../constants/message';

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import { useDispatch } from 'react-redux';
 import {
   Text,
   StyleSheet,
@@ -22,7 +23,81 @@ import {
   LIGHT_GREY_COLOR,
 } from '../../constants/constants';
 
-export default function BeginSignUp({ navigation }) {
+import { authMsg, networkErrorMsg } from '../../constants/message';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { checkVerifyCode, getVerifyCode, login } from '../../services/auth.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export default function BeginSignUp({ navigation, route }) {
+  const [code, setCode] = useState('');
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchCode = async () => {
+      const response = await getVerifyCode({phone: route.params.phone});
+      if (response.code === '1000') {
+        setCode(response.data.verifyCode);
+      } else {
+        if (response.code === 'ERR_NETWORK') {
+          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+    fetchCode();
+  }, [])
+
+  const checkCode = async () => {
+    const response = await checkVerifyCode({phone: route.params.phone, codeVerify: code});
+    if (response.code === '1000') {
+      await AsyncStorage.setItem('token', response.data.token);
+      Alert.alert(
+        'Nhớ số điện thoại và mật khẩu của bạn',
+        `Bạn cần thông tin này vào lần đăng nhập sau: \nSố điện thoại: ${route.params.phone}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              navigation.pop();
+              navigation.navigate('ChangeInfoAfterSignup');
+            },
+          },
+        ]
+      );
+    } else {
+      if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else {
+        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
+
+  const reloadCode = async () => {
+    const response = await getVerifyCode({phone: route.params.phone});
+      if (response.code === '1000') {
+        setCode(response.data.verifyCode);
+        Alert.alert('', 'Chúng tôi đã gửi lại mã cho bạn', [
+          {
+            text: 'OK',
+            onPress: () => {},
+          },
+        ]);
+      } else {
+        if (response.code === 'ERR_NETWORK') {
+          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.container}>
@@ -52,7 +127,7 @@ export default function BeginSignUp({ navigation }) {
         </View>
         <Text style={{ alignSelf: 'center', fontSize: 17, marginTop: 10 }}>
           Chúng tôi đã gửi SMS kèm mã tới{' '}
-          <Text style={{ fontWeight: '700' }}>{'0971596416'}</Text>{' '}
+          <Text style={{ fontWeight: '700' }}>{route.params.phone}</Text>{' '}
         </Text>
         <Text
           style={{
@@ -87,6 +162,8 @@ export default function BeginSignUp({ navigation }) {
               paddingHorizontal: 25,
             }}
             maxLength={4}
+            value={code}
+            onChangeText={(text) => setCode(text)}
             autoFocus={true}
             keyboardType="numeric"
           />
@@ -94,19 +171,7 @@ export default function BeginSignUp({ navigation }) {
         <TouchableHighlight
           style={styles.signinButton}
           onPress={() => {
-            Alert.alert(
-              'Nhớ số điện thoại và mật khẩu của bạn',
-              `Bạn cần thông tin này vào lần đăng nhập sau: \nSố điện thoại: ${'0971596416'} \nMật khẩu: ${'1234567899'}`,
-              [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    navigation.pop();
-                    navigation.navigate('ChangeInfoAfterSignup');
-                  },
-                },
-              ]
-            );
+            checkCode()
           }}
           underlayColor={TOUCH_BLUE_COLOR}
         >
@@ -129,12 +194,7 @@ export default function BeginSignUp({ navigation }) {
             backgroundColor: LIGHT_GREY_COLOR,
           }}
           onPress={() => {
-            Alert.alert('', 'Chúng tôi đã gửi lại mã cho bạn', [
-              {
-                text: 'OK',
-                onPress: () => {},
-              },
-            ]);
+            reloadCode()
           }}
         >
           <Text style={{ ...styles.textSigninButton, color: '#000' }}>
@@ -152,7 +212,8 @@ export default function BeginSignUp({ navigation }) {
               },
               {
                 text: 'ĐĂNG XUẤT',
-                onPress: () => {
+                onPress: async () => {
+                  await AsyncStorage.removeItem('token');
                   navigation.pop();
                   navigation.navigate('FirstLoginScreen');
                 },

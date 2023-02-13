@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   Text,
   StyleSheet,
@@ -19,8 +20,12 @@ import {
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import { changeUserInfoAfterSignUp } from '../../services/auth.service';
+import { authMsg, networkErrorMsg } from '../../constants/message';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function ChangeInfoAfterSignup({ navigation, route }) {
+export default function ChangeInfoAfterSignup({ navigation }) {
   const userInfo = {
     avatar:
       'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
@@ -28,10 +33,12 @@ export default function ChangeInfoAfterSignup({ navigation, route }) {
       'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
     username: '',
   };
+  const dispatch = useDispatch();
 
   const [avatar, setAvatar] = useState(userInfo.avatar);
   const [coverImage, setCoverImage] = useState(userInfo.coverImage);
   const [username, setUsername] = useState(userInfo.username);
+  const [avatarFile, setAvatarFile] = useState({uri: avatar, name: 'avatar.jpg', type: 'image/jpg'});
 
   const pickImages = async (type) => {
     // lấy item
@@ -44,11 +51,41 @@ export default function ChangeInfoAfterSignup({ navigation, route }) {
     if (!result.cancelled) {
       if (type == 'avatar') {
         setAvatar(result.uri);
+        const arr = result.uri.split('.');
+        setAvatarFile({uri: result.uri, name: `avatar.${arr[arr.length - 1]}`, type: `image/${arr[arr.length - 1]}`});
       } else {
         setCoverImage(result.uri);
       }
     }
   };
+
+  const changeInfo = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const formData = new FormData();
+    formData.append('image', avatarFile );
+    console.log(formData);
+    const response = await changeUserInfoAfterSignUp({token, userName: username, formData});
+    console.log(response);
+    if (response.data) {
+      const data = response.data.data;
+      data.name = response.data.data.username;
+      await AsyncStorage.setItem('user', JSON.stringify(data));
+      navigation.navigate('MainTab');
+    } else {
+      if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else {
+        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
   return (
     <View style={styles.container}>
       <View style={styles.navigationBar}>
@@ -97,15 +134,15 @@ export default function ChangeInfoAfterSignup({ navigation, route }) {
               }}
               placeholder="Nhập tên tài khoản"
               placeholderTextColor={GREY_COLOR}
+              value={username}
               onChangeText={(text) => setUsername(text)}
             >
-              {username}
             </TextInput>
           </TouchableOpacity>
           <TouchableHighlight
             style={styles.signinButton}
             onPress={() => {
-              navigation.navigate('MainTab');
+              changeInfo()
             }}
             underlayColor={TOUCH_BLUE_COLOR}
           >
