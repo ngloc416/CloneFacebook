@@ -1,11 +1,14 @@
-import {View, Image, StyleSheet} from 'react-native';
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 
-const Avatar = ({ source }) => {
+const Avatar = ({ source, navigation, userId }) => {
   return (
-    <View style={styles.container} >
-      <Image style={styles.userImage} source={source}/>
-    </View>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() => navigation.navigate('ProfileScreen', { user: userId })}
+    >
+      <Image style={styles.userImage} source={source} />
+    </TouchableOpacity>
   );
 };
 
@@ -22,5 +25,5 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-  }
+  },
 });

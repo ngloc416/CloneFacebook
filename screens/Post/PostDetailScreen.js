@@ -87,7 +87,10 @@ export default function PostDetailScreen({ navigation, route }) {
 
             <View style={styles.extraInfoWrapper}>
               <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
-                {time < 1 * 60 * 60 ? 'Vừa xong' : null}
+                {time < 1 * 60 ? 'Vừa xong' : null}
+                {time >= 1 * 60 && time < 60 * 60
+                  ? `${Math.floor(time / 60)} phút`
+                  : null}
                 {time >= 1 * 60 * 60 && time < 24 * 60 * 60
                   ? `${Math.floor(time / 3600)} giờ`
                   : null}

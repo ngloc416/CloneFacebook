@@ -104,7 +104,7 @@ const PostCommentScreen = ({ navigation, route }) => {
               </View>
             ) : null}
             {comments.map((comment, index) => (
-              <Comment key={index} comment={comment}>
+              <Comment key={index} comment={comment} navigation={navigation}>
                 Detail
               </Comment>
             ))}

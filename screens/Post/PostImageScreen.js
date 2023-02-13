@@ -104,8 +104,9 @@ const PostImageScreen = ({ navigation, route }) => {
                   )
                 ) : null}
               </TouchableOpacity>
-              {time < 1 * 60 * 60 ? (
-                <Text style={styles.time}>Vừa xong</Text>
+              {time < 1 * 60 ? <Text style={styles.time}>Vừa xong</Text> : null}
+              {time >= 1 * 60 && time < 60 * 60 ? (
+                <Text style={styles.time}>{Math.floor(time / 60)} phút</Text>
               ) : null}
               {time >= 1 * 60 * 60 && time < 24 * 60 * 60 ? (
                 <Text style={styles.time}>{Math.floor(time / 3600)} giờ</Text>
