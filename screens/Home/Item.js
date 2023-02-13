@@ -101,7 +101,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen');
+                navigation.navigate('ProfileScreen', {userId: item.author.id});
               }}
             >
               <Image
@@ -114,7 +114,7 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen');
+                    navigation.navigate('ProfileScreen', {user: item.author.id});
                   }}
                   style={{ flex: 1 }}
                 >

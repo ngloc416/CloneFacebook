@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   Text,
   StyleSheet,
@@ -23,324 +24,89 @@ import {
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import FriendsShowing from './FriendsShowing';
 import Item from '../Home/Item';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserInfo } from '../../services/user.service';
+import { getUserListFriend } from '../../services/friend.service'
+import { getListPost } from '../../services/post.service'
+import { authMsg, networkErrorMsg } from '../../constants/message';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 
-export default function ProfileScreen({ navigation }) {
-  const user = {
-    id: '1',
-    username: 'Nguyễn Đình Lộc',
-    created: '',
-    description: 'ABCDEF',
-    avatar:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-    coverImage:
-      'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-    link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-    address: 'Hải Dương',
-    city: 'Hải Dương',
-    country: 'Việt Nam',
-    listing: '',
-    isFriend: '',
-    online: '',
-  };
-  const friends = [
-    {
-      friend: {
-        id: '2',
-        username: 'Nguyễn Đình Lộc',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797164',
-    },
-    {
-      friend: {
-        id: '3',
-        username: 'Nguyễn Văn Khoa',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797165',
-    },
-    {
-      friend: {
-        id: '4',
-        username: 'Vũ Hoàng Long',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797166',
-    },
-    {
-      friend: {
-        id: '5',
-        username: 'Nguyễn Đức Thắng',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797167',
-    },
-    {
-      friend: {
-        id: '6',
-        username: 'Võ Tiến Bắc',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797168',
-    },
-    {
-      friend: {
-        id: '7',
-        username: 'Hoàng Lan Hương',
-        created: '',
-        description: 'ABCDEF',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-        coverImage:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-        link: 'https://abcddfsdsfdsfdsfdsfsdfsdfdsfdsfsdffsfd',
-        address: 'Hải Dương',
-        city: 'Hải Dương',
-        country: 'Việt Nam',
-        listing: '',
-        isFriend: '',
-        online: '',
-      },
-      createdAt: '1672797169',
-    },
-  ];
-  const posts = [
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Nguyễn Đình Lộc',
-        avatar:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      },
-      described:
-        'Giáng sinh vừa qua, Tết đã đến chân rồi, lên đồ đi chụp ảnh Tết đi các bồ ơi ^^ Vẫn quán mình quen thì mình ghé chơi thôi, qua một tuần lại thay áo mới, Seeu Coffee giờ đã ngập tràn không khí tết đến xuân về. Concept lần này theo tone đỏ cổ truyền, hoạ tiết chính xuyên suốt là quạt xếp nan, đủ hiện đại, đủ Việt Nam nha. Khá khuyến khích các bạn chụp ảnh khu tầng 2 cho rộng rãi, quán để bàn trà tết nom cũng ưng mắt và giống studio.',
-      image: [
-        {
-          url: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191101/Facebook/Post/img2_vjqtfl.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1672797164',
-      like: '123',
-      comment: '36',
-      is_liked: '0',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Nguyễn Đình Lộc',
-        avatar:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      },
-      described:
-        'Trong các bộ phim, vai phản diện hầu như đều có yêu cầu cao hơn về mặt diễn xuất và không phải ai cũng có thể diễn một cách mượt mà được. Đều sở hữu nét đẹp được đo ni đóng giày cho vai chính diện, nhiều diễn viên Hàn Quốc gây bất ngờ bởi độ hợp vai khi hoá thân vào phe “ác”.',
-      image: [
-        {
-          url: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191076/Facebook/Post/img1_mndcns.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1672797164',
-      like: '123',
-      comment: '36',
-      is_liked: '0',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Nguyễn Đình Lộc',
-        avatar:
-          'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      },
-      described: `Quán đồ Hàn xinh nhất quận Cầu Giấy Đủ món Korea ngon rẻ chỉ từ 25k cho team Nghĩa Tân, Tô Hiệu.
-      Nguyên phố Tô Hiệu, Nghĩa Tân thì độc mỗi hàng này là bán đồ Hàn mà giá hợp túi tiền học sinh sinh viên lắm nè`,
-      image: [
-        {
-          url: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1672797164',
-      like: '123',
-      comment: '36',
-      is_liked: '0',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Hoàng',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      described:
-        'Mùa xuân là mùa cây cối đâm chồi nảy lộc. Những mầm non xanh tươi mơn mởn tràn đầy nhựa sống.' +
-        ' Thời tiết se se lạnh và có mưa phùn. Trên bầu trời, những đám mây trắng đang trôi lờ lững. Đến tầm trưa, có những tia nắng và ông mặt trời xuất hiện.' +
-        ' Những chú chim cất tiếng hót líu lo. Đây là mùa mà các loài hoa đua nhau khoe sắc thắm. Mùa xuân, em háo hức nhất là dịp Tết để được nhận được lì xì. ' +
-        'Em rất yêu quý mùa xuân và em mong chờ mùa xuân nhanh đến.',
-      image: [
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1672797164',
-      like: '5',
-      comment: '3',
-      is_liked: '0',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Abc',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      described: 'Merry Christmas',
-      image: [
-        {
-          url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1667879990',
-      like: '15',
-      comment: '33',
-      is_liked: '1',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-    {
-      author: {
-        id: '63b4d6871870e51c9354c506',
-        userName: 'Abc',
-        avatar:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
-      },
-      described: 'Merry Christmas',
-      image: [
-        {
-          url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-        {
-          url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
-          id: '63b4d6871870e51c9354c506',
-        },
-      ],
-      video: null,
-      created: '1667879990',
-      like: '15',
-      comment: '33',
-      is_liked: '1',
-      is_blocked: '0',
-      can_comment: '1',
-      can_edit: '0',
-      state: 'hạnh phúc',
-    },
-  ];
+export default function ProfileScreen({ navigation, route }) {
+  const [user, setUser] = useState({});
+  const [friends, setFriends] = useState([]);
+  const [currentUser, setCurrentUser] = useState({});
+  const [posts, setPosts] = useState([]);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userId = route.params.userId;
+      const currentUsers = await AsyncStorage.getItem('user');
+      const currentUserData = JSON.parse(currentUsers);
+      setCurrentUser(currentUserData);
+      if (userId != currentUserData.id) {
+        setIsMe(false);
+      }
+      const token = await AsyncStorage.getItem('token');
+      const response = await getUserInfo({token, userId});
+      if (response.code === '1000') {
+        setUser(response.data);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else if (response.code === 'ERR_NETWORK') {
+          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      const userId = route.params.userId;
+      const token = await AsyncStorage.getItem('token');
+      const response = await getUserListFriend({ token, userId, index: 0, count: 6});
+      if (response.code === '1000') {
+        setFriends(response.data.friends);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else if (response.code === 'ERR_NETWORK') {
+          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+    fetchFriends();
+  }, []);
+  
+  useEffect(() => {
+    async function fetchPostList () {
+      const token = await AsyncStorage.getItem('token');
+      const response = await getListPost({ last_id: 0, index: 0, count: 20, token});
+      if (response.code === '1000') {
+        setPosts(response.data.posts);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else if (response.code === 'ERR_NETWORK') {
+          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    }
+    fetchPostList();
+  }, []);
 
   const [isMe, setIsMe] = useState(true);
   const [avatarOptions, setAvatarOptions] = useState(false);
@@ -375,7 +141,7 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.infoWrapper}>
           <View style={styles.avatarCoverWrapper}>
             <TouchableOpacity activeOpacity={0.8}>
-              <Image style={styles.cover} source={{ uri: user.coverImage }} />
+              <Image style={styles.cover} source={{ uri: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg' }} />
             </TouchableOpacity>
             {isMe ? (
               <TouchableOpacity style={styles.btnChangeCover}>
@@ -493,7 +259,7 @@ export default function ProfileScreen({ navigation }) {
             </Text>
             <View style={styles.postToolWrapper}>
               <Image
-                source={require('../../assets/Login/Avatar.jpg')}
+                source={{uri: currentUser.avatar}}
                 style={styles.userAvatar}
               ></Image>
               <View style={styles.postInputWrapper}>

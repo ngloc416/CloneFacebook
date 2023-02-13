@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
@@ -19,6 +19,16 @@ import { GREY_COLOR } from '../../constants/constants';
 import { logout } from '../../services/auth.service';
 
 export default function SettingScreen({ navigation }) {
+  const [user, setUser] = useState({});
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await AsyncStorage.getItem('user');
+      const userData = JSON.parse(currentUser);
+      setUser(userData);
+    }
+    fetchUser();
+  }, [])
+
   const acceptLogout = async () => {
     const token = await AsyncStorage.getItem('token');
     const response = await logout(token);
@@ -62,17 +72,17 @@ export default function SettingScreen({ navigation }) {
         </View>
         <TouchableOpacity
           style={styles.btnProfile}
-          onPress={() => navigation.navigate('ProfileScreen')}
+          onPress={() => navigation.navigate('ProfileScreen', {userId: user.id})}
           activeOpacity={0.8}
         >
           <Image
             style={styles.avatar}
             source={{
-              uri: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
+              uri: user.avatar,
             }}
           />
           <View>
-            <Text style={styles.name}>{'Nguyễn Đình Lộc'}</Text>
+            <Text style={styles.name}>{user.name}</Text>
             <Text style={{ color: GREY_COLOR, fontSize: 15 }}>
               Xem trang cá nhân của bạn
             </Text>

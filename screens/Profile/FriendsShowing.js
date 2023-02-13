@@ -21,7 +21,7 @@ export default function FriendsShowing(props) {
               style={{ fontSize: 17, fontWeight: '500', color: GREY_COLOR }}
             >
               {props.friends.length} người bạn
-              {!props.isMe ? ` (${'30'} bạn chung)` : ''}
+              {/* {!props.isMe ? ` (${'30'} bạn chung)` : ''} */}
             </Text>
           </View>
           {props.isMe && (
@@ -38,21 +38,26 @@ export default function FriendsShowing(props) {
         </TouchableOpacity>
       </View>
       <View style={styles.friendGallery}>
-        {props.friends.splice(0, 6).map((friend, index) => (
+        { (props.friends.length > 0) ?
+        <>
+        {props.friends.map((friend, index) => (
           <View key={index} style={styles.friendItem}>
             <TouchableOpacity onPress={() => {}} activeOpacity={0.8}>
               <Image
-                source={{ uri: friend.friend.avatar }}
+                source={{ uri: friend.avatar }}
                 style={styles.friendAvatar}
               />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {}} style={{ marginTop: 5 }}>
               <Text style={{ fontSize: 15, fontWeight: '700' }}>
-                {friend.friend.username}
+                {friend.username}
               </Text>
             </TouchableOpacity>
           </View>
         ))}
+        </>
+        : null
+        }
       </View>
       <TouchableOpacity
         onPress={() => {}}
