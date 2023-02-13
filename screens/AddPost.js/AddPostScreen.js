@@ -28,6 +28,7 @@ import {
   STATUSBAR_HEIGHT,
   LIGHT_GREY_COLOR,
   SCREEN_HEIGHT,
+  SCREEN_WIDTH,
 } from '../../constants/constants';
 import state from '../../constants/state';
 import { addPost } from '../../services/post.service';
@@ -41,10 +42,10 @@ export default function AddPostScreen({ navigation }) {
   //       else return true;
   //     };
 
-  //     const backHandler = BackHandler.addEventListener(
-  //       'hardwareBackPress',
-  //       backAction
-  //     );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction
+  //   );
 
   //     return () => backHandler.remove();
   //   }, [chooseState]);
@@ -56,6 +57,8 @@ export default function AddPostScreen({ navigation }) {
   const [describedText, setDescribedText] = useState('');
   const [status, setStatus] = useState('');
   const [currentUser, setCurrentUser] = useState({});
+  const [stateList, setStateList] = useState(state);
+  const [stateFilter, setStateFilter] = useState(state.state);
 
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
@@ -67,7 +70,7 @@ export default function AddPostScreen({ navigation }) {
       const user = await AsyncStorage.getItem('user');
       const userData = JSON.parse(user);
       setCurrentUser(userData);
-    }
+    };
     fetchCurrentUser();
   }, []);
 
@@ -141,7 +144,7 @@ export default function AddPostScreen({ navigation }) {
 
   const addNewPost = async () => {
     const token = await AsyncStorage.getItem('token');
-    let body = {token};
+    let body = { token };
     if (status !== '') {
       body.status = status;
     }
@@ -152,12 +155,12 @@ export default function AddPostScreen({ navigation }) {
     if (imageNumber > 0) {
       images.forEach((image) => {
         formData.append('image', image);
-      })
+      });
     }
     if (videoNumber) {
       images.forEach((image) => {
         formData.append('video', image);
-      })
+      });
     }
     body.formData = formData;
     console.log(formData._parts);
@@ -169,17 +172,23 @@ export default function AddPostScreen({ navigation }) {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
         navigation.navigate('LoginScreen');
-        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else if (response.code === 'ERR_NETWORK') {
-        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
-        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: response.message, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -205,18 +214,71 @@ export default function AddPostScreen({ navigation }) {
             <TextInput
               value={userState}
               onChangeText={(text) => {
-                if (text) {
-                  setUserState(text);
-                } else setUserState(null);
+                setStateFilter(
+                  state.state.filter((item) =>
+                    item.includes(text.toLowerCase())
+                  )
+                );
               }}
-              style={{ marginLeft: 10 }}
+              style={{ marginLeft: 10, fontSize: 17 }}
               placeholder="Tìm kiếm"
               placeholderTextColor={GREY_COLOR}
               autoFocus={true}
             />
+            {userState ? (
+              <TouchableOpacity
+                style={{ position: 'absolute', right: 25 }}
+                onPress={() => {
+                  setUserState(null);
+                  setStateFilter(state.state);
+                }}
+              >
+                <AntDesign name="close" size={23} color={GREY_COLOR} />
+              </TouchableOpacity>
+            ) : null}
           </View>
 
-          <ScrollView style={{ marginTop: 10 }}></ScrollView>
+          <ScrollView
+            style={{
+              marginTop: 10,
+              flex: 1,
+              borderTopColor: GREY_COLOR,
+              borderTopWidth: 0.2,
+            }}
+          >
+            {stateFilter
+              ? stateFilter.map((item, index) => {
+                  return (
+                    <TouchableOpacity
+                      style={{
+                        borderWidth: 0.2,
+                        borderColor: GREY_COLOR,
+                        width: '100%',
+                        height: 60,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setUserState(item);
+                        setChooseState(false);
+                      }}
+                    >
+                      <Text style={{ fontSize: 28 }} key={`icon${index}`}>
+                        {stateList.icon[index]}
+                      </Text>
+                      <Text
+                        style={{ fontSize: 17, marginLeft: 10 }}
+                        key={index}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              : null}
+          </ScrollView>
         </View>
       )}
 
@@ -228,10 +290,7 @@ export default function AddPostScreen({ navigation }) {
           </TouchableOpacity>
           <Text style={styles.textHeader}>Tạo bài viết</Text>
         </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => addNewPost()}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => addNewPost()}>
           <Text style={styles.textButton}>ĐĂNG</Text>
         </TouchableOpacity>
       </View>
@@ -239,7 +298,7 @@ export default function AddPostScreen({ navigation }) {
         <View style={styles.contentBody}>
           <View style={styles.headerBody}>
             <Image
-              source={{uri: currentUser.avatar}}
+              source={{ uri: currentUser.avatar }}
               style={{
                 width: 50,
                 height: 50,
@@ -247,8 +306,20 @@ export default function AddPostScreen({ navigation }) {
                 marginRight: 18,
               }}
             ></Image>
-            <View>
-              <Text style={styles.textInfor}>{currentUser.username}</Text>
+            <View style={{ width: '80%' }}>
+              <Text style={styles.textInfor}>
+                {currentUser.username}
+                {userState ? (
+                  <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                    {' '}
+                    đang {
+                      stateList.icon[stateList.state.indexOf(userState)]
+                    }{' '}
+                    cảm thấy {userState}.
+                  </Text>
+                ) : null}
+              </Text>
+
               <TouchableOpacity style={styles.inforBottom}>
                 <FontAwesome5Icon
                   style={{ marginRight: 3 }}
@@ -540,6 +611,7 @@ export default function AddPostScreen({ navigation }) {
                 <TouchableOpacity
                   style={styles.item}
                   onPress={() => {
+                    setStateFilter(state.state);
                     setChooseState(true);
                   }}
                 >
@@ -586,6 +658,7 @@ export default function AddPostScreen({ navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
+                    setStateFilter(state.state);
                     setChooseState(true);
                   }}
                 >
@@ -691,8 +764,6 @@ export default function AddPostScreen({ navigation }) {
     </View>
   );
 }
-
-const SCREEN_WIDTH = Math.round(Dimensions.get('window').width);
 
 const styles = StyleSheet.create({
   container: {

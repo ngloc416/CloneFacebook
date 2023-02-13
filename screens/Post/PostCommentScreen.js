@@ -18,7 +18,7 @@ import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 import Comment from '../../components/Comment';
 import { setComment, getComment } from '../../services/comment.service';
 
-const PostCommentScreen = ({navigation, route}) => {
+const PostCommentScreen = ({ navigation, route }) => {
   const [index, setIndex] = useState(0);
   const [count, setCount] = useState(20);
   const [commentText, setCommentText] = useState('');
@@ -29,30 +29,43 @@ const PostCommentScreen = ({navigation, route}) => {
   useEffect(() => {
     const fetchComment = async () => {
       const token = await AsyncStorage.getItem('token');
-      const response = await getComment({ token, postId, index, count});
+      const response = await getComment({ token, postId, index, count });
       if (response.code === '1000') {
         setNoComment(false);
         setComments(response.data);
       }
-      if (response.code === '9994' && response.message === 'No data or end of list data') {
+      if (
+        response.code === '9994' &&
+        response.message === 'No data or end of list data'
+      ) {
         setNoComment(true);
       }
-    }
+    };
     fetchComment();
-  }, [])
+  }, []);
 
   const acceptAddComment = async () => {
-    const token = await AsyncStorage.getItem('token');
-    const response = await setComment({postId, token, commentText, index, count});
-    if (response.code === '1000') {
-      setNoComment(false);
-      setCommentText('');
-      setComments(response.data);
-    } else {
-      dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
-      setTimeout(() => dispatch(closeNotice()), 2000);
+    if (commentText) {
+      const token = await AsyncStorage.getItem('token');
+      const response = await setComment({
+        postId,
+        token,
+        commentText,
+        index,
+        count,
+      });
+      if (response.code === '1000') {
+        setNoComment(false);
+        setCommentText('');
+        setComments(response.data);
+      } else {
+        dispatch(
+          openNotice({ notice: response.message, typeNotice: 'warning' })
+        );
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
     }
-  }
+  };
 
   return (
     <View>
@@ -65,10 +78,14 @@ const PostCommentScreen = ({navigation, route}) => {
         <Animated.View style={styles.wrapper}>
           <View style={styles.navigationStackBar}>
             <TouchableOpacity style={styles.btnBack}>
-              <FontAwesome5Icon name="arrow-left" size={24} onPress={() => navigation.goBack()}></FontAwesome5Icon>
+              <FontAwesome5Icon
+                name="arrow-left"
+                size={24}
+                onPress={() => navigation.goBack()}
+              ></FontAwesome5Icon>
             </TouchableOpacity>
             <View style={styles.stackBarTitle}>
-              <Text style={{ fontSize: 16 }}>Bình luận</Text>
+              <Text style={{ fontSize: 18 }}>Bình luận</Text>
             </View>
           </View>
           <ScrollView
@@ -76,43 +93,43 @@ const PostCommentScreen = ({navigation, route}) => {
             scrollEventThrottle={40}
             style={styles.container}
           >
-            {
-              noComment ? 
-              <View>
-                <FontAwesome5Icon name='comment-alt' size={20} styles={{color: '#F5F5F5'}}></FontAwesome5Icon>
-                <Text>Chưa có bình luận nào</Text>
-                <Text>Hãy là người đầu tiên bình luận</Text>
+            {noComment ? (
+              <View style={{ marginTop: 30 }}>
+                <Text style={{ fontSize: 18, alignSelf: 'center' }}>
+                  Chưa có bình luận nào
+                </Text>
+                <Text style={{ fontSize: 15, alignSelf: 'center' }}>
+                  Hãy là người đầu tiên bình luận
+                </Text>
               </View>
-              : null
-            }
-            {comments.map((comment, index) =>
-              (
-                <Comment key={index} comment={comment}>
-                  Detail
-                </Comment>
-              ))
-            }
+            ) : null}
+            {comments.map((comment, index) => (
+              <Comment key={index} comment={comment}>
+                Detail
+              </Comment>
+            ))}
           </ScrollView>
           <View style={styles.commentInputWrapper}>
-            <TouchableOpacity style={styles.cameraIconWrapper}>
-              <FontAwesome5Icon name="camera" size={20}></FontAwesome5Icon>
-            </TouchableOpacity>
             <View style={styles.textInputWrapper}>
-              <TextInput autoFocus={true} style={styles.textInput} value={commentText}
-              onChangeText={(text) => setCommentText(text)}></TextInput>
+              <TextInput
+                autoFocus={true}
+                style={styles.textInput}
+                value={commentText}
+                onChangeText={(text) => setCommentText(text)}
+              ></TextInput>
             </View>
             <View style={styles.iconWrapper}>
               <TouchableOpacity style={styles.iconItem}>
-                <FontAwesome5Icon
-                  name="grip-horizontal"
-                  size={20}
-                ></FontAwesome5Icon>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconItem}>
                 <FontAwesome5Icon name="grin-wink" size={20}></FontAwesome5Icon>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconItem} onPress={acceptAddComment}>
-                <FontAwesome5Icon name="paper-plane" size={20}></FontAwesome5Icon>
+              <TouchableOpacity
+                style={styles.iconItem}
+                onPress={acceptAddComment}
+              >
+                <FontAwesome5Icon
+                  name="paper-plane"
+                  size={20}
+                ></FontAwesome5Icon>
               </TouchableOpacity>
             </View>
           </View>
@@ -149,7 +166,6 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 10,
-    marginBottom: FIXED_STATUSBAR_HEIGHT + STACK_NAVBAR_HEIGHT + 50,
     backgroundColor: '#ffffff',
   },
   commentInputWrapper: {
@@ -157,10 +173,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     borderColor: '#ddd',
     position: 'absolute',
-    bottom: FIXED_STATUSBAR_HEIGHT + STACK_NAVBAR_HEIGHT,
+    bottom: 23,
     left: 0,
     paddingHorizontal: 15,
-    height: 50,
+    height: 60,
     backgroundColor: '#fff',
     width: '100%',
     flexDirection: 'row',
@@ -172,28 +188,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cameraIconWrapper: {
-    backgroundColor: '#ddd',
-    borderRadius: 50,
-    height: 40,
-    width: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textInputWrapper: {
     height: 40,
     borderTopLeftRadius: 48,
     borderBottomLeftRadius: 48,
     backgroundColor: '#ddd',
     marginLeft: 10,
-    width: screenWidth - 40 - 80 - 30 - 10,
+    width: screenWidth - 130,
     borderRightWidth: 0,
+    alignSelf: 'center',
   },
   textInput: {
     width: '100%',
     height: 40,
     paddingHorizontal: 15,
     alignItems: 'center',
+    fontSize: 16,
   },
   iconWrapper: {
     flexDirection: 'row',
@@ -208,9 +218,10 @@ const styles = StyleSheet.create({
   },
   navigationStackBar: {
     flexDirection: 'row',
-    height: 40,
+    height: 60,
     alignItems: 'center',
     paddingHorizontal: 10,
+    backgroundColor: '#fff',
   },
   btnBack: {
     zIndex: 99,
@@ -222,7 +233,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    height: 40,
+    height: 60,
     borderBottomColor: '#ddd',
     borderBottomWidth: 1,
   },

@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 import {
   View,
   Text,
@@ -10,43 +7,41 @@ import {
   Dimensions,
   TouchableOpacity,
   TouchableHighlight,
-  TouchableWithoutFeedback,
   Modal,
-  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { Video } from 'expo-av';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { Video } from 'expo-av';
 import {
   EvilIcons,
   AntDesign,
-  FontAwesome,
-  Feather,
-  Ionicons,
+  MaterialIcons,
+  FontAwesome5,
+  Entypo,
 } from '@expo/vector-icons';
 import {
   LIGHT_GREY_COLOR,
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import state from '../../constants/state';
 import { likePost } from '../../services/like.service';
-import { getPostById } from '../../services/post.service';
-import { authMsg, networkErrorMsg } from '../../constants/message';
 
-export default function Item({ navigation, item }) {
+function VideoDetailItem({ item, navigation }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
-  const [options, setOptions] = useState(false);
-  const [isMe, setIsMe] = useState(true);
 
   const dispatch = useDispatch();
 
   const time = Date.now() / 1000 - parseInt(item.created);
-
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
+
+  const [options, setOptions] = useState(false);
+  const [isMe, setIsMe] = useState(false);
 
   const expandDescribed = () => {
     setShortcutDescribed(!shortcutDescribed);
@@ -68,31 +63,9 @@ export default function Item({ navigation, item }) {
     setOptions(!options);
   };
 
-  const navigateToPostDetail = async (postId) => {
-    const token = await AsyncStorage.getItem('token');
-    const response = await getPostById({ postId, token });
-    if (response.code === '1000') {
-      navigation.navigate('PostDetailScreen', { post: response.data });
-    }
-    if (response.code === '9995' || response.code === '9998') {
-      await AsyncStorage.removeItem('token');
-      navigation.navigate('LoginScreen');
-      dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
-      setTimeout(() => dispatch(closeNotice()), 2000);
-    } else if (response.code === 'ERR_NETWORK') {
-      dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
-      setTimeout(() => dispatch(closeNotice()), 2000);
-    }
-  };
-
   return (
     <View style={styles.item}>
-      <TouchableHighlight
-        underlayColor={LIGHT_GREY_COLOR}
-        onPress={() => {
-          navigateToPostDetail(item.id);
-        }}
-      >
+      <View>
         <View
           style={{
             flexDirection: 'row',
@@ -105,7 +78,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen', {userId: item.author.id});
+                navigation.navigate('ProfileScreen');
               }}
             >
               <Image
@@ -116,21 +89,23 @@ export default function Item({ navigation, item }) {
             <View style={styles.infoWrapper}>
               <View style={styles.namesWrapper}>
                 <TouchableHighlight
-                  underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen', {user: item.author.id});
+                    navigation.navigate('ProfileScreen');
                   }}
                   style={{ flex: 1 }}
                 >
                   <Text
-                    style={{
-                      fontSize: 16,
-                      fontWeight: '700',
-                    }}
+                    style={{ fontSize: 16, fontWeight: '700', color: 'white' }}
                   >
                     {item.author.username}
                     {item.state ? (
-                      <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 'normal',
+                          color: 'white',
+                        }}
+                      >
                         {' '}
                         đang {state.icon[state.state.indexOf(item.state)]} cảm
                         thấy {item.state}.
@@ -141,7 +116,7 @@ export default function Item({ navigation, item }) {
               </View>
 
               <View style={styles.extraInfoWrapper}>
-                <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
+                <Text style={{ color: 'white', fontSize: 13 }}>
                   {time < 1 * 60 * 60 ? 'Vừa xong' : null}
                   {time >= 1 * 60 * 60 && time < 24 * 60 * 60
                     ? `${Math.floor(time / 3600)} giờ`
@@ -158,20 +133,19 @@ export default function Item({ navigation, item }) {
                 </Text>
                 <Text
                   style={{
-                    color: '#6b6d6e',
+                    color: 'white',
                     fontSize: 13,
                     marginHorizontal: 5,
                   }}
                 >
                   ·
                 </Text>
-                <FontAwesome5Icon color="#6b6d6e" name="globe-asia" />
+                <FontAwesome5Icon color="white" name="globe-asia" />
               </View>
             </View>
           </View>
 
           <TouchableHighlight
-            underlayColor={LIGHT_GREY_COLOR}
             onPress={onPressPostOption}
             style={{
               width: 45,
@@ -181,13 +155,12 @@ export default function Item({ navigation, item }) {
               justifyContent: 'center',
             }}
           >
-            <Icon name="ellipsis-h" color="#6b6d6e"></Icon>
+            <Icon name="ellipsis-h" color="white"></Icon>
           </TouchableHighlight>
         </View>
-      </TouchableHighlight>
+      </View>
 
       <TouchableHighlight
-        underlayColor={LIGHT_GREY_COLOR}
         style={{ paddingBottom: 7, paddingLeft: 15, paddingRight: 15 }}
         onPress={expandDescribed}
       >
@@ -214,135 +187,20 @@ export default function Item({ navigation, item }) {
         ) : null}
       </TouchableHighlight>
 
-      {item.video && (
-        <View>
-          <Video
-            ref={video}
-            style={{
-              video: {
-                height: 300,
-                width: '100%',
-              },
-            }}
-            source={{ uri: item.video.url }}
-            useNativeControls
-            resizeMode="contain"
-            isLooping
-            onPlaybackStatusUpdate={setStatus}
-          />
-        </View>
-      )}
-
-      {item.image && item.image.length === 1 && (
-        <TouchableWithoutFeedback
-          style={styles.imageContainer1}
-          onPress={() => {
-            navigation.navigate('PostImageScreen', {
-              postDetail: item,
-              index: 0,
-            });
-          }}
-        >
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail1}
-          />
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 2 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer2}>
-            <Image
-              source={{ uri: item.image[0].url }}
-              resizeMode="cover"
-              style={styles.imageDetail2}
-            />
-            <Image
-              source={{ uri: item.image[1].url }}
-              resizeMode="cover"
-              style={styles.imageDetail2}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 3 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer3}>
-            <View style={styles.imageContainerLeft3}>
-              <Image
-                source={{ uri: item.image[0].url }}
-                resizeMode="cover"
-                style={styles.imageDetail31}
-              />
-            </View>
-            <View style={styles.imageContainerRight3}>
-              <Image
-                source={{ uri: item.image[1].url }}
-                resizeMode="cover"
-                style={styles.imageDetail32}
-              />
-              <Image
-                source={{ uri: item.image[2].url }}
-                resizeMode="cover"
-                style={styles.imageDetail32}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 4 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer4}>
-            <View style={styles.imageAboveSubContainer4}>
-              <Image
-                source={{ uri: item.image[0].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-              <Image
-                source={{ uri: item.image[1].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-            </View>
-            <View style={styles.imageUnderSubContainer4}>
-              <Image
-                source={{ uri: item.image[2].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-              <Image
-                source={{ uri: item.image[3].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      )}
+      <View>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{ uri: item.video.url }}
+          useNativeControls
+          resizeMode="contain"
+          isLooping
+          onPlaybackStatusUpdate={setStatus}
+        />
+      </View>
 
       <View style={styles.footer}>
         <TouchableHighlight
-          underlayColor={LIGHT_GREY_COLOR}
           onPress={() => {
             navigation.navigate('PostCommentScreen', { postId: item.id });
           }}
@@ -354,7 +212,7 @@ export default function Item({ navigation, item }) {
               <Text
                 style={{
                   marginLeft: 5,
-                  color: '#6b6d6e',
+                  color: 'white',
                   fontSize: 13,
                 }}
               >
@@ -366,7 +224,7 @@ export default function Item({ navigation, item }) {
               </Text>
             </View>
             <View style={styles.rightComponent}>
-              <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
+              <Text style={{ color: 'white', fontSize: 13 }}>
                 {item.comment} bình luận
               </Text>
             </View>
@@ -374,13 +232,10 @@ export default function Item({ navigation, item }) {
         </TouchableHighlight>
 
         <View style={styles.bottomFooter}>
-          <TouchableHighlight
-            underlayColor={LIGHT_GREY_COLOR}
-            onPress={() => onPressLike(item.id)}
-          >
+          <TouchableHighlight onPress={() => onPressLike(item.id)}>
             <View style={styles.groupItemFooter}>
               {liked === '0' ? (
-                <EvilIcons name="like" size={30} color="#6b6d6e" />
+                <EvilIcons name="like" size={30} color="white" />
               ) : (
                 <EvilIcons name="like" size={30} color={BLUE_COLOR} />
               )}
@@ -392,23 +247,21 @@ export default function Item({ navigation, item }) {
             </View>
           </TouchableHighlight>
           <TouchableHighlight
-            underlayColor={LIGHT_GREY_COLOR}
             onPress={() => {
               navigation.navigate('PostCommentScreen', { postId: item.id });
             }}
           >
             <View style={styles.groupItemFooter}>
-              <EvilIcons name="comment" size={30} color="#6b6d6e" />
+              <EvilIcons name="comment" size={30} color="white" />
               <Text style={styles.textIconFooter}>Bình luận</Text>
             </View>
           </TouchableHighlight>
         </View>
       </View>
-
       <Modal
         animationType="slide"
         transparent={true}
-        visible={options}
+        visible={options && !isMe}
         onRequestClose={() => {
           setOptions(!options);
         }}
@@ -423,117 +276,53 @@ export default function Item({ navigation, item }) {
           ></TouchableOpacity>
         </View>
         <View style={styles.postOptionsWrapper}>
-          {isMe ? (
-            <>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Ionicons
-                      name="notifications-outline"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>
-                      Tắt thông báo về bài viết này
-                    </Text>
-                  </View>
+          <>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <MaterialIcons name="report" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                  Alert.alert(
-                    'Xóa bài viết?',
-                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
-                    [
-                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
-                      {
-                        text: 'CHỈNH SỬA',
-                        onPress: () => navigation.navigate('EditPostScreen'),
-                      },
-                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
-                    ]
-                  );
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Xóa</Text>
-                  </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Báo cáo video</Text>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                  navigation.navigate('EditPostScreen');
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
-                  </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <FontAwesome5 name="user-friends" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <AntDesign
-                      name="closesquare"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
-                  </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Kết bạn video</Text>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Ionicons
-                      name="notifications-outline"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>
-                      Bật thông báo về bài viết này
-                    </Text>
-                  </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <Entypo name="block" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-            </>
-          )}
+                <View>
+                  <Text style={styles.postOptionTitle}>Chặn chủ video</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </>
         </View>
       </Modal>
     </View>
@@ -541,9 +330,11 @@ export default function Item({ navigation, item }) {
 }
 
 const screenWidth = Math.round(Dimensions.get('window').width);
+export default VideoDetailItem;
+
 const styles = StyleSheet.create({
   item: {
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowOffset: { height: 0, width: 0 },
@@ -575,6 +366,7 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     fontSize: 16,
+    color: 'white',
   },
   describedSupport: {
     fontSize: 16,
@@ -683,12 +475,16 @@ const styles = StyleSheet.create({
   textIconFooter: {
     marginLeft: 4,
     fontSize: 13,
-    color: '#6b6d6e',
+    color: 'white',
   },
   textIconLikedFooter: {
     marginLeft: 4,
     fontSize: 13,
     color: BLUE_COLOR,
+  },
+  video: {
+    height: 300,
+    width: '100%',
   },
   avatarOptionsContainer: {
     position: 'relative',

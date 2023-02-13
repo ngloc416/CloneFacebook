@@ -11,6 +11,7 @@ import {
   TextInput,
   Modal,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import {
   SCREEN_WIDTH,
   SCREEN_HEIGHT,
@@ -22,6 +23,7 @@ import {
   WHITE_COLOR,
 } from '../../constants/constants';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import { Feather } from '@expo/vector-icons';
 import FriendsShowing from './FriendsShowing';
 import Item from '../Home/Item';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -110,6 +112,30 @@ export default function ProfileScreen({ navigation, route }) {
 
   const [isMe, setIsMe] = useState(true);
   const [avatarOptions, setAvatarOptions] = useState(false);
+  const [coverOptions, setCoverOptions] = useState(false);
+  const [avatar, setAvatar] = useState(user.avatar);
+  const [coverImage, setCoverImage] = useState(user.coverImage);
+
+  const showCoverImage = (image) => {
+    navigation.navigate('ShowCoverImage', { image: image });
+  };
+
+  const pickImages = async (type) => {
+    // lấy item
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
+    // nếu lấy item thành công
+    if (!result.cancelled) {
+      if (type == 'avatar') {
+        setAvatar(result.uri);
+      } else {
+        setCoverImage(result.uri);
+      }
+    }
+  };
 
   return (
     <View>
@@ -122,7 +148,9 @@ export default function ProfileScreen({ navigation, route }) {
         >
           <FontAwesome5Icon name="arrow-left" size={20} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('SearchScreen', { userId: null })}
+        >
           <TextInput
             style={styles.searchInput}
             placeholder="Tìm kiếm"
@@ -140,11 +168,17 @@ export default function ProfileScreen({ navigation, route }) {
       >
         <View style={styles.infoWrapper}>
           <View style={styles.avatarCoverWrapper}>
-            <TouchableOpacity activeOpacity={0.8}>
-              <Image style={styles.cover} source={{ uri: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191104/Facebook/Post/img3_oc50v7.jpg' }} />
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setCoverOptions(true)}
+            >
+              <Image style={styles.cover} source={{ uri: coverImage }} />
             </TouchableOpacity>
             {isMe ? (
-              <TouchableOpacity style={styles.btnChangeCover}>
+              <TouchableOpacity
+                style={styles.btnChangeCover}
+                onPress={() => pickImages('coverImage')}
+              >
                 <FontAwesome5Icon size={18} name="camera" />
               </TouchableOpacity>
             ) : null}
@@ -153,11 +187,11 @@ export default function ProfileScreen({ navigation, route }) {
                 activeOpacity={0.9}
                 onPress={() => setAvatarOptions(true)}
               >
-                <Image style={styles.avatar} source={{ uri: user.avatar }} />
+                <Image style={styles.avatar} source={{ uri: avatar }} />
               </TouchableOpacity>
               {isMe ? (
                 <TouchableOpacity
-                  onPress={() => {}}
+                  onPress={() => pickImages('avatar')}
                   style={styles.btnChangeAvatar}
                 >
                   <FontAwesome5Icon size={18} name="camera" />
@@ -184,7 +218,7 @@ export default function ProfileScreen({ navigation, route }) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate('ProfileSetting');
+                  navigation.navigate('ProfileSetting', { user: user });
                 }}
                 activeOpacity={0.8}
                 style={styles.btnOption}
@@ -226,7 +260,9 @@ export default function ProfileScreen({ navigation, route }) {
             }}
           >
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => {
+                navigation.navigate('EditPublicInfo', { userInfo: user });
+              }}
               activeOpacity={0.8}
               style={styles.btnEditPublicDetail}
             >
@@ -237,7 +273,11 @@ export default function ProfileScreen({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           </View>
-          <FriendsShowing friends={friends} isMe={isMe} />
+          <FriendsShowing
+            friends={friends}
+            isMe={isMe}
+            navigation={navigation}
+          />
         </View>
         <TouchableHighlight
           style={styles.container}
@@ -283,6 +323,7 @@ export default function ProfileScreen({ navigation, route }) {
           </View>
         ))}
 
+        {/* avatar setting */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -305,6 +346,7 @@ export default function ProfileScreen({ navigation, route }) {
               style={styles.postOptionItemWrapper}
               onPress={() => {
                 setAvatarOptions(!avatarOptions);
+                pickImages('avatar');
               }}
             >
               <View style={styles.postOptionItem}>
@@ -313,6 +355,59 @@ export default function ProfileScreen({ navigation, route }) {
                 </View>
                 <View>
                   <Text style={styles.postOptionTitle}>Chọn ảnh đại diện</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+        {/* cover image setting */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={coverOptions}
+          onRequestClose={() => {
+            setCoverOptions(!coverOptions);
+          }}
+          style={styles.avatarOptionsContainer}
+        >
+          <View style={styles.backdrop}>
+            <TouchableOpacity
+              onPress={() => {
+                setCoverOptions(!coverOptions);
+              }}
+              style={{ width: '100%', height: '100%' }}
+            ></TouchableOpacity>
+          </View>
+          <View style={styles.postOptionsWrapper}>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setCoverOptions(!coverOptions);
+                showCoverImage(user.coverImage);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <FontAwesome5Icon name="images" size={20}></FontAwesome5Icon>
+                </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Xem ảnh bìa</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setCoverOptions(!coverOptions);
+                pickImages('coverImage');
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <Feather name="upload" size={24} color="black" />
+                </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Tải ảnh lên</Text>
                 </View>
               </View>
             </TouchableOpacity>

@@ -37,7 +37,7 @@ export default function NextLoginScreen({ navigation }) {
     const fetchUser = async () => {
       const userSaved = await AsyncStorage.getItem('user');
       setUser(JSON.parse(userSaved));
-    }
+    };
     fetchUser();
   }, []);
 
@@ -58,10 +58,7 @@ export default function NextLoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={!passFocus ? styles.account : styles.accountFocus}>
-        <Image
-          style={styles.avatar}
-          source={{uri: user.avatar}}
-        />
+        <Image style={styles.avatar} source={{ uri: user.avatar }} />
         <Text style={styles.username}>{user.username}</Text>
       </View>
 
@@ -107,18 +104,25 @@ export default function NextLoginScreen({ navigation }) {
           if (response.code === '1000') {
             await AsyncStorage.setItem('token', response.data.token);
             await AsyncStorage.setItem('user', JSON.stringify(response.data));
+
             navigation.navigate('MainTab');
           } else {
             if (response.code === '9995' || response.code === '9998') {
               await AsyncStorage.removeItem('token');
               navigation.navigate('LoginScreen');
-              dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+              dispatch(
+                openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+              );
               setTimeout(() => dispatch(closeNotice()), 2000);
             } else if (response.code === 'ERR_NETWORK') {
-              dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+              dispatch(
+                openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+              );
               setTimeout(() => dispatch(closeNotice()), 2000);
             } else {
-              dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+              dispatch(
+                openNotice({ notice: response.message, typeNotice: 'warning' })
+              );
               setTimeout(() => dispatch(closeNotice()), 2000);
             }
           }

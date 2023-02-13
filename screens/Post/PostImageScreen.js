@@ -22,6 +22,9 @@ import {
   LIGHT_GREY_COLOR,
 } from '../../constants/constants';
 
+import { likePost } from '../../services/like.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const PostImageScreen = ({ navigation, route }) => {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const postDetail = route.params.postDetail;
@@ -33,8 +36,22 @@ const PostImageScreen = ({ navigation, route }) => {
 
   const [options, setOptions] = useState(false);
   const [isMe, setIsMe] = useState(true);
+  const [liked, setLiked] = useState(postDetail.is_liked);
+  const [numberOfLike, setNumberOfLike] = useState(parseInt(postDetail.like));
 
   const time = Date.now() / 1000 - parseInt(postDetail.created);
+
+  const onPressLike = async (postId) => {
+    if (liked === '0') {
+      setLiked('1');
+      setNumberOfLike(numberOfLike + 1);
+    } else {
+      setLiked('0');
+      setNumberOfLike(numberOfLike - 1);
+    }
+    const token = await AsyncStorage.getItem('token');
+    await likePost({ postId, token });
+  };
 
   return (
     <SafeAreaView>
@@ -61,7 +78,9 @@ const PostImageScreen = ({ navigation, route }) => {
           <View style={styles.postContentWrapper}>
             <View>
               <View>
-                <Text style={styles.name}>{postDetail.author.username || postDetail.author.name}</Text>
+                <Text style={styles.name}>
+                  {postDetail.author.username || postDetail.author.name}
+                </Text>
               </View>
               <TouchableOpacity onPress={expandDescribed}>
                 {postDetail.described ? (
@@ -81,9 +100,7 @@ const PostImageScreen = ({ navigation, route }) => {
                       </Text>
                     )
                   ) : (
-                    <Text style={styles.content}>
-                      {postDetail.described}
-                    </Text>
+                    <Text style={styles.content}>{postDetail.described}</Text>
                   )
                 ) : null}
               </TouchableOpacity>
@@ -120,11 +137,21 @@ const PostImageScreen = ({ navigation, route }) => {
                       fontWeight: '700',
                     }}
                   >
-                    {postDetail.like}
+                    {liked === '1'
+                      ? numberOfLike > 1
+                        ? `Bạn và ${numberOfLike - 1} người khác`
+                        : 'Bạn'
+                      : numberOfLike}
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('PostCommentScreen', {
+                    postId: postDetail.id,
+                  })
+                }
+              >
                 <Text
                   style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}
                 >
@@ -134,14 +161,35 @@ const PostImageScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.btnReactionWrapper}>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  onPressLike(postDetail.id);
+                }}
+              >
                 <View style={styles.groupItemFooter}>
-                  <EvilIcons name="like" size={30} color="#fff" />
-
-                  <Text style={styles.textIconFooter}>Thích</Text>
+                  {liked === '0' ? (
+                    <EvilIcons name="like" size={30} color="#fff" />
+                  ) : (
+                    <EvilIcons name="like" size={30} color={BLUE_COLOR} />
+                  )}
+                  {liked === '0' ? (
+                    <Text style={styles.textIconFooter}>Thích</Text>
+                  ) : (
+                    <Text
+                      style={{ ...styles.textIconFooter, color: BLUE_COLOR }}
+                    >
+                      Thích
+                    </Text>
+                  )}
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('PostCommentScreen', {
+                    postId: postDetail.id,
+                  });
+                }}
+              >
                 <View style={styles.groupItemFooter}>
                   <EvilIcons name="comment" size={30} color="#fff" />
                   <Text style={styles.textIconFooter}>Bình luận</Text>
@@ -196,10 +244,18 @@ const PostImageScreen = ({ navigation, route }) => {
                 style={styles.postOptionItemWrapper}
                 onPress={() => {
                   setOptions(!options);
-                  Alert.alert('', 'Bạn muốn xóa bài viết?', [
-                    { text: 'KHÔNG', onPress: () => console.log('OK Pressed') },
-                    { text: 'XÓA', onPress: () => console.log('OK Pressed') },
-                  ]);
+                  Alert.alert(
+                    'Xóa bài viết?',
+                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
+                    [
+                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      {
+                        text: 'CHỈNH SỬA',
+                        onPress: () => navigation.navigate('EditPostScreen'),
+                      },
+                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                    ]
+                  );
                 }}
               >
                 <View style={styles.postOptionItem}>

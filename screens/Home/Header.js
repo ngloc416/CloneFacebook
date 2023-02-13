@@ -8,7 +8,7 @@ export default function Header({ navigation }) {
     navigation.navigate('AddPostScreen');
   };
   const search = () => {
-    navigation.navigate('SearchScreen');
+    navigation.navigate('SearchScreen', { userId: null });
   };
   const messenger = () => {};
   return (

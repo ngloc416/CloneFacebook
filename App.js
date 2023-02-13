@@ -12,7 +12,7 @@ import {
   Ionicons,
   Octicons,
 } from '@expo/vector-icons';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import {
   BLUE_COLOR,
   GREY_COLOR,
@@ -26,6 +26,7 @@ import NextLoginScreen from './screens/Login/NextLoginScreen';
 import BeginSignUp from './screens/Signup/BeginSignup';
 import SignupScreen from './screens/Signup/SignupScreen';
 import CheckVerify from './screens/Signup/CheckVerify';
+import ChangeInfoAfterSignup from './screens/Signup/ChangeInfoAfterSignup';
 
 import HomeScreen from './screens/Home/HomeScreen';
 import Header from './screens/Home/Header';
@@ -38,7 +39,6 @@ import EditPostScreen from './screens/Post/EditPostScreen';
 import AllFriend from './screens/Friend/AllFriend';
 import FriendScreen from './screens/Friend/FriendScreen';
 import SuggestFriend from './screens/Friend/SuggestFriend';
-import Notice from './components/Notice';
 import store from './redux/store';
 
 import SearchScreen from './screens/Search/SearchScreen';
@@ -46,6 +46,8 @@ import SearchHistory from './screens/Search/SearchHistory';
 
 import ProfileScreen from './screens/Profile/ProfileScreen';
 import ProfileSetting from './screens/Profile/ProfileSetting';
+import ShowCoverImage from './screens/Profile/ShowCoverImage';
+import EditPublicInfo from './screens/Profile/EditPublicInfo';
 
 import SettingScreen from './screens/Setting/SettingScreen';
 
@@ -53,9 +55,13 @@ import AddPostScreen from './screens/AddPost.js/AddPostScreen';
 
 import NotificationScreen from './screens/Notification/NotificationScreen';
 
+import VideoScreen from './screens/Video/VideoScreen';
+import VideoDetailList from './screens/Video/VideoDetailList';
+
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
+
 const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);
   const [token, setToken] = useState(null);
@@ -94,7 +100,7 @@ const AppComponent = () => {
   const VideoTab = () => {
     return (
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="VideoScreen" component={ProfileSetting} />
+        <Stack.Screen name="VideoScreen" component={VideoScreen} />
       </Stack.Navigator>
     );
   };
@@ -210,9 +216,11 @@ const AppComponent = () => {
         paddingTop: STATUSBAR_HEIGHT,
       }}
     >
-      {notice.show ? (
-        <Notice type={notice.type} notice={notice.notice} />
-      ) : null}
+      {notice.show
+        ? Alert.alert('', `${notice.notice}`, [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ])
+        : null}
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
           {!token ? (
@@ -220,23 +228,29 @@ const AppComponent = () => {
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
               <rootStack.Screen name="MainTab" component={MainTab} />
             </>
-          ) :
+          ) : (
             <>
               <rootStack.Screen name="MainTab" component={MainTab} />
               <rootStack.Screen name="LoginScreen" component={LoginScreen} />
-            </>}
+            </>
+          )}
           <rootStack.Screen
-                name="NextLoginScreen"
-                component={NextLoginScreen}
-              />
-              <rootStack.Screen
-                name="FirstLoginScreen"
-                component={FirstLoginScreen}
-              />
+            name="NextLoginScreen"
+            component={NextLoginScreen}
+          />
+          <rootStack.Screen
+            name="FirstLoginScreen"
+            component={FirstLoginScreen}
+          />
 
-              <rootStack.Screen name="BeginSignup" component={BeginSignUp} />
-              <rootStack.Screen name="SignupScreen" component={SignupScreen} />
-              <rootStack.Screen name="CheckVerify" component={CheckVerify} />
+          <rootStack.Screen name="BeginSignup" component={BeginSignUp} />
+          <rootStack.Screen name="SignupScreen" component={SignupScreen} />
+          <rootStack.Screen name="CheckVerify" component={CheckVerify} />
+          <rootStack.Screen
+            name="ChangeInfoAfterSignup"
+            component={ChangeInfoAfterSignup}
+          />
+
           <rootStack.Screen
             name="PostDetailScreen"
             component={PostDetailScreen}
@@ -249,13 +263,21 @@ const AppComponent = () => {
             name="PostCommentScreen"
             component={PostCommentScreen}
           />
+          <rootStack.Screen name="EditPostScreen" component={EditPostScreen} />
           <rootStack.Screen name="AllFriend" component={AllFriend} />
           <rootStack.Screen name="SuggestFriend" component={SuggestFriend} />
           <rootStack.Screen name="SearchScreen" component={SearchScreen} />
           <rootStack.Screen name="SearchHistory" component={SearchHistory} />
           <rootStack.Screen name="ProfileScreen" component={ProfileScreen} />
           <rootStack.Screen name="ProfileSetting" component={ProfileSetting} />
+          <rootStack.Screen name="ShowCoverImage" component={ShowCoverImage} />
+          <rootStack.Screen name="EditPublicInfo" component={EditPublicInfo} />
           <rootStack.Screen name="AddPostScreen" component={AddPostScreen} />
+          <rootStack.Screen name="VideoScreen" component={VideoScreen} />
+          <rootStack.Screen
+            name="VideoDetailList"
+            component={VideoDetailList}
+          />
         </rootStack.Navigator>
       </NavigationContainer>
 

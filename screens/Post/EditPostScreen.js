@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
+import state from '../../constants/state';
+
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,6 +70,11 @@ export default function EditPostScreen({ navigation }) {
       setImageNumber(post.image.length);
     }
   }, []);
+
+  const [chooseState, setChooseState] = useState(false);
+  const [userState, setUserState] = useState(post.state);
+  const [stateList, setStateList] = useState(state);
+  const [stateFilter, setStateFilter] = useState(state.state);
 
   const [vertical, setVertical] = useState(true);
   const [described, setDescribed] = useState(post.described);
@@ -139,6 +146,95 @@ export default function EditPostScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      {/* chọn cảm xúc */}
+      {chooseState && (
+        <View style={{ ...styles.container, zIndex: 999 }}>
+          <View style={styles.contentHeader}>
+            <View style={styles.contentHeaderLeft}>
+              <TouchableOpacity onPress={() => setChooseState(false)}>
+                <AntDesign name="arrowleft" size={28} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.textHeader}>Bạn đang cảm thấy thế nào?</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              paddingHorizontal: 15,
+              alignItems: 'center',
+              flexDirection: 'row',
+            }}
+          >
+            <FontAwesome5Icon name="search" size={18} color="gray" />
+            <TextInput
+              value={userState}
+              onChangeText={(text) => {
+                setStateFilter(
+                  state.state.filter((item) =>
+                    item.includes(text.toLowerCase())
+                  )
+                );
+              }}
+              style={{ marginLeft: 10, fontSize: 17 }}
+              placeholder="Tìm kiếm"
+              placeholderTextColor={GREY_COLOR}
+              autoFocus={true}
+            />
+            {userState ? (
+              <TouchableOpacity
+                style={{ position: 'absolute', right: 25 }}
+                onPress={() => {
+                  setUserState(null);
+                  setStateFilter(state.state);
+                }}
+              >
+                <AntDesign name="close" size={23} color={GREY_COLOR} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          <ScrollView
+            style={{
+              marginTop: 10,
+              flex: 1,
+              borderTopColor: GREY_COLOR,
+              borderTopWidth: 0.2,
+            }}
+          >
+            {stateFilter
+              ? stateFilter.map((item, index) => {
+                  return (
+                    <TouchableOpacity
+                      style={{
+                        borderWidth: 0.2,
+                        borderColor: GREY_COLOR,
+                        width: '100%',
+                        height: 60,
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => {
+                        setUserState(item);
+                        setChooseState(false);
+                      }}
+                    >
+                      <Text style={{ fontSize: 28 }} key={`icon${index}`}>
+                        {stateList.icon[index]}
+                      </Text>
+                      <Text
+                        style={{ fontSize: 17, marginLeft: 10 }}
+                        key={{ index }}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              : null}
+          </ScrollView>
+        </View>
+      )}
       <View style={styles.contentHeader}>
         <View style={styles.contentHeaderLeft}>
           <TouchableOpacity
@@ -181,8 +277,19 @@ export default function EditPostScreen({ navigation }) {
                 marginRight: 18,
               }}
             ></Image>
-            <View>
-              <Text style={styles.textInfor}>{'Nguyễn Đình Lộc'}</Text>
+            <View style={{ width: '80%' }}>
+              <Text style={styles.textInfor}>
+                {'Nguyễn Đình Lộc'}
+                {userState ? (
+                  <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                    {' '}
+                    đang {
+                      stateList.icon[stateList.state.indexOf(userState)]
+                    }{' '}
+                    cảm thấy {userState}.
+                  </Text>
+                ) : null}
+              </Text>
               <TouchableOpacity style={styles.inforBottom}>
                 <FontAwesome5Icon
                   style={{ marginRight: 3 }}
@@ -469,7 +576,13 @@ export default function EditPostScreen({ navigation }) {
                 />
                 <Text style={{ fontSize: 16 }}>Ảnh/video</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.item}>
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  setStateFilter(state.state);
+                  setChooseState(true);
+                }}
+              >
                 <Entypo
                   name="emoji-happy"
                   size={24}
@@ -497,7 +610,12 @@ export default function EditPostScreen({ navigation }) {
               >
                 <Ionicons name="md-images" size={24} color="green" />
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setStateFilter(state.state);
+                  setChooseState(true);
+                }}
+              >
                 <Entypo name="emoji-happy" size={24} color="#F5C33B" />
               </TouchableOpacity>
               <TouchableOpacity>

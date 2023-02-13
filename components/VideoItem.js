@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../redux/actions/notice.action';
 import {
   View,
   Text,
@@ -20,26 +20,26 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import {
   EvilIcons,
   AntDesign,
-  FontAwesome,
-  Feather,
-  Ionicons,
+  MaterialIcons,
+  FontAwesome5,
+  Entypo,
 } from '@expo/vector-icons';
 import {
   LIGHT_GREY_COLOR,
   GREY_COLOR,
   BLUE_COLOR,
-} from '../../constants/constants';
-import state from '../../constants/state';
-import { likePost } from '../../services/like.service';
-import { getPostById } from '../../services/post.service';
-import { authMsg, networkErrorMsg } from '../../constants/message';
+} from '../constants/constants';
+import state from '../constants/state';
+import { likePost } from '../services/like.service';
+import { getPostById } from '../services/post.service';
+import { authMsg } from '../constants/message';
 
-export default function Item({ navigation, item }) {
+export default function VideoItem({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
   const [options, setOptions] = useState(false);
-  const [isMe, setIsMe] = useState(true);
+  const [isMe, setIsMe] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -68,30 +68,11 @@ export default function Item({ navigation, item }) {
     setOptions(!options);
   };
 
-  const navigateToPostDetail = async (postId) => {
-    const token = await AsyncStorage.getItem('token');
-    const response = await getPostById({ postId, token });
-    if (response.code === '1000') {
-      navigation.navigate('PostDetailScreen', { post: response.data });
-    }
-    if (response.code === '9995' || response.code === '9998') {
-      await AsyncStorage.removeItem('token');
-      navigation.navigate('LoginScreen');
-      dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
-      setTimeout(() => dispatch(closeNotice()), 2000);
-    } else if (response.code === 'ERR_NETWORK') {
-      dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
-      setTimeout(() => dispatch(closeNotice()), 2000);
-    }
-  };
-
   return (
     <View style={styles.item}>
       <TouchableHighlight
         underlayColor={LIGHT_GREY_COLOR}
-        onPress={() => {
-          navigateToPostDetail(item.id);
-        }}
+        onPress={() => navigation.navigate('VideoDetailList')}
       >
         <View
           style={{
@@ -105,7 +86,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen', {userId: item.author.id});
+                navigation.navigate('ProfileScreen');
               }}
             >
               <Image
@@ -118,7 +99,7 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen', {user: item.author.id});
+                    navigation.navigate('ProfileScreen');
                   }}
                   style={{ flex: 1 }}
                 >
@@ -214,131 +195,17 @@ export default function Item({ navigation, item }) {
         ) : null}
       </TouchableHighlight>
 
-      {item.video && (
-        <View>
-          <Video
-            ref={video}
-            style={{
-              video: {
-                height: 300,
-                width: '100%',
-              },
-            }}
-            source={{ uri: item.video.url }}
-            useNativeControls
-            resizeMode="contain"
-            isLooping
-            onPlaybackStatusUpdate={setStatus}
-          />
-        </View>
-      )}
-
-      {item.image && item.image.length === 1 && (
-        <TouchableWithoutFeedback
-          style={styles.imageContainer1}
-          onPress={() => {
-            navigation.navigate('PostImageScreen', {
-              postDetail: item,
-              index: 0,
-            });
-          }}
-        >
-          <Image
-            source={{ uri: item.image[0].url }}
-            resizeMode="cover"
-            style={styles.imageDetail1}
-          />
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 2 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer2}>
-            <Image
-              source={{ uri: item.image[0].url }}
-              resizeMode="cover"
-              style={styles.imageDetail2}
-            />
-            <Image
-              source={{ uri: item.image[1].url }}
-              resizeMode="cover"
-              style={styles.imageDetail2}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 3 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer3}>
-            <View style={styles.imageContainerLeft3}>
-              <Image
-                source={{ uri: item.image[0].url }}
-                resizeMode="cover"
-                style={styles.imageDetail31}
-              />
-            </View>
-            <View style={styles.imageContainerRight3}>
-              <Image
-                source={{ uri: item.image[1].url }}
-                resizeMode="cover"
-                style={styles.imageDetail32}
-              />
-              <Image
-                source={{ uri: item.image[2].url }}
-                resizeMode="cover"
-                style={styles.imageDetail32}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      )}
-
-      {item.image && item.image.length === 4 && (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            //navigation.navigate('PostDetailScreen', { post: item });
-            navigateToPostDetail(item.id);
-          }}
-        >
-          <View style={styles.imageContainer4}>
-            <View style={styles.imageAboveSubContainer4}>
-              <Image
-                source={{ uri: item.image[0].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-              <Image
-                source={{ uri: item.image[1].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-            </View>
-            <View style={styles.imageUnderSubContainer4}>
-              <Image
-                source={{ uri: item.image[2].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-              <Image
-                source={{ uri: item.image[3].url }}
-                resizeMode="cover"
-                style={styles.imageDetail4}
-              />
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      )}
+      <View>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{ uri: item.video.url }}
+          useNativeControls
+          resizeMode="contain"
+          isLooping
+          onPlaybackStatusUpdate={setStatus}
+        />
+      </View>
 
       <View style={styles.footer}>
         <TouchableHighlight
@@ -408,7 +275,7 @@ export default function Item({ navigation, item }) {
       <Modal
         animationType="slide"
         transparent={true}
-        visible={options}
+        visible={options && !isMe}
         onRequestClose={() => {
           setOptions(!options);
         }}
@@ -423,117 +290,53 @@ export default function Item({ navigation, item }) {
           ></TouchableOpacity>
         </View>
         <View style={styles.postOptionsWrapper}>
-          {isMe ? (
-            <>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Ionicons
-                      name="notifications-outline"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>
-                      Tắt thông báo về bài viết này
-                    </Text>
-                  </View>
+          <>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <MaterialIcons name="report" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                  Alert.alert(
-                    'Xóa bài viết?',
-                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
-                    [
-                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
-                      {
-                        text: 'CHỈNH SỬA',
-                        onPress: () => navigation.navigate('EditPostScreen'),
-                      },
-                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
-                    ]
-                  );
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Xóa</Text>
-                  </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Báo cáo video</Text>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                  navigation.navigate('EditPostScreen');
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
-                  </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <FontAwesome5 name="user-friends" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <AntDesign
-                      name="closesquare"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
-                  </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Kết bạn video</Text>
                 </View>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.postOptionItemWrapper}
-                onPress={() => {
-                  setOptions(!options);
-                }}
-              >
-                <View style={styles.postOptionItem}>
-                  <View style={styles.optionIcon}>
-                    <Ionicons
-                      name="notifications-outline"
-                      size={24}
-                      color={GREY_COLOR}
-                    />
-                  </View>
-                  <View>
-                    <Text style={styles.postOptionTitle}>
-                      Bật thông báo về bài viết này
-                    </Text>
-                  </View>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <Entypo name="block" size={24} color="black" />
                 </View>
-              </TouchableOpacity>
-            </>
-          )}
+                <View>
+                  <Text style={styles.postOptionTitle}>Chặn chủ video</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </>
         </View>
       </Modal>
     </View>
@@ -727,5 +530,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     marginLeft: 15,
+  },
+
+  video: {
+    height: 300,
+    width: '100%',
   },
 });
