@@ -83,479 +83,461 @@ export default function Item({ navigation, item }) {
       dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
       setTimeout(() => dispatch(closeNotice()), 2000);
     }
+  };
 
-    return (
-      <View style={styles.item}>
-        <TouchableHighlight
-          underlayColor={LIGHT_GREY_COLOR}
+  return (
+    <View style={styles.item}>
+      <TouchableHighlight
+        underlayColor={LIGHT_GREY_COLOR}
+        onPress={() => {
+          navigateToPostDetail(item.id);
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingLeft: 15,
+            paddingRight: 15,
+          }}
+        >
+          <View style={styles.customListView}>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => {
+                navigation.navigate('ProfileScreen');
+              }}
+            >
+              <Image
+                style={styles.avatar}
+                source={{ uri: item.author.avatar }}
+              ></Image>
+            </TouchableOpacity>
+            <View style={styles.infoWrapper}>
+              <View style={styles.namesWrapper}>
+                <TouchableHighlight
+                  underlayColor={LIGHT_GREY_COLOR}
+                  onPress={() => {
+                    navigation.navigate('ProfileScreen');
+                  }}
+                  style={{ flex: 1 }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '700',
+                    }}
+                  >
+                    {item.author.username}
+                    {item.state ? (
+                      <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                        {' '}
+                        đang {state.icon[state.state.indexOf(item.state)]} cảm
+                        thấy {item.state}.
+                      </Text>
+                    ) : null}
+                  </Text>
+                </TouchableHighlight>
+              </View>
+
+              <View style={styles.extraInfoWrapper}>
+                <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
+                  {time < 1 * 60 * 60 ? 'Vừa xong' : null}
+                  {time >= 1 * 60 * 60 && time < 24 * 60 * 60
+                    ? `${Math.floor(time / 3600)} giờ`
+                    : null}
+                  {time >= 24 * 60 * 60 && time < 30 * 24 * 60 * 60
+                    ? `${Math.floor(time / 86400)} ngày`
+                    : null}
+                  {time >= 30 * 24 * 60 * 60 && time < 12 * 30 * 24 * 60 * 60
+                    ? `${Math.floor(time / 2592000)} tháng`
+                    : null}
+                  {time >= 12 * 30 * 24 * 60 * 60
+                    ? `${Math.floor(time / 31104000)} năm`
+                    : null}
+                </Text>
+                <Text
+                  style={{
+                    color: '#6b6d6e',
+                    fontSize: 13,
+                    marginHorizontal: 5,
+                  }}
+                >
+                  ·
+                </Text>
+                <FontAwesome5Icon color="#6b6d6e" name="globe-asia" />
+              </View>
+            </View>
+          </View>
+
+          <TouchableHighlight
+            underlayColor={LIGHT_GREY_COLOR}
+            onPress={onPressPostOption}
+            style={{
+              width: 45,
+              height: 45,
+              borderRadius: 50,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icon name="ellipsis-h" color="#6b6d6e"></Icon>
+          </TouchableHighlight>
+        </View>
+      </TouchableHighlight>
+
+      <TouchableHighlight
+        underlayColor={LIGHT_GREY_COLOR}
+        style={{ paddingBottom: 7, paddingLeft: 15, paddingRight: 15 }}
+        onPress={expandDescribed}
+      >
+        {item.described ? (
+          item.described.length > 150 ? (
+            shortcutDescribed ? (
+              <Text style={styles.paragraph}>
+                {item.described.slice(0, 150)}
+                <Text onPress={expandDescribed} style={styles.describedSupport}>
+                  {` ... Xem thêm`}
+                </Text>
+              </Text>
+            ) : (
+              <Text style={styles.paragraph}>
+                {item.described}
+                <Text onPress={expandDescribed} style={styles.describedSupport}>
+                  {` Ẩn Bớt`}
+                </Text>
+              </Text>
+            )
+          ) : (
+            <Text style={styles.paragraph}>{item.described}</Text>
+          )
+        ) : null}
+      </TouchableHighlight>
+
+      {item.video && (
+        <View>
+          <Video
+            ref={video}
+            style={{
+              video: {
+                height: 300,
+                width: '100%',
+              },
+            }}
+            source={{ uri: item.video.url }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+            onPlaybackStatusUpdate={setStatus}
+          />
+        </View>
+      )}
+
+      {item.image && item.image.length === 1 && (
+        <TouchableWithoutFeedback
+          style={styles.imageContainer1}
           onPress={() => {
+            navigation.navigate('PostImageScreen', {
+              postDetail: item,
+              index: 0,
+            });
+          }}
+        >
+          <Image
+            source={{ uri: item.image[0].url }}
+            resizeMode="cover"
+            style={styles.imageDetail1}
+          />
+        </TouchableWithoutFeedback>
+      )}
+
+      {item.image && item.image.length === 2 && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
             navigateToPostDetail(item.id);
           }}
         >
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingLeft: 15,
-              paddingRight: 15,
-            }}
-          >
-            <View style={styles.customListView}>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                onPress={() => {
-                  navigation.navigate('ProfileScreen');
-                }}
-              >
-                <Image
-                  style={styles.avatar}
-                  source={{ uri: item.author.avatar }}
-                ></Image>
-              </TouchableOpacity>
-              <View style={styles.infoWrapper}>
-                <View style={styles.namesWrapper}>
-                  <TouchableHighlight
-                    underlayColor={LIGHT_GREY_COLOR}
-                    onPress={() => {
-                      navigation.navigate('ProfileScreen');
-                    }}
-                    style={{ flex: 1 }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        fontWeight: '700',
-                      }}
-                    >
-                      {item.author.username}
-                      {item.state ? (
-                        <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
-                          {' '}
-                          đang {state.icon[state.state.indexOf(item.state)]} cảm
-                          thấy {item.state}.
-                        </Text>
-                      ) : null}
-                    </Text>
-                  </TouchableHighlight>
-                </View>
-
-                <View style={styles.extraInfoWrapper}>
-                  <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
-                    {time < 1 * 60 * 60 ? 'Vừa xong' : null}
-                    {time >= 1 * 60 * 60 && time < 24 * 60 * 60
-                      ? `${Math.floor(time / 3600)} giờ`
-                      : null}
-                    {time >= 24 * 60 * 60 && time < 30 * 24 * 60 * 60
-                      ? `${Math.floor(time / 86400)} ngày`
-                      : null}
-                    {time >= 30 * 24 * 60 * 60 && time < 12 * 30 * 24 * 60 * 60
-                      ? `${Math.floor(time / 2592000)} tháng`
-                      : null}
-                    {time >= 12 * 30 * 24 * 60 * 60
-                      ? `${Math.floor(time / 31104000)} năm`
-                      : null}
-                  </Text>
-                  <Text
-                    style={{
-                      color: '#6b6d6e',
-                      fontSize: 13,
-                      marginHorizontal: 5,
-                    }}
-                  >
-                    ·
-                  </Text>
-                  <FontAwesome5Icon color="#6b6d6e" name="globe-asia" />
-                </View>
-              </View>
-            </View>
-
-            <TouchableHighlight
-              underlayColor={LIGHT_GREY_COLOR}
-              onPress={onPressPostOption}
-              style={{
-                width: 45,
-                height: 45,
-                borderRadius: 50,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon name="ellipsis-h" color="#6b6d6e"></Icon>
-            </TouchableHighlight>
-          </View>
-        </TouchableHighlight>
-
-        <TouchableHighlight
-          underlayColor={LIGHT_GREY_COLOR}
-          style={{ paddingBottom: 7, paddingLeft: 15, paddingRight: 15 }}
-          onPress={expandDescribed}
-        >
-          {item.described ? (
-            item.described.length > 150 ? (
-              shortcutDescribed ? (
-                <Text style={styles.paragraph}>
-                  {item.described.slice(0, 150)}
-                  <Text
-                    onPress={expandDescribed}
-                    style={styles.describedSupport}
-                  >
-                    {` ... Xem thêm`}
-                  </Text>
-                </Text>
-              ) : (
-                <Text style={styles.paragraph}>
-                  {item.described}
-                  <Text
-                    onPress={expandDescribed}
-                    style={styles.describedSupport}
-                  >
-                    {` Ẩn Bớt`}
-                  </Text>
-                </Text>
-              )
-            ) : (
-              <Text style={styles.paragraph}>{item.described}</Text>
-            )
-          ) : null}
-        </TouchableHighlight>
-
-        {item.video && (
-          <View>
-            <Video
-              ref={video}
-              style={{
-                video: {
-                  height: 300,
-                  width: '100%',
-                },
-              }}
-              source={{ uri: item.video.url }}
-              useNativeControls
-              resizeMode="contain"
-              isLooping
-              onPlaybackStatusUpdate={setStatus}
-            />
-          </View>
-        )}
-
-        {item.image && item.image.length === 1 && (
-          <TouchableWithoutFeedback
-            style={styles.imageContainer1}
-            onPress={() => {
-              navigation.navigate('PostImageScreen', {
-                postDetail: item,
-                index: 0,
-              });
-            }}
-          >
+          <View style={styles.imageContainer2}>
             <Image
               source={{ uri: item.image[0].url }}
               resizeMode="cover"
-              style={styles.imageDetail1}
+              style={styles.imageDetail2}
             />
-          </TouchableWithoutFeedback>
-        )}
+            <Image
+              source={{ uri: item.image[1].url }}
+              resizeMode="cover"
+              style={styles.imageDetail2}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+      )}
 
-        {item.image && item.image.length === 2 && (
-          <TouchableWithoutFeedback
-            onPress={() => {
-              //navigation.navigate('PostDetailScreen', { post: item });
-              navigateToPostDetail(item.id);
-            }}
-          >
-            <View style={styles.imageContainer2}>
+      {item.image && item.image.length === 3 && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
+            navigateToPostDetail(item.id);
+          }}
+        >
+          <View style={styles.imageContainer3}>
+            <View style={styles.imageContainerLeft3}>
               <Image
                 source={{ uri: item.image[0].url }}
                 resizeMode="cover"
-                style={styles.imageDetail2}
+                style={styles.imageDetail31}
+              />
+            </View>
+            <View style={styles.imageContainerRight3}>
+              <Image
+                source={{ uri: item.image[1].url }}
+                resizeMode="cover"
+                style={styles.imageDetail32}
+              />
+              <Image
+                source={{ uri: item.image[2].url }}
+                resizeMode="cover"
+                style={styles.imageDetail32}
+              />
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+
+      {item.image && item.image.length === 4 && (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            //navigation.navigate('PostDetailScreen', { post: item });
+            navigateToPostDetail(item.id);
+          }}
+        >
+          <View style={styles.imageContainer4}>
+            <View style={styles.imageAboveSubContainer4}>
+              <Image
+                source={{ uri: item.image[0].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
               />
               <Image
                 source={{ uri: item.image[1].url }}
                 resizeMode="cover"
-                style={styles.imageDetail2}
+                style={styles.imageDetail4}
               />
             </View>
-          </TouchableWithoutFeedback>
-        )}
-
-        {item.image && item.image.length === 3 && (
-          <TouchableWithoutFeedback
-            onPress={() => {
-              //navigation.navigate('PostDetailScreen', { post: item });
-              navigateToPostDetail(item.id);
-            }}
-          >
-            <View style={styles.imageContainer3}>
-              <View style={styles.imageContainerLeft3}>
-                <Image
-                  source={{ uri: item.image[0].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail31}
-                />
-              </View>
-              <View style={styles.imageContainerRight3}>
-                <Image
-                  source={{ uri: item.image[1].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail32}
-                />
-                <Image
-                  source={{ uri: item.image[2].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail32}
-                />
-              </View>
+            <View style={styles.imageUnderSubContainer4}>
+              <Image
+                source={{ uri: item.image[2].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
+              <Image
+                source={{ uri: item.image[3].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
             </View>
-          </TouchableWithoutFeedback>
-        )}
+          </View>
+        </TouchableWithoutFeedback>
+      )}
 
-        {item.image && item.image.length === 4 && (
-          <TouchableWithoutFeedback
-            onPress={() => {
-              //navigation.navigate('PostDetailScreen', { post: item });
-              navigateToPostDetail(item.id);
-            }}
-          >
-            <View style={styles.imageContainer4}>
-              <View style={styles.imageAboveSubContainer4}>
-                <Image
-                  source={{ uri: item.image[0].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail4}
-                />
-                <Image
-                  source={{ uri: item.image[1].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail4}
-                />
-              </View>
-              <View style={styles.imageUnderSubContainer4}>
-                <Image
-                  source={{ uri: item.image[2].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail4}
-                />
-                <Image
-                  source={{ uri: item.image[3].url }}
-                  resizeMode="cover"
-                  style={styles.imageDetail4}
-                />
-              </View>
+      <View style={styles.footer}>
+        <TouchableHighlight
+          underlayColor={LIGHT_GREY_COLOR}
+          onPress={() => {
+            navigation.navigate('PostCommentScreen', { postId: item.id });
+          }}
+        >
+          <View style={styles.topFooter}>
+            <View style={styles.countLike}>
+              <AntDesign name="like1" size={16} color={BLUE_COLOR} />
+
+              <Text
+                style={{
+                  marginLeft: 5,
+                  color: '#6b6d6e',
+                  fontSize: 13,
+                }}
+              >
+                {liked === '1'
+                  ? numberOfLike > 1
+                    ? `Bạn và ${numberOfLike - 1} người khác`
+                    : 'Bạn'
+                  : numberOfLike}
+              </Text>
             </View>
-          </TouchableWithoutFeedback>
-        )}
+            <View style={styles.rightComponent}>
+              <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
+                {item.comment} bình luận
+              </Text>
+            </View>
+          </View>
+        </TouchableHighlight>
 
-        <View style={styles.footer}>
+        <View style={styles.bottomFooter}>
+          <TouchableHighlight
+            underlayColor={LIGHT_GREY_COLOR}
+            onPress={() => onPressLike(item.id)}
+          >
+            <View style={styles.groupItemFooter}>
+              {liked === '0' ? (
+                <EvilIcons name="like" size={30} color="#6b6d6e" />
+              ) : (
+                <EvilIcons name="like" size={30} color={BLUE_COLOR} />
+              )}
+              {liked === '0' ? (
+                <Text style={styles.textIconFooter}>Thích</Text>
+              ) : (
+                <Text style={styles.textIconLikedFooter}>Thích</Text>
+              )}
+            </View>
+          </TouchableHighlight>
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
             onPress={() => {
               navigation.navigate('PostCommentScreen', { postId: item.id });
             }}
           >
-            <View style={styles.topFooter}>
-              <View style={styles.countLike}>
-                <AntDesign name="like1" size={16} color={BLUE_COLOR} />
-
-                <Text
-                  style={{
-                    marginLeft: 5,
-                    color: '#6b6d6e',
-                    fontSize: 13,
-                  }}
-                >
-                  {liked === '1'
-                    ? numberOfLike > 1
-                      ? `Bạn và ${numberOfLike - 1} người khác`
-                      : 'Bạn'
-                    : numberOfLike}
-                </Text>
-              </View>
-              <View style={styles.rightComponent}>
-                <Text style={{ color: '#6b6d6e', fontSize: 13 }}>
-                  {item.comment} bình luận
-                </Text>
-              </View>
+            <View style={styles.groupItemFooter}>
+              <EvilIcons name="comment" size={30} color="#6b6d6e" />
+              <Text style={styles.textIconFooter}>Bình luận</Text>
             </View>
           </TouchableHighlight>
-
-          <View style={styles.bottomFooter}>
-            <TouchableHighlight
-              underlayColor={LIGHT_GREY_COLOR}
-              onPress={() => onPressLike(item.id)}
-            >
-              <View style={styles.groupItemFooter}>
-                {liked === '0' ? (
-                  <EvilIcons name="like" size={30} color="#6b6d6e" />
-                ) : (
-                  <EvilIcons name="like" size={30} color={BLUE_COLOR} />
-                )}
-                {liked === '0' ? (
-                  <Text style={styles.textIconFooter}>Thích</Text>
-                ) : (
-                  <Text style={styles.textIconLikedFooter}>Thích</Text>
-                )}
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight
-              underlayColor={LIGHT_GREY_COLOR}
-              onPress={() => {
-                navigation.navigate('PostCommentScreen', { postId: item.id });
-              }}
-            >
-              <View style={styles.groupItemFooter}>
-                <EvilIcons name="comment" size={30} color="#6b6d6e" />
-                <Text style={styles.textIconFooter}>Bình luận</Text>
-              </View>
-            </TouchableHighlight>
-          </View>
         </View>
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={options}
-          onRequestClose={() => {
-            setOptions(!options);
-          }}
-          style={styles.avatarOptionsContainer}
-        >
-          <View style={styles.backdrop}>
-            <TouchableOpacity
-              onPress={() => {
-                setOptions(!options);
-              }}
-              style={{ width: '100%', height: '100%' }}
-            ></TouchableOpacity>
-          </View>
-          <View style={styles.postOptionsWrapper}>
-            {isMe ? (
-              <>
-                <TouchableOpacity
-                  style={styles.postOptionItemWrapper}
-                  onPress={() => {
-                    setOptions(!options);
-                  }}
-                >
-                  <View style={styles.postOptionItem}>
-                    <View style={styles.optionIcon}>
-                      <Ionicons
-                        name="notifications-outline"
-                        size={24}
-                        color={GREY_COLOR}
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.postOptionTitle}>
-                        Tắt thông báo về bài viết này
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.postOptionItemWrapper}
-                  onPress={() => {
-                    setOptions(!options);
-                    Alert.alert(
-                      'Xóa bài viết?',
-                      'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
-                      [
-                        {
-                          text: 'XÓA',
-                          onPress: () => console.log('OK Pressed'),
-                        },
-                        {
-                          text: 'CHỈNH SỬA',
-                          onPress: () => navigation.navigate('EditPostScreen'),
-                        },
-                        {
-                          text: 'HỦY',
-                          onPress: () => console.log('OK Pressed'),
-                        },
-                      ]
-                    );
-                  }}
-                >
-                  <View style={styles.postOptionItem}>
-                    <View style={styles.optionIcon}>
-                      <FontAwesome
-                        name="trash-o"
-                        size={24}
-                        color={GREY_COLOR}
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.postOptionTitle}>Xóa</Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.postOptionItemWrapper}
-                  onPress={() => {
-                    setOptions(!options);
-                    navigation.navigate('EditPostScreen');
-                  }}
-                >
-                  <View style={styles.postOptionItem}>
-                    <View style={styles.optionIcon}>
-                      <Feather name="edit-2" size={20} color={GREY_COLOR} />
-                    </View>
-                    <View>
-                      <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <>
-                <TouchableOpacity
-                  style={styles.postOptionItemWrapper}
-                  onPress={() => {
-                    setOptions(!options);
-                  }}
-                >
-                  <View style={styles.postOptionItem}>
-                    <View style={styles.optionIcon}>
-                      <AntDesign
-                        name="closesquare"
-                        size={24}
-                        color={GREY_COLOR}
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.postOptionTitle}>
-                        Báo cáo bài viết
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.postOptionItemWrapper}
-                  onPress={() => {
-                    setOptions(!options);
-                  }}
-                >
-                  <View style={styles.postOptionItem}>
-                    <View style={styles.optionIcon}>
-                      <Ionicons
-                        name="notifications-outline"
-                        size={24}
-                        color={GREY_COLOR}
-                      />
-                    </View>
-                    <View>
-                      <Text style={styles.postOptionTitle}>
-                        Bật thông báo về bài viết này
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </Modal>
       </View>
-    );
-  };
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={options}
+        onRequestClose={() => {
+          setOptions(!options);
+        }}
+        style={styles.avatarOptionsContainer}
+      >
+        <View style={styles.backdrop}>
+          <TouchableOpacity
+            onPress={() => {
+              setOptions(!options);
+            }}
+            style={{ width: '100%', height: '100%' }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.postOptionsWrapper}>
+          {isMe ? (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Tắt thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  Alert.alert(
+                    'Xóa bài viết?',
+                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
+                    [
+                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      {
+                        text: 'CHỈNH SỬA',
+                        onPress: () => navigation.navigate('EditPostScreen'),
+                      },
+                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                    ]
+                  );
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Xóa</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  navigation.navigate('EditPostScreen');
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <AntDesign
+                      name="closesquare"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Bật thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </Modal>
+    </View>
+  );
 }
 
 const screenWidth = Math.round(Dimensions.get('window').width);
