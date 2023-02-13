@@ -65,16 +65,6 @@ const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);
   const [token, setToken] = useState(null);
 
-const AppComponent = () => {
-  const [isSignIn, setIsSignIn] = useState(false);
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState({});
-
-const AppComponent = () => {
-  const [isSignIn, setIsSignIn] = useState(false);
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState({});
-
   useEffect(() => {
     const fetchToken = async () => {
       const tokenValue = await AsyncStorage.getItem('token');
