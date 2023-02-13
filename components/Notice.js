@@ -1,18 +1,22 @@
-import {View, Image, StyleSheet, Text} from 'react-native';
+import {View, Image, StyleSheet, Text, Alert} from 'react-native';
 import React from 'react';
 
 const Notice = ({ typeNotice, notice }) => {
   if ( typeNotice === 'warning' ) {
     return (
-      <View styles={styles.container}>
-        <Text>{notice}</Text>
-      </View>
+      Alert.alert(
+        'Cảnh báo',
+        `${notice}`,
+        [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+      )
     )
   } else {
     return (
-      <View styles={styles.container}>
-        <Text>{notice}</Text>
-      </View>
+      Alert.alert(
+        'Cảnh báo',
+        `${notice}`,
+        [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+      )
     )
   }
 };
