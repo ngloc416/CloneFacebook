@@ -11,6 +11,7 @@ import {
   Dimensions,
   Keyboard,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {
   Ionicons,
@@ -25,6 +26,7 @@ import {
   GREEN_COLOR,
   WHITE_COLOR,
 } from '../../constants/constants.js';
+import { signUp } from '../../services/auth.service'
 
 export default function FirstLoginScreen({ navigation }) {
   const [visible, setVisible] = useState(false);
@@ -32,6 +34,8 @@ export default function FirstLoginScreen({ navigation }) {
   const [accountFocus, setAccountFocus] = useState(false);
   const [passFocus, setPassFocus] = useState(false);
   const [focus, setFocus] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
@@ -46,6 +50,33 @@ export default function FirstLoginScreen({ navigation }) {
       hideSubscription.remove();
     };
   }, []);
+
+  const chooseSignup = async () => {
+    const regexPhone = /^0[0-9]{9}$/;
+    const regexPassword = /^[A-Za-z\d]{6,10}$/;
+    if ( !regexPhone.test(phone) ) {
+      Alert.alert('', 'Số điện thoại không hợp lệ', [
+        { text: 'OK', onPress: () => console.log('OK Pressed') },
+      ])
+    } else {
+      if (!regexPassword.test(password)) {
+        Alert.alert('', 'Mật khẩu không hợp lệ', [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ])
+      } else {
+        const response = await signUp({phone, password});
+        if (response.code === '1000') {
+          navigation.pop();
+          navigation.pop();
+          navigation.navigate('CheckVerify', {phone, password});
+        } else {
+          Alert.alert('', 'Số điện thoại hoặc mật khẩu không hợp lệ', [
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+          ])
+        }
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,12 +100,14 @@ export default function FirstLoginScreen({ navigation }) {
           <TextInput
             style={accountFocus ? styles.inputPress : styles.inputNormal}
             placeholder="Số điện thoại"
+            value={phone}
             placeholderTextColor={GREY_COLOR}
             keyboardType="numeric"
             onFocus={() => {
               setAccountFocus(true);
               setPassFocus(false);
             }}
+            onChangeText={(text) => setPhone(text)}
           />
 
           <View>
@@ -83,6 +116,7 @@ export default function FirstLoginScreen({ navigation }) {
               autoCapitalize="none"
               autoComplete="password"
               placeholder="Mật khẩu"
+              value={password}
               placeholderTextColor={GREY_COLOR}
               secureTextEntry={visible === false ? true : false}
               onFocus={() => {
@@ -92,6 +126,7 @@ export default function FirstLoginScreen({ navigation }) {
               onChangeText={(text) => {
                 if (text != null && text != '') setShow(true);
                 else setShow(false);
+                setPassword(text);
               }}
             />
             {visible ? (
@@ -116,9 +151,7 @@ export default function FirstLoginScreen({ navigation }) {
           <TouchableHighlight
             style={styles.signinButton}
             onPress={() => {
-              navigation.pop();
-              navigation.pop();
-              navigation.navigate('CheckVerify');
+              chooseSignup()
             }}
             underlayColor={TOUCH_BLUE_COLOR}
           >
