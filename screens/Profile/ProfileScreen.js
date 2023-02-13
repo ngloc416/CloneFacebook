@@ -28,8 +28,8 @@ import FriendsShowing from './FriendsShowing';
 import Item from '../Home/Item';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserInfo } from '../../services/user.service';
-import { getUserListFriend } from '../../services/friend.service'
-import { getListPost } from '../../services/post.service'
+import { getUserListFriend } from '../../services/friend.service';
+import { getListPost } from '../../services/post.service';
 import { authMsg, networkErrorMsg } from '../../constants/message';
 import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 
@@ -41,7 +41,7 @@ export default function ProfileScreen({ navigation, route }) {
   const dispatch = useDispatch();
   useEffect(() => {
     const fetchUser = async () => {
-      const userId = route.params.userId;
+      const userId = route.params.user;
       const currentUsers = await AsyncStorage.getItem('user');
       const currentUserData = JSON.parse(currentUsers);
       setCurrentUser(currentUserData);
@@ -49,21 +49,25 @@ export default function ProfileScreen({ navigation, route }) {
         setIsMe(false);
       }
       const token = await AsyncStorage.getItem('token');
-      const response = await getUserInfo({token, userId});
+      const response = await getUserInfo({ token, userId });
       if (response.code === '1000') {
         setUser(response.data);
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
-    }
+    };
     fetchUser();
   }, []);
 
@@ -71,38 +75,56 @@ export default function ProfileScreen({ navigation, route }) {
     const fetchFriends = async () => {
       const userId = route.params.userId;
       const token = await AsyncStorage.getItem('token');
-      const response = await getUserListFriend({ token, userId, index: 0, count: 6});
+      const response = await getUserListFriend({
+        token,
+        userId,
+        index: 0,
+        count: 6,
+      });
       if (response.code === '1000') {
         setFriends(response.data.friends);
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
-    }
+    };
     fetchFriends();
   }, []);
-  
+
   useEffect(() => {
-    async function fetchPostList () {
+    async function fetchPostList() {
       const token = await AsyncStorage.getItem('token');
-      const response = await getListPost({ last_id: 0, index: 0, count: 20, token});
+      const response = await getListPost({
+        last_id: 0,
+        index: 0,
+        count: 20,
+        token,
+      });
       if (response.code === '1000') {
         setPosts(response.data.posts);
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
@@ -172,7 +194,7 @@ export default function ProfileScreen({ navigation, route }) {
               activeOpacity={0.8}
               onPress={() => setCoverOptions(true)}
             >
-              <Image style={styles.cover} source={{ uri: coverImage }} />
+              <Image style={styles.cover} source={{ uri: user.coverImage }} />
             </TouchableOpacity>
             {isMe ? (
               <TouchableOpacity
@@ -187,7 +209,7 @@ export default function ProfileScreen({ navigation, route }) {
                 activeOpacity={0.9}
                 onPress={() => setAvatarOptions(true)}
               >
-                <Image style={styles.avatar} source={{ uri: avatar }} />
+                <Image style={styles.avatar} source={{ uri: user.avatar }} />
               </TouchableOpacity>
               {isMe ? (
                 <TouchableOpacity
@@ -299,7 +321,7 @@ export default function ProfileScreen({ navigation, route }) {
             </Text>
             <View style={styles.postToolWrapper}>
               <Image
-                source={{uri: currentUser.avatar}}
+                source={{ uri: currentUser.avatar }}
                 style={styles.userAvatar}
               ></Image>
               <View style={styles.postInputWrapper}>

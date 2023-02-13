@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
+  TouchableHighlight,
 } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -15,6 +16,7 @@ import {
   SCREEN_HEIGHT,
   STATUSBAR_HEIGHT,
   BLUE_COLOR,
+  TOUCH_BLUE_COLOR,
 } from '../../constants/constants';
 
 export default function EditPublicInfo({ navigation, route }) {
@@ -245,6 +247,15 @@ export default function EditPublicInfo({ navigation, route }) {
             ) : null}
           </View>
         </View>
+        <TouchableHighlight
+          style={styles.signinButton}
+          onPress={() => {
+            navigation.navigate('ProfileScreen');
+          }}
+          underlayColor={TOUCH_BLUE_COLOR}
+        >
+          <Text style={styles.textSigninButton}>Xác nhận</Text>
+        </TouchableHighlight>
       </ScrollView>
     </View>
   );
@@ -271,7 +282,7 @@ const styles = StyleSheet.create({
   },
   detailsWrapper: {
     padding: 15,
-    height: SCREEN_HEIGHT - (50 + STATUSBAR_HEIGHT),
+    height: '100%',
   },
   detail: {
     borderBottomColor: '#ddd',
@@ -338,5 +349,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     borderRadius: 5,
+  },
+
+  signinButton: {
+    width: '83%',
+    marginVertical: 5,
+    paddingVertical: 8,
+    backgroundColor: BLUE_COLOR,
+    alignItems: 'center',
+    borderRadius: 4,
+    marginTop: 35,
+    marginBottom: 25,
+    alignSelf: 'center',
+    height: 40,
+  },
+  textSigninButton: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

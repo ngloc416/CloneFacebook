@@ -58,7 +58,7 @@ export default function FirstLoginScreen({ navigation }) {
       await AsyncStorage.setItem('token', response.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(response.data));
 
-      navigation.navigate('MainTab');
+      navigation.replace('MainTab');
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
