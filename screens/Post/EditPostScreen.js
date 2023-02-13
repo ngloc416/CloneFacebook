@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Text,
   StyleSheet,
@@ -9,12 +8,11 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  BackHandler,
   Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useDispatch } from 'react-redux';
+
+import state from '../../constants/state';
 
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { AntDesign } from '@expo/vector-icons';
@@ -26,57 +24,68 @@ import {
   GREY_COLOR,
   BLUE_COLOR,
   STATUSBAR_HEIGHT,
-  LIGHT_GREY_COLOR,
   SCREEN_HEIGHT,
-  SCREEN_WIDTH,
 } from '../../constants/constants';
-import state from '../../constants/state';
-import { addPost } from '../../services/post.service';
-import { authMsg, networkErrorMsg } from '../../constants/message';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
 
-export default function AddPostScreen({ navigation }) {
-  //   useEffect(() => {
-  //     const backAction = () => {
-  //       if (chooseState) return false;
-  //       else return true;
-  //     };
+export default function EditPostScreen({ navigation }) {
+  let post = {
+    author: {
+      id: '63b4d6871870e51c9354c506',
+      userName: 'Abc',
+      avatar:
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN0wR21lrB1tZAW3ihK1Zy3CXpXy4PazEU1w&usqp=CAU',
+    },
+    described: 'Merry Christmas',
+    image: [
+      {
+        url: 'https://images.baodantoc.vn/uploads/2021/Th%C3%A1ng_12/Ng%C3%A0y_23/%C3%81nh/Giang%20sinh/m%E1%BB%B9.jpg',
+        id: '63b4d6871870e51c9354c506',
+      },
+      {
+        url: 'https://hinhanhdephd.com/wp-content/uploads/2017/10/hinh-anh-mua-xuan-dep-canh-dep-thien-nhien-trong-mua-xuan-5.jpg',
+        id: '63b4d6871870e51c9354c506',
+      },
+    ],
+    video: null,
+    created: '1667879990',
+    like: '15',
+    comment: '33',
+    is_liked: '1',
+    is_blocked: '0',
+    can_comment: '1',
+    can_edit: '0',
+    state: 'hạnh phúc',
+  };
 
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction
-  //   );
+  useEffect(() => {
+    if (post.video) {
+      imagesURL.push(post.video.url);
+      setImagesURL(imagesURL);
+      setVideoNumber(1);
+    } else {
+      post.image.forEach((element) => {
+        imagesURL.push(element.url);
+      });
+      setImagesURL(imagesURL);
+      setImageNumber(post.image.length);
+    }
+  }, []);
 
-  //     return () => backHandler.remove();
-  //   }, [chooseState]);
-  const dispatch = useDispatch();
-  const [vertical, setVertical] = useState(true);
-  const [cancel, setCancel] = useState(false);
   const [chooseState, setChooseState] = useState(false);
-  const [userState, setUserState] = useState(null);
-  const [describedText, setDescribedText] = useState('');
-  const [status, setStatus] = useState('');
-  const [currentUser, setCurrentUser] = useState({});
+  const [userState, setUserState] = useState(post.state);
   const [stateList, setStateList] = useState(state);
   const [stateFilter, setStateFilter] = useState(state.state);
+
+  const [vertical, setVertical] = useState(true);
+  const [described, setDescribed] = useState(post.described);
 
   const [images, setImages] = useState([]);
   const [imagesURL, setImagesURL] = useState([]);
   const [imageNumber, setImageNumber] = useState(0);
   const [videoNumber, setVideoNumber] = useState(0);
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const user = await AsyncStorage.getItem('user');
-      const userData = JSON.parse(user);
-      setCurrentUser(userData);
-    };
-    fetchCurrentUser();
-  }, []);
-
   const pickImages = async () => {
     setImagesURL([]);
-    setImages([]);
     // lấy item
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -114,7 +123,6 @@ export default function AddPostScreen({ navigation }) {
               imgCount++;
               setImageNumber(imgCount);
               imagesURL.push(item.uri);
-              images.push(item);
             });
           }
         }
@@ -123,11 +131,9 @@ export default function AddPostScreen({ navigation }) {
         if (result.type === 'image' && videoNumber == 0) {
           setImageNumber(imageNumber + 1);
           imagesURL.push(result.uri);
-          images.push(result);
         } else if (result.type === 'video' && imageNumber == 0) {
           setVideoNumber(videoNumber + 1);
           imagesURL.push(result.uri);
-          images.push(result);
         } else {
           Alert.alert('Cảnh báo', 'Không được chọn cả ảnh và video.', [
             { text: 'OK', onPress: () => console.log('OK Pressed') },
@@ -135,66 +141,14 @@ export default function AddPostScreen({ navigation }) {
         }
       }
       setImagesURL(imagesURL);
-      setImages(images);
-    } else {
-      setImagesURL(imagesURL);
-      setImages(images);
-    }
-  };
-
-  const addNewPost = async () => {
-    const token = await AsyncStorage.getItem('token');
-    let body = { token };
-    if (status !== '') {
-      body.status = status;
-    }
-    if (describedText !== '') {
-      body.described = describedText;
-    }
-    let formData = new FormData();
-    if (imageNumber > 0) {
-      images.forEach((image) => {
-        formData.append('image', image);
-      });
-    }
-    if (videoNumber) {
-      images.forEach((image) => {
-        formData.append('video', image);
-      });
-    }
-    body.formData = formData;
-    console.log(formData._parts);
-    const response = await addPost(body);
-    console.log(response);
-    if (response.code === '1000') {
-      navigation.goBack();
-    } else {
-      if (response.code === '9995' || response.code === '9998') {
-        await AsyncStorage.removeItem('token');
-        navigation.navigate('LoginScreen');
-        dispatch(
-          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
-        );
-        setTimeout(() => dispatch(closeNotice()), 2000);
-      } else if (response.code === 'ERR_NETWORK') {
-        dispatch(
-          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
-        );
-        setTimeout(() => dispatch(closeNotice()), 2000);
-      } else {
-        dispatch(
-          openNotice({ notice: response.message, typeNotice: 'warning' })
-        );
-        setTimeout(() => dispatch(closeNotice()), 2000);
-      }
-    }
+    } else setImagesURL(imagesURL);
   };
 
   return (
     <View style={styles.container}>
       {/* chọn cảm xúc */}
       {chooseState && (
-        <View style={styles.container}>
+        <View style={{ ...styles.container, zIndex: 999 }}>
           <View style={styles.contentHeader}>
             <View style={styles.contentHeaderLeft}>
               <TouchableOpacity onPress={() => setChooseState(false)}>
@@ -270,7 +224,7 @@ export default function AddPostScreen({ navigation }) {
                       </Text>
                       <Text
                         style={{ fontSize: 17, marginLeft: 10 }}
-                        key={index}
+                        key={{ index }}
                       >
                         {item}
                       </Text>
@@ -281,24 +235,41 @@ export default function AddPostScreen({ navigation }) {
           </ScrollView>
         </View>
       )}
-
-      {/* trang tạo bài viết */}
       <View style={styles.contentHeader}>
         <View style={styles.contentHeaderLeft}>
-          <TouchableOpacity onPress={() => setCancel(true)}>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                'Bỏ thay đổi?',
+                'Nếu bỏ bây giờ thì bạn sẽ mất mọi thay đổi trên bài viết này.',
+                [
+                  {
+                    text: 'CHỈNH SỬA TIẾP',
+                    onPress: () => console.log('CHỈNH SỬA TIẾP'),
+                  },
+                  { text: 'BỎ', onPress: () => navigation.goBack() },
+                ]
+              )
+            }
+          >
             <AntDesign name="arrowleft" size={28} color="black" />
           </TouchableOpacity>
-          <Text style={styles.textHeader}>Tạo bài viết</Text>
+          <Text style={styles.textHeader}>Chỉnh sửa bài viết</Text>
         </View>
-        <TouchableOpacity style={styles.button} onPress={() => addNewPost()}>
-          <Text style={styles.textButton}>ĐĂNG</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Text style={styles.textButton}>Lưu</Text>
         </TouchableOpacity>
       </View>
       <ScrollView>
         <View style={styles.contentBody}>
           <View style={styles.headerBody}>
             <Image
-              source={{ uri: currentUser.avatar }}
+              source={require('../../assets/Login/Avatar.jpg')}
               style={{
                 width: 50,
                 height: 50,
@@ -308,7 +279,7 @@ export default function AddPostScreen({ navigation }) {
             ></Image>
             <View style={{ width: '80%' }}>
               <Text style={styles.textInfor}>
-                {currentUser.username}
+                {'Nguyễn Đình Lộc'}
                 {userState ? (
                   <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
                     {' '}
@@ -319,7 +290,6 @@ export default function AddPostScreen({ navigation }) {
                   </Text>
                 ) : null}
               </Text>
-
               <TouchableOpacity style={styles.inforBottom}>
                 <FontAwesome5Icon
                   style={{ marginRight: 3 }}
@@ -345,8 +315,12 @@ export default function AddPostScreen({ navigation }) {
               onFocus={() => {
                 setVertical(false);
               }}
-              value={describedText}
-              onChangeText={(text) => setDescribedText(text)}
+              value={described}
+              onChangeText={(text) => {
+                if (text) {
+                  setDescribed(text);
+                } else setDescribed(null);
+              }}
             />
           </View>
           {imagesURL && imagesURL.length === 1 && (
@@ -577,193 +551,92 @@ export default function AddPostScreen({ navigation }) {
           )}
         </View>
       </ScrollView>
-      {!chooseState && (
-        <View style={{ height: 47 }}>
-          <View style={styles.footer}>
-            {vertical ? (
-              <View style={styles.iconFooterCol}>
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => {
-                    console.log(imageNumber + ' ' + videoNumber);
-                    if (imageNumber < 4 && videoNumber == 0) pickImages();
-                    else
-                      Alert.alert(
-                        'Cảnh báo',
-                        'Chọn tối đa 4 bức ảnh hoặc 1 video.',
-                        [
-                          {
-                            text: 'OK',
-                            onPress: () => console.log('OK Pressed'),
-                          },
-                        ]
-                      );
-                  }}
-                >
-                  <Ionicons
-                    name="md-images"
-                    size={24}
-                    color="green"
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Ảnh/video</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => {
-                    setStateFilter(state.state);
-                    setChooseState(true);
-                  }}
-                >
-                  <Entypo
-                    name="emoji-happy"
-                    size={24}
-                    color="#F5C33B"
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Cảm xúc</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.item}>
-                  <Entypo
-                    name="camera"
-                    size={24}
-                    color={BLUE_COLOR}
-                    style={styles.icon}
-                  />
-                  <Text style={{ fontSize: 16 }}>Camera</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.iconFooter}>
-                <TouchableOpacity
-                  onPress={() => {
-                    {
-                      console.log(imageNumber + ' ' + videoNumber);
-                      if (imageNumber < 4 && videoNumber == 0) pickImages();
-                      else
-                        Alert.alert(
-                          'Cảnh báo',
-                          'Chọn tối đa 4 bức ảnh hoặc 1 video.',
-                          [
-                            {
-                              text: 'OK',
-                              onPress: () => console.log('OK Pressed'),
-                            },
-                          ]
-                        );
-                    }
-                  }}
-                >
-                  <Ionicons name="md-images" size={24} color="green" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setStateFilter(state.state);
-                    setChooseState(true);
-                  }}
-                >
-                  <Entypo name="emoji-happy" size={24} color="#F5C33B" />
-                </TouchableOpacity>
-                <TouchableOpacity>
-                  <Entypo name="camera" size={24} color={BLUE_COLOR} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setVertical(!vertical)}>
-                  <MaterialCommunityIcons
-                    name="dots-horizontal-circle"
-                    size={26}
-                    color={GREY_COLOR}
-                  />
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-      )}
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={cancel}
-        onRequestClose={() => {
-          setCancel(!cancel);
-        }}
-        style={styles.avatarOptionsContainer}
-      >
-        <View style={styles.backdrop}>
-          <TouchableOpacity
-            onPress={() => {
-              setCancel(!cancel);
-            }}
-            style={{ width: '100%', height: '100%' }}
-          ></TouchableOpacity>
-        </View>
-        <View style={styles.postOptionsWrapper}>
-          <View style={{ height: 60 }}>
-            <Text style={{ fontSize: 16, marginBottom: 4 }}>
-              Bạn muốn hoàn thành bài viết của mình sau?
-            </Text>
-            <Text style={{ fontSize: 14, color: GREY_COLOR }}>
-              Hãy lưu làm bản nháp hoặc tiếp tục chỉnh sửa.
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-              navigation.goBack();
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
+      <View style={{ height: 47 }}>
+        <View style={styles.footer}>
+          {vertical ? (
+            <View style={styles.iconFooterCol}>
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  console.log(imageNumber + ' ' + videoNumber);
+                  if (imageNumber < 4 && videoNumber == 0) pickImages();
+                  else
+                    Alert.alert(
+                      'Cảnh báo',
+                      'Chọn tối đa 4 bức ảnh hoặc 1 video.',
+                      [{ text: 'OK', onPress: () => console.log('OK Pressed') }]
+                    );
+                }}
+              >
                 <Ionicons
-                  name="ios-bookmark-outline"
+                  name="md-images"
                   size={24}
+                  color="green"
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Ảnh/video</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.item}
+                onPress={() => {
+                  setStateFilter(state.state);
+                  setChooseState(true);
+                }}
+              >
+                <Entypo
+                  name="emoji-happy"
+                  size={24}
+                  color="#F5C33B"
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Cảm xúc</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.item}>
+                <Entypo
+                  name="camera"
+                  size={24}
+                  color={BLUE_COLOR}
+                  style={styles.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Camera</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.iconFooter}>
+              <TouchableOpacity
+                onPress={() => {
+                  pickImages;
+                }}
+              >
+                <Ionicons name="md-images" size={24} color="green" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setStateFilter(state.state);
+                  setChooseState(true);
+                }}
+              >
+                <Entypo name="emoji-happy" size={24} color="#F5C33B" />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Entypo name="camera" size={24} color={BLUE_COLOR} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setVertical(!vertical)}>
+                <MaterialCommunityIcons
+                  name="dots-horizontal-circle"
+                  size={26}
                   color={GREY_COLOR}
                 />
-              </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Lưu làm bản nháp</Text>
-              </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-              navigation.goBack();
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
-              </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Bỏ bài viết</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setCancel(!cancel);
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <AntDesign name="check" size={24} color={BLUE_COLOR} />
-              </View>
-              <View>
-                <Text style={{ ...styles.postOptionTitle, color: BLUE_COLOR }}>
-                  Tiếp tục chỉnh sửa
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
+          )}
         </View>
-      </Modal>
+      </View>
     </View>
   );
 }
+
+const SCREEN_WIDTH = Math.round(Dimensions.get('window').width);
 
 const styles = StyleSheet.create({
   container: {
@@ -948,44 +821,5 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: 15,
-  },
-
-  //thông báo
-  avatarOptionsContainer: {
-    position: 'relative',
-  },
-  backdrop: {
-    zIndex: 1,
-  },
-  postOptionsWrapper: {
-    borderColor: '#ddd',
-    borderWidth: 1,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 2,
-    paddingHorizontal: 15,
-    paddingTop: 20,
-    backgroundColor: '#fff',
-  },
-  postOptionItemWrapper: {
-    paddingBottom: 20,
-  },
-  postOptionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 50,
-    backgroundColor: LIGHT_GREY_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  postOptionTitle: {
-    fontSize: 16,
-    marginLeft: 15,
   },
 });

@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SafeAreaView,
   View,
@@ -19,7 +20,6 @@ import {
   LIGHT_BLUE_COLOR,
   LIGHT_GREY_COLOR,
 } from '../../constants/constants.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const fetchUser = async () => {
   const userSaved = await AsyncStorage.getItem('user');
@@ -47,22 +47,26 @@ export default function FirstLoginScreen({ navigation }) {
         style={{ paddingTop: '55%', marginBottom: 20 }}
       />
       <View style={{ width: '100%' }}>
-        <TouchableHighlight
-          style={styles.accountFrame}
-          underlayColor={LIGHT_GREY_COLOR}
-          onPress={() => {
-            navigation.navigate('NextLoginScreen');
-          }}
-        >
-          <View style={styles.account}>
-            <Image
-              style={styles.avatar}
-              source={{uri: user.avatar}}
-            />
+        {
+          (user) ?
+          <TouchableHighlight
+            style={styles.accountFrame}
+            underlayColor={LIGHT_GREY_COLOR}
+            onPress={() => {
+              navigation.navigate('NextLoginScreen');
+            }}
+          >
+            <View style={styles.account}>
+              <Image
+                style={styles.avatar}
+                source={{uri: user.avatar}}
+              />
 
-            <Text style={styles.username}>{user.username}</Text>
-          </View>
-        </TouchableHighlight>
+              <Text style={styles.username}>{user.username}</Text>
+            </View>
+          </TouchableHighlight>
+          : null
+        }
 
         <TouchableHighlight
           style={styles.setting}
@@ -137,7 +141,7 @@ export default function FirstLoginScreen({ navigation }) {
 
       <TouchableHighlight
         style={styles.signupButton}
-        onPress={() => {}}
+        onPress={() => {navigation.navigate('BeginSignup')}}
         underlayColor={LIGHT_GREY_COLOR}
       >
         <Text style={styles.textSignupButton}>TẠO TÀI KHOẢN FACEBOOK MỚI</Text>

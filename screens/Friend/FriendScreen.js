@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
 import {
   StyleSheet,
   Text,
@@ -11,13 +12,17 @@ import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/FriendItem';
-import { getRequestFriendList } from '../../services/friend.service'
+import { getRequestFriendList } from '../../services/friend.service';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { authMsg, networkErrorMsg } from '../../constants/message';
 
 function FriendScreen({ navigation }) {
   const [requestedFriends, setRequestedFriends] = useState([]);
   const [total, setTotal] = useState(0);
   const [index, setIndex] = useState(0);
   const [noRequest, setNoRequest] = useState(false);
+  const [reloadList, setReloadList] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchRequestedFriends = async () => {
@@ -29,82 +34,32 @@ function FriendScreen({ navigation }) {
       }
       if (response.code === '9994') {
         setNoRequest(true);
+        setTotal(0);
       }
-    }
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === 'ERR_NETWORK') {
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    };
     fetchRequestedFriends();
-  }, [])
+  }, [reloadList]);
 
-  const friends = [
-    {
-      id: 1,
-      fullname: 'Vũ Hoàng Long',
-      name: 'Long',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
-
-    {
-      id: 2,
-      fullname: 'Nguyễn Đức Thắng',
-      name: 'Thắng',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
-
-    {
-      id: 4,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 5,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 6,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 7,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 8,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 9,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-  ];
+  const reloadRequestedFriendList = () => {
+    if (reloadList) {
+      setReloadList(false);
+    } else {
+      setReloadList(true);
+    }
+  };
 
   const listFriend = () => {
     return requestedFriends.map((element) => {
@@ -112,6 +67,8 @@ function FriendScreen({ navigation }) {
         <View key={element.id}>
           <View>
             <FriendItem
+              setReload={reloadRequestedFriendList}
+              userId={element.id}
               urlAvatar={element.avatar}
               mutual={element.same_friends}
               name={element.username}
@@ -136,7 +93,9 @@ function FriendScreen({ navigation }) {
           <Text style={styles.textHeader}>Bạn bè</Text>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>
@@ -172,11 +131,13 @@ function FriendScreen({ navigation }) {
           <Text style={styles.countFriends}>{total}</Text>
         </View>
         <View style={styles.listFriend}>
-          {
-            (!noRequest) ?
+          {!noRequest ? (
             listFriend()
-            : <Text>Tạm thời không có lời mòi kết bạn</Text>
-          }
+          ) : (
+            <Text style={{ alignSelf: 'center' }}>
+              Không có lời mời kết bạn
+            </Text>
+          )}
         </View>
         <View style={{ height: 20 }}></View>
       </ScrollView>

@@ -10,10 +10,20 @@ import {
   SafeAreaView,
   Animated,
   Dimensions,
+  Modal,
+  Alert,
 } from 'react-native';
 import { Entypo, AntDesign, EvilIcons } from '@expo/vector-icons';
+import { FontAwesome, Feather, Ionicons } from '@expo/vector-icons';
 
-import { GREY_COLOR, BLUE_COLOR } from '../../constants/constants';
+import {
+  GREY_COLOR,
+  BLUE_COLOR,
+  LIGHT_GREY_COLOR,
+} from '../../constants/constants';
+
+import { likePost } from '../../services/like.service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PostImageScreen = ({ navigation, route }) => {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
@@ -24,7 +34,24 @@ const PostImageScreen = ({ navigation, route }) => {
     setShortcutDescribed(!shortcutDescribed);
   };
 
+  const [options, setOptions] = useState(false);
+  const [isMe, setIsMe] = useState(true);
+  const [liked, setLiked] = useState(postDetail.is_liked);
+  const [numberOfLike, setNumberOfLike] = useState(parseInt(postDetail.like));
+
   const time = Date.now() / 1000 - parseInt(postDetail.created);
+
+  const onPressLike = async (postId) => {
+    if (liked === '0') {
+      setLiked('1');
+      setNumberOfLike(numberOfLike + 1);
+    } else {
+      setLiked('0');
+      setNumberOfLike(numberOfLike - 1);
+    }
+    const token = await AsyncStorage.getItem('token');
+    await likePost({ postId, token });
+  };
 
   return (
     <SafeAreaView>
@@ -38,44 +65,22 @@ const PostImageScreen = ({ navigation, route }) => {
             ></Image>
           </View>
           <View style={styles.optionIconWrapper}>
-            <TouchableOpacity style={styles.cycleWrapper}>
+            <TouchableOpacity
+              style={styles.cycleWrapper}
+              onPress={() => {
+                setOptions(true);
+              }}
+            >
               <Entypo name="dots-three-vertical" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
-          {/* <Animated.View style={styles.optionListWrapper}>
-            <View style={styles.optionBackDrop}>
-              <TouchableOpacity style={{ width: '100%', height: '100%' }}>
-                <View></View>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.allOptionWrapper}>
-              <TouchableOpacity>
-                <View style={styles.optionItemWrapper}>
-                  <FontAwesome5Icon
-                    name="download"
-                    size={20}
-                  ></FontAwesome5Icon>
-                  <Text style={styles.optionText}>Save to your phone</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={styles.optionItemWrapper}>
-                  <FontAwesome5Icon name="share" size={20}></FontAwesome5Icon>
-                  <Text style={styles.optionText}>Share it outside</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={styles.optionItemWrapper}>
-                  <FontAwesome5Icon name="flag" size={20}></FontAwesome5Icon>
-                  <Text style={styles.optionText}>Find support or report</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </Animated.View> */}
+
           <View style={styles.postContentWrapper}>
             <View>
               <View>
-                <Text style={styles.name}>{postDetail.author.username || postDetail.author.name}</Text>
+                <Text style={styles.name}>
+                  {postDetail.author.username || postDetail.author.name}
+                </Text>
               </View>
               <TouchableOpacity onPress={expandDescribed}>
                 {postDetail.described ? (
@@ -95,9 +100,7 @@ const PostImageScreen = ({ navigation, route }) => {
                       </Text>
                     )
                   ) : (
-                    <Text style={styles.content}>
-                      {postDetail.described}
-                    </Text>
+                    <Text style={styles.content}>{postDetail.described}</Text>
                   )
                 ) : null}
               </TouchableOpacity>
@@ -134,11 +137,21 @@ const PostImageScreen = ({ navigation, route }) => {
                       fontWeight: '700',
                     }}
                   >
-                    {postDetail.like}
+                    {liked === '1'
+                      ? numberOfLike > 1
+                        ? `Bạn và ${numberOfLike - 1} người khác`
+                        : 'Bạn'
+                      : numberOfLike}
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('PostCommentScreen', {
+                    postId: postDetail.id,
+                  })
+                }
+              >
                 <Text
                   style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}
                 >
@@ -148,14 +161,35 @@ const PostImageScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.btnReactionWrapper}>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  onPressLike(postDetail.id);
+                }}
+              >
                 <View style={styles.groupItemFooter}>
-                  <EvilIcons name="like" size={30} color="#fff" />
-
-                  <Text style={styles.textIconFooter}>Thích</Text>
+                  {liked === '0' ? (
+                    <EvilIcons name="like" size={30} color="#fff" />
+                  ) : (
+                    <EvilIcons name="like" size={30} color={BLUE_COLOR} />
+                  )}
+                  {liked === '0' ? (
+                    <Text style={styles.textIconFooter}>Thích</Text>
+                  ) : (
+                    <Text
+                      style={{ ...styles.textIconFooter, color: BLUE_COLOR }}
+                    >
+                      Thích
+                    </Text>
+                  )}
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('PostCommentScreen', {
+                    postId: postDetail.id,
+                  });
+                }}
+              >
                 <View style={styles.groupItemFooter}>
                   <EvilIcons name="comment" size={30} color="#fff" />
                   <Text style={styles.textIconFooter}>Bình luận</Text>
@@ -165,6 +199,137 @@ const PostImageScreen = ({ navigation, route }) => {
           </View>
         </View>
       </TouchableWithoutFeedback>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={options}
+        onRequestClose={() => {
+          setOptions(!options);
+        }}
+        style={styles.avatarOptionsContainer}
+      >
+        <View style={styles.backdrop}>
+          <TouchableOpacity
+            onPress={() => {
+              setOptions(!options);
+            }}
+            style={{ width: '100%', height: '100%' }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.postOptionsWrapper}>
+          {isMe ? (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Tắt thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  Alert.alert(
+                    'Xóa bài viết?',
+                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
+                    [
+                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      {
+                        text: 'CHỈNH SỬA',
+                        onPress: () => navigation.navigate('EditPostScreen'),
+                      },
+                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                    ]
+                  );
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Xóa</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  navigation.navigate('EditPostScreen');
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <AntDesign
+                      name="closesquare"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Bật thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </Modal>
       <StatusBar style="dark" />
     </SafeAreaView>
   );
@@ -280,6 +445,44 @@ const styles = StyleSheet.create({
   },
   describedSupport: {
     color: GREY_COLOR,
+  },
+  avatarOptionsContainer: {
+    position: 'relative',
+  },
+  backdrop: {
+    zIndex: 1,
+  },
+  postOptionsWrapper: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    zIndex: 2,
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    backgroundColor: '#fff',
+  },
+  postOptionItemWrapper: {
+    paddingBottom: 20,
+  },
+  postOptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: LIGHT_GREY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postOptionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 15,
   },
 });
 

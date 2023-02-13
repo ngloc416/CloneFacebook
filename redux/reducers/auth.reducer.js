@@ -2,7 +2,7 @@ let initialState = {
   isLogin: false,
 };
 
-const auth = ( state = initialState, action) => {
+const auth = (state = initialState, action) => {
   switch (action.type) {
     case 'LOGIN':
       return {
@@ -15,6 +15,8 @@ const auth = ( state = initialState, action) => {
     default:
       return state;
   }
-}
+};
+
+export default auth;
 
 export default auth;

@@ -11,35 +11,48 @@ import {
   TouchableOpacity,
   TouchableHighlight,
   TouchableWithoutFeedback,
+  Modal,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import { Video } from 'expo-av';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import { EvilIcons, AntDesign } from '@expo/vector-icons';
+import {
+  EvilIcons,
+  AntDesign,
+  FontAwesome,
+  Feather,
+  Ionicons,
+} from '@expo/vector-icons';
 import {
   LIGHT_GREY_COLOR,
   GREY_COLOR,
   BLUE_COLOR,
 } from '../../constants/constants';
+import state from '../../constants/state';
 import { likePost } from '../../services/like.service';
 import { getPostById } from '../../services/post.service';
-import { authMsg } from '../../constants/message';
+import { authMsg, networkErrorMsg } from '../../constants/message';
 
 export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
-  const [postOption, setPostOption] = useState(false);
+  const [options, setOptions] = useState(false);
+  const [isMe, setIsMe] = useState(true);
 
   const dispatch = useDispatch();
 
   const time = Date.now() / 1000 - parseInt(item.created);
+
+  const video = React.useRef(null);
+  const [status, setStatus] = React.useState({});
 
   const expandDescribed = () => {
     setShortcutDescribed(!shortcutDescribed);
   };
 
   const onPressLike = async (postId) => {
-    console.log(item)
     if (liked === '0') {
       setLiked('1');
       setNumberOfLike(numberOfLike + 1);
@@ -48,11 +61,28 @@ export default function Item({ navigation, item }) {
       setNumberOfLike(numberOfLike - 1);
     }
     const token = await AsyncStorage.getItem('token');
-    await likePost({postId, token});
+    await likePost({ postId, token });
   };
 
   const onPressPostOption = () => {
-    setPostOption(!postOption);
+    setOptions(!options);
+  };
+
+  const navigateToPostDetail = async (postId) => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await getPostById({ postId, token });
+    if (response.code === '1000') {
+      navigation.navigate('PostDetailScreen', { post: response.data });
+    }
+    if (response.code === '9995' || response.code === '9998') {
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('LoginScreen');
+      dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    } else if (response.code === 'ERR_NETWORK') {
+      dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
+      setTimeout(() => dispatch(closeNotice()), 2000);
+    }
   };
 
   const navigateToPostDetail = async (postId) => {
@@ -75,7 +105,7 @@ export default function Item({ navigation, item }) {
       <TouchableHighlight
         underlayColor={LIGHT_GREY_COLOR}
         onPress={() => {
-          navigation.navigate('PostDetailScreen');
+          navigateToPostDetail(item.id);
         }}
       >
         <View
@@ -90,7 +120,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen');
+                navigation.navigate('ProfileScreen', {userId: item.author.id});
               }}
             >
               <Image
@@ -103,11 +133,24 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen');
+                    navigation.navigate('ProfileScreen', {user: item.author.id});
                   }}
+                  style={{ flex: 1 }}
                 >
-                  <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                    {item.author.username || item.author.name}
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontWeight: '700',
+                    }}
+                  >
+                    {item.author.username}
+                    {item.state ? (
+                      <Text style={{ fontSize: 16, fontWeight: 'normal' }}>
+                        {' '}
+                        đang {state.icon[state.state.indexOf(item.state)]} cảm
+                        thấy {item.state}.
+                      </Text>
+                    ) : null}
                   </Text>
                 </TouchableHighlight>
               </View>
@@ -186,11 +229,33 @@ export default function Item({ navigation, item }) {
         ) : null}
       </TouchableHighlight>
 
+      {item.video && (
+        <View>
+          <Video
+            ref={video}
+            style={{
+              video: {
+                height: 300,
+                width: '100%',
+              },
+            }}
+            source={{ uri: item.video.url }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+            onPlaybackStatusUpdate={setStatus}
+          />
+        </View>
+      )}
+
       {item.image && item.image.length === 1 && (
         <TouchableWithoutFeedback
           style={styles.imageContainer1}
           onPress={() => {
-            navigation.navigate('PostImageScreen', { postDetail: item, index: 0});
+            navigation.navigate('PostImageScreen', {
+              postDetail: item,
+              index: 0,
+            });
           }}
         >
           <Image
@@ -219,7 +284,6 @@ export default function Item({ navigation, item }) {
               resizeMode="cover"
               style={styles.imageDetail2}
             />
-            
           </View>
         </TouchableWithoutFeedback>
       )}
@@ -231,27 +295,27 @@ export default function Item({ navigation, item }) {
             navigateToPostDetail(item.id);
           }}
         >
-        <View style={styles.imageContainer3}>
-          <View style={styles.imageContainerLeft3}>
-            <Image
-              source={{ uri: item.image[0].url }}
-              resizeMode="cover"
-              style={styles.imageDetail31}
-            />
+          <View style={styles.imageContainer3}>
+            <View style={styles.imageContainerLeft3}>
+              <Image
+                source={{ uri: item.image[0].url }}
+                resizeMode="cover"
+                style={styles.imageDetail31}
+              />
+            </View>
+            <View style={styles.imageContainerRight3}>
+              <Image
+                source={{ uri: item.image[1].url }}
+                resizeMode="cover"
+                style={styles.imageDetail32}
+              />
+              <Image
+                source={{ uri: item.image[2].url }}
+                resizeMode="cover"
+                style={styles.imageDetail32}
+              />
+            </View>
           </View>
-          <View style={styles.imageContainerRight3}>
-            <Image
-              source={{ uri: item.image[1].url }}
-              resizeMode="cover"
-              style={styles.imageDetail32}
-            />
-            <Image
-              source={{ uri: item.image[2].url }}
-              resizeMode="cover"
-              style={styles.imageDetail32}
-            />
-          </View>
-        </View>
         </TouchableWithoutFeedback>
       )}
 
@@ -262,37 +326,42 @@ export default function Item({ navigation, item }) {
             navigateToPostDetail(item.id);
           }}
         >
-        <View style={styles.imageContainer4}>
-          <View style={styles.imageAboveSubContainer4}>
-            <Image
-              source={{ uri: item.image[0].url }}
-              resizeMode="cover"
-              style={styles.imageDetail4}
-            />
-            <Image
-              source={{ uri: item.image[1].url }}
-              resizeMode="cover"
-              style={styles.imageDetail4}
-            />
+          <View style={styles.imageContainer4}>
+            <View style={styles.imageAboveSubContainer4}>
+              <Image
+                source={{ uri: item.image[0].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
+              <Image
+                source={{ uri: item.image[1].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
+            </View>
+            <View style={styles.imageUnderSubContainer4}>
+              <Image
+                source={{ uri: item.image[2].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
+              <Image
+                source={{ uri: item.image[3].url }}
+                resizeMode="cover"
+                style={styles.imageDetail4}
+              />
+            </View>
           </View>
-          <View style={styles.imageUnderSubContainer4}>
-            <Image
-              source={{ uri: item.image[2].url }}
-              resizeMode="cover"
-              style={styles.imageDetail4}
-            />
-            <Image
-              source={{ uri: item.image[3].url }}
-              resizeMode="cover"
-              style={styles.imageDetail4}
-            />
-          </View>
-        </View>
         </TouchableWithoutFeedback>
       )}
 
       <View style={styles.footer}>
-        <TouchableHighlight underlayColor={LIGHT_GREY_COLOR} onPress={() => {}}>
+        <TouchableHighlight
+          underlayColor={LIGHT_GREY_COLOR}
+          onPress={() => {
+            navigation.navigate('PostCommentScreen', { postId: item.id });
+          }}
+        >
           <View style={styles.topFooter}>
             <View style={styles.countLike}>
               <AntDesign name="like1" size={16} color={BLUE_COLOR} />
@@ -305,7 +374,9 @@ export default function Item({ navigation, item }) {
                 }}
               >
                 {liked === '1'
-                  ? `Bạn và ${numberOfLike - 1} người khác`
+                  ? numberOfLike > 1
+                    ? `Bạn và ${numberOfLike - 1} người khác`
+                    : 'Bạn'
                   : numberOfLike}
               </Text>
             </View>
@@ -338,7 +409,7 @@ export default function Item({ navigation, item }) {
           <TouchableHighlight
             underlayColor={LIGHT_GREY_COLOR}
             onPress={() => {
-              navigation.navigate('PostCommentScreen', {postId: item.id});
+              navigation.navigate('PostCommentScreen', { postId: item.id });
             }}
           >
             <View style={styles.groupItemFooter}>
@@ -348,6 +419,138 @@ export default function Item({ navigation, item }) {
           </TouchableHighlight>
         </View>
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={options}
+        onRequestClose={() => {
+          setOptions(!options);
+        }}
+        style={styles.avatarOptionsContainer}
+      >
+        <View style={styles.backdrop}>
+          <TouchableOpacity
+            onPress={() => {
+              setOptions(!options);
+            }}
+            style={{ width: '100%', height: '100%' }}
+          ></TouchableOpacity>
+        </View>
+        <View style={styles.postOptionsWrapper}>
+          {isMe ? (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Tắt thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  Alert.alert(
+                    'Xóa bài viết?',
+                    'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
+                    [
+                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      {
+                        text: 'CHỈNH SỬA',
+                        onPress: () => navigation.navigate('EditPostScreen'),
+                      },
+                      { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                    ]
+                  );
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <FontAwesome name="trash-o" size={24} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Xóa</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                  navigation.navigate('EditPostScreen');
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Feather name="edit-2" size={20} color={GREY_COLOR} />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Sửa bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <AntDesign
+                      name="closesquare"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>Báo cáo bài viết</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.postOptionItemWrapper}
+                onPress={() => {
+                  setOptions(!options);
+                }}
+              >
+                <View style={styles.postOptionItem}>
+                  <View style={styles.optionIcon}>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={GREY_COLOR}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.postOptionTitle}>
+                      Bật thông báo về bài viết này
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -365,6 +568,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 18,
     flexDirection: 'row',
+    width: '92%',
   },
   avatar: {
     width: 40,
@@ -373,10 +577,12 @@ const styles = StyleSheet.create({
   },
   infoWrapper: {
     marginLeft: 8,
+    flex: 1,
   },
   namesWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   extraInfoWrapper: {
     flexDirection: 'row',
@@ -498,5 +704,43 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 13,
     color: BLUE_COLOR,
+  },
+  avatarOptionsContainer: {
+    position: 'relative',
+  },
+  backdrop: {
+    zIndex: 1,
+  },
+  postOptionsWrapper: {
+    borderColor: '#ddd',
+    borderWidth: 1,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    zIndex: 2,
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    backgroundColor: '#fff',
+  },
+  postOptionItemWrapper: {
+    paddingBottom: 20,
+  },
+  postOptionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: LIGHT_GREY_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postOptionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 15,
   },
 });

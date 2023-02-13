@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, BackHandler } from 'react-native';
+import { useDispatch } from 'react-redux';
 import Item from './Item';
 
 import { getListPost } from '../../services/post.service';
 import PostTool from './PostTool';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { networkErrorMsg, authMsg } from '../../constants/message.js';
 
 export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [lastId, setLastId] = useState(0);
   const [index, setIndex] = useState(0);
+  const dispatch = useDispatch();
   useEffect(() => {
-    async function fetchPostList () {
+    async function fetchPostList() {
       // let response;
       // const postList = await AsyncStorage.getItem('post_list');
       // if (postList) {
@@ -27,9 +31,28 @@ export default function HomeScreen({ navigation }) {
       // }
 
       const token = await AsyncStorage.getItem('token');
-      const response = await getListPost({ last_id: lastId, index, count: 20, token});
+      const response = await getListPost({
+        last_id: lastId,
+        index,
+        count: 20,
+        token,
+      });
       if (response.code === '1000') {
         setPosts(response.data.posts);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else if (response.code === 'ERR_NETWORK') {
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
       }
     }
     fetchPostList();

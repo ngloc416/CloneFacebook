@@ -5,84 +5,64 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/FriendItem';
+import { getSuggestedFriendList } from '../../services/friend.service';
+import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { authMsg } from '../../constants/message';
 
 function SuggestFriend({ navigation }) {
-  const suggestFriends = [
-    {
-      id: 1,
-      fullname: 'Vũ Hoàng Long',
-      name: 'Long',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
+  const [friendList, setFriendList] = useState([]);
+  const [reloadSuggested, setReloadSuggested] = useState(false);
 
-    {
-      id: 2,
-      fullname: 'Nguyễn Đức Thắng',
-      name: 'Thắng',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 1,
-    },
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const response = await getSuggestedFriendList({
+        token,
+        index: 0,
+        count: 20,
+      });
+      if (response.code === '1000') {
+        setFriendList(response.data.list_users);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else if (response.code === 'ERR_NETWORK') {
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        } else {
+          dispatch(
+            openNotice({ notice: response.message, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    };
+    fetchFriendList();
+  }, [reloadSuggested]);
 
-    {
-      id: 4,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 5,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 6,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-    {
-      id: 7,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-    {
-      id: 8,
-      fullname: 'Nguyễn Văn Khoa',
-      name: 'Khoa',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 3,
-    },
-
-    {
-      id: 9,
-      fullname: 'Võ Tiến Bắc',
-      name: 'Bắc',
-      avatar:
-        'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
-      mutual: 20,
-    },
-  ];
+  const changeReloadSuggested = () => {
+    if (reloadSuggested) {
+      setReloadSuggested(false);
+    } else {
+      setReloadSuggested(false);
+    }
+  };
 
   return (
     <View>
@@ -110,7 +90,9 @@ function SuggestFriend({ navigation }) {
           </View>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={21} color="black" />
           </TouchableOpacity>
@@ -137,12 +119,14 @@ function SuggestFriend({ navigation }) {
           >
             <Text style={styles.textSubtitle}>Những người bạn có thể biết</Text>
             <View>
-              {suggestFriends.map((item, index) => (
+              {friendList.map((item, index) => (
                 <View style={styles.friend} key={index}>
                   <FriendItem
+                    userId={item.user_id}
+                    setReloadSuggested={changeReloadSuggested}
                     urlAvatar={item.avatar}
-                    mutual={item.mutual}
-                    name={item.fullname}
+                    mutual={item.same_friends}
+                    name={item.username}
                     firstLabel="Thêm bạn bè"
                     secondLabel="Gỡ"
                     navigation={navigation}

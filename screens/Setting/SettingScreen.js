@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
@@ -19,6 +19,16 @@ import { GREY_COLOR } from '../../constants/constants';
 import { logout } from '../../services/auth.service';
 
 export default function SettingScreen({ navigation }) {
+  const [user, setUser] = useState({});
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await AsyncStorage.getItem('user');
+      const userData = JSON.parse(currentUser);
+      setUser(userData);
+    }
+    fetchUser();
+  }, [])
+
   const acceptLogout = async () => {
     const token = await AsyncStorage.getItem('token');
     const response = await logout(token);
@@ -26,9 +36,8 @@ export default function SettingScreen({ navigation }) {
       await AsyncStorage.removeItem('token');
       navigation.navigate('LoginScreen');
     } else {
-
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,24 +64,26 @@ export default function SettingScreen({ navigation }) {
           </Text>
           <TouchableOpacity
             style={styles.buttonSearch}
-            onPress={() => navigation.navigate('SearchScreen')}
+            onPress={() =>
+              navigation.navigate('SearchScreen', { userId: null })
+            }
           >
             <FontAwesome5 name="search" size={24} color="black" />
           </TouchableOpacity>
         </View>
         <TouchableOpacity
           style={styles.btnProfile}
-          onPress={() => navigation.navigate('ProfileScreen')}
+          onPress={() => navigation.navigate('ProfileScreen', {userId: user.id})}
           activeOpacity={0.8}
         >
           <Image
             style={styles.avatar}
             source={{
-              uri: 'https://res.cloudinary.com/dlfm9yjiq/image/upload/v1673191501/Facebook/Login/Avatar_px9tag.jpg',
+              uri: user.avatar,
             }}
           />
           <View>
-            <Text style={styles.name}>{'Nguyễn Đình Lộc'}</Text>
+            <Text style={styles.name}>{user.name}</Text>
             <Text style={{ color: GREY_COLOR, fontSize: 15 }}>
               Xem trang cá nhân của bạn
             </Text>
@@ -91,7 +102,11 @@ export default function SettingScreen({ navigation }) {
             <Text style={styles.setting}>Cài đặt và quyền riêng tư</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btnOption} activeOpacity={0.8} onPress={() => acceptLogout()}>
+        <TouchableOpacity
+          style={styles.btnOption}
+          activeOpacity={0.8}
+          onPress={() => acceptLogout()}
+        >
           <MaterialCommunityIcons name="logout" size={30} color={GREY_COLOR} />
           <View>
             <Text style={styles.setting}>Đăng xuất </Text>

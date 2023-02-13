@@ -9,7 +9,8 @@ import {
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { GREY_COLOR } from '../../constants/constants';
 
-export default function ProfileSetting({ navigation }) {
+export default function ProfileSetting({ navigation, route }) {
+  const user = route.params.user;
   return (
     <View style={styles.container}>
       <View style={styles.navigationBar}>
@@ -29,7 +30,12 @@ export default function ProfileSetting({ navigation }) {
       </View>
       <ScrollView>
         <View style={styles.groupSetting}>
-          <TouchableOpacity style={styles.settingCategory}>
+          <TouchableOpacity
+            style={styles.settingCategory}
+            onPress={() =>
+              navigation.navigate('EditPublicInfo', { userInfo: user })
+            }
+          >
             <View style={styles.settingIcon}>
               <FontAwesome5Icon name="edit" size={20} />
             </View>
@@ -38,6 +44,9 @@ export default function ProfileSetting({ navigation }) {
 
           <TouchableOpacity
             style={{ ...styles.settingCategory, borderBottomWidth: 0 }}
+            onPress={() => {
+              navigation.navigate('SearchScreen', { userId: user.id });
+            }}
           >
             <View style={styles.settingIcon}>
               <FontAwesome5Icon name="search" size={20} />
