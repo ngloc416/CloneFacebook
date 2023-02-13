@@ -29,74 +29,34 @@ function AllFriend({ navigation }) {
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState(false);
 
-    {
-      id: 2,
-      fullname: "Pham Dinh Minh",
-      name: "Minh",
-      avatar:
-        "https://gamek.mediacdn.vn/2019/10/20/photo-1-1571521922264714072244.jpg",
-      mutual: 1,
-    },
-
-    {
-      id: 4,
-      fullname: "Do Dang Phuong",
-      name: "Phuong",
-      avatar: "https://i.ytimg.com/vi/dkvaprtP6L8/maxresdefault.jpg",
-      mutual: 3,
-    },
-
-    {
-      id: 5,
-      fullname: "Ho Duc Han",
-      name: "Han",
-      avatar:
-        "https://cdna.artstation.com/p/assets/images/images/019/387/690/large/inward-vertical-city.jpg?1563272711",
-      mutual: 20,
-    },
-
-    {
-      id: 6,
-      fullname: "Chien Hoang Van",
-      name: "Hoang",
-      avatar:
-        "https://www.ebtc.ie/wp-content/uploads/2017/10/bigstock-Autumn-Fall-scene-Beautiful-150998720.jpg",
-      mutual: 6,
-    },
-
-    {
-      id: 3,
-      fullname: "Vu Ba Luong",
-      name: "Luong",
-      avatar:
-        "https://s.ftcdn.net/v2013/pics/all/curated/RKyaEDwp8J7JKeZWQPuOVWvkUjGQfpCx_cover_580.jpg?r=1a0fc22192d0c808b8bb2b9bcfbf4a45b1793687",
-      mutual: 2,
-    },
-
-    {
-      id: 7,
-      fullname: "Le Thi Giang",
-      name: "Giang",
-      avatar:
-        "https://images.pexels.com/photos/301599/pexels-photo-301599.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      mutual: 5,
-    },
-  ];
-
-  const listFriend = () => {
-    return messengers.map((element) => {
-      return (
-        <View style={styles.friend} key={element.id}>
-          <View>
-            <FriendItem
-              urlAvatar={element.avatar}
-              mutual={element.mutual}
-              name={element.fullname}></FriendItem>
-          </View>
-        </View>
-      );
-    });
-  };
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchFriendList = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const userData = await AsyncStorage.getItem('user');
+      const user = JSON.parse(userData);
+      const response = await getUserListFriend({
+        token,
+        userId: user.id,
+        index: 0,
+        count: 20,
+      });
+      if (response.code === '1000') {
+        setFriendList(response.data.friends);
+        setTotal(response.data.total);
+      } else {
+        if (response.code === '9995' || response.code === '9998') {
+          await AsyncStorage.removeItem('token');
+          navigation.navigate('LoginScreen');
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
+          setTimeout(() => dispatch(closeNotice()), 2000);
+        }
+      }
+    };
+    fetchFriendList();
+  }, []);
 
   return (
     <View>
