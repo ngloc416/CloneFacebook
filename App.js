@@ -47,6 +47,12 @@ import SettingScreen from './screens/Setting/SettingScreen';
 import AddPostScreen from './screens/AddPost.js/AddPostScreen';
 
 import NotificationScreen from './screens/Notification/NotificationScreen';
+import ListChat from './screens/Messenger/ListChat';
+import NewMessage from './screens/Messenger/NewMessage';
+import ChatScreen from './screens/Messenger/ChatScreen';
+import ChatProfile from './screens/Messenger/ChatProfile';
+import ChatInfo from './screens/Messenger/ChatInfo';
+import WaitingMessage from './screens/Messenger/WaitingMessage';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -205,6 +211,10 @@ const AppComponent = () => {
         }
       <NavigationContainer>
         <rootStack.Navigator screenOptions={{ headerShown: false }}>
+        <rootStack.Screen
+                name="ListChat"
+                component={ListChat}
+              />
           <>
           {!token ? (
             <>
@@ -267,6 +277,26 @@ const AppComponent = () => {
               <rootStack.Screen
                 name="AddPostScreen"
                 component={AddPostScreen}
+              />
+              <rootStack.Screen
+                name="NewMessage"
+                component={NewMessage}
+              />
+              <rootStack.Screen
+                name="ChatScreen"
+                component={ChatScreen}
+              />
+              <rootStack.Screen
+                name="ChatProfile"
+                component={ChatProfile}
+              />
+              <rootStack.Screen
+                name="ChatInfo"
+                component={ChatInfo}
+              />
+              <rootStack.Screen
+                name="WaitingMessage"
+                component={WaitingMessage}
               />
             </>
         </>
