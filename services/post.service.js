@@ -24,3 +24,8 @@ const addPost = ({ token, described, status, formData }) => {
 };
 
 export { getListPost, getPostById, addPost };
+
+export {
+  getListPost,
+  getPostById,
+}

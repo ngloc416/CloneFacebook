@@ -61,6 +61,14 @@ import VideoDetailList from './screens/Video/VideoDetailList';
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
+const AppComponent = () => {
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [token, setToken] = useState(null);
+
+const AppComponent = () => {
+  const [isSignIn, setIsSignIn] = useState(false);
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState({});
 
 const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);

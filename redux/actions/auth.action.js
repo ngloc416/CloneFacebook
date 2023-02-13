@@ -9,3 +9,9 @@ export const logoutAction = () => {
     type: 'LOGOUT',
   };
 };
+
+export const logoutAction = () => {
+  return {
+    type: 'LOGOUT',
+  }
+}

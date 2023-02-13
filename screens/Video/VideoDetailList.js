@@ -116,3 +116,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
 });
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#000'
+    },
+    topOptiions: {
+        height:30,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15
+    }
+})
