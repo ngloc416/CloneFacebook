@@ -15,7 +15,7 @@ export default function FriendItem(props) {
     <TouchableHighlight
       underlayColor={LIGHT_GREY_COLOR}
       onPress={() => {
-        props.navigation.navigate('ProfileScreen');
+        props.navigation.navigate('ProfileScreen', {userId: props.userId});
       }}
     >
       <View style={styles.container}>
