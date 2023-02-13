@@ -65,12 +65,17 @@ const rootStack = createNativeStackNavigator();
 const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     const fetchToken = async () => {
       const tokenValue = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
       if (tokenValue) {
         setToken(tokenValue);
+      }
+      if (user) {
+        setUser(JSON.parse(user));
       }
     };
     fetchToken();

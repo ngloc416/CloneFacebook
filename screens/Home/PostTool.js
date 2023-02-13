@@ -27,7 +27,7 @@ export default function PostTool({ navigation }) {
         <TouchableOpacity
           activeOpacity={0.5}
           onPress={() => {
-            navigation.navigate('ProfileScreen');
+            navigation.navigate('ProfileScreen', {userId: currentUser.id});
           }}
         >
           <Image
