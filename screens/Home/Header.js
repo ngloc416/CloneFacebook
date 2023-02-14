@@ -10,7 +10,9 @@ export default function Header({ navigation }) {
   const search = () => {
     navigation.navigate('SearchScreen', { userId: null });
   };
-  const messenger = () => {};
+  const messenger = () => {
+    navigation.navigate('ListChat');
+  };
   return (
     <View style={styles.header}>
       <Text style={styles.textHeader}>facebook</Text>

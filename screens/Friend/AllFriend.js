@@ -41,6 +41,7 @@ function AllFriend({ navigation }) {
         index: 0,
         count: 20,
       });
+      console.log(response);
       if (response.code === '1000') {
         setFriendList(response.data.friends);
         setTotal(response.data.total);
@@ -130,7 +131,7 @@ function AllFriend({ navigation }) {
                         userId={item.id}
                         urlAvatar={item.avatar}
                         mutual={item.same_friends}
-                        name={item.fullname}
+                        name={item.username}
                         navigation={navigation}
                       ></FriendItem>
                     </View>

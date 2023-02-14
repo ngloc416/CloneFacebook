@@ -20,10 +20,15 @@ export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [lastId, setLastId] = useState(0);
   const [index, setIndex] = useState(0);
+  const [reload, setReload] = useState(false);
   const dispatch = useDispatch();
 
-  const [refreshing, setRefreshing] = React.useState(false);
 
+  const reloadWhenChange = () => {
+    setReload(!reload);
+  }
+
+  const [refreshing, setRefreshing] = React.useState(false);
   useEffect(() => {
     async function fetchPostList() {
       // let response;
@@ -98,6 +103,7 @@ export default function HomeScreen({ navigation }) {
       }
     }
     fetchPostList();
+
     setRefreshing(false);
   }, []);
 

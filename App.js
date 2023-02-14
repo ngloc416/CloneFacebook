@@ -58,12 +58,19 @@ import NotificationScreen from './screens/Notification/NotificationScreen';
 import VideoScreen from './screens/Video/VideoScreen';
 import VideoDetailList from './screens/Video/VideoDetailList';
 
+import ChatScreen from './screens/Messenger/ChatScreen'
+import ListChat from './screens/Messenger/ListChat'
+import ChatInfo from './screens/Messenger/ChatInfo'
+import NewChat from './screens/Messenger/NewMessage'
+
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
 const rootStack = createNativeStackNavigator();
+
 const AppComponent = () => {
   const [isSignIn, setIsSignIn] = useState(false);
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -270,7 +277,10 @@ const AppComponent = () => {
           <rootStack.Screen name="ProfileSetting" component={ProfileSetting} />
           <rootStack.Screen name="ShowCoverImage" component={ShowCoverImage} />
           <rootStack.Screen name="EditPublicInfo" component={EditPublicInfo} />
-          <rootStack.Screen name="AddPostScreen" component={AddPostScreen} />
+          <rootStack.Screen name="ListChat" component={ListChat} />
+          <rootStack.Screen name="ChatInfo" component={ChatInfo} />
+          <rootStack.Screen name="NewMessage" component={NewChat} />
+          <rootStack.Screen name="ChatScreen" component={ChatScreen} />
           <rootStack.Screen name="VideoScreen" component={VideoScreen} />
           <rootStack.Screen
             name="VideoDetailList"
@@ -289,4 +299,4 @@ export default App = () => {
       <AppComponent />
     </Provider>
   );
-};
+}

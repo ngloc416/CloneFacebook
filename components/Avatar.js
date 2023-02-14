@@ -5,7 +5,7 @@ const Avatar = ({ source, navigation, userId }) => {
   return (
     <TouchableOpacity
       style={styles.container}
-      onPress={() => navigation.navigate('ProfileScreen', { user: userId })}
+      onPress={() => navigation.navigate('ProfileScreen', { userId })}
     >
       <Image style={styles.userImage} source={source} />
     </TouchableOpacity>

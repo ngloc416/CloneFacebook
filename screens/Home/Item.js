@@ -31,10 +31,10 @@ import {
 } from '../../constants/constants';
 import state from '../../constants/state';
 import { likePost } from '../../services/like.service';
-import { getPostById } from '../../services/post.service';
+import { getPostById, deletePost } from '../../services/post.service';
 import { authMsg, networkErrorMsg } from '../../constants/message';
 
-export default function Item({ navigation, item }) {
+export default function Item({ navigation, item, reload }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
@@ -89,6 +89,31 @@ export default function Item({ navigation, item }) {
     }
   };
 
+
+  const deleteThisPost = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const response = await deletePost({token, postId: item.id});
+    console.log(response);
+    if (response.code === '1000') {
+      const reloadWhenDelete = reload;
+      reloadWhenDelete();
+      navigation.navigate('MainTab');
+    } else {
+      if (response.code === '9995' || response.code === '9998') {
+        await AsyncStorage.removeItem('token');
+        navigation.navigate('LoginScreen');
+        dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else if (response.code === 'ERR_NETWORK') {
+        dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      } else {
+        dispatch(openNotice({ notice: 'Bạn không có quyền xóa bài viết', typeNotice: 'warning' }));
+        setTimeout(() => dispatch(closeNotice()), 2000);
+      }
+    }
+  }
+
   const navigateToPostImageDetail = async (postId, index) => {
     const token = await AsyncStorage.getItem('token');
     const response = await getPostById({ postId, token });
@@ -108,6 +133,7 @@ export default function Item({ navigation, item }) {
       setTimeout(() => dispatch(closeNotice()), 2000);
     }
   };
+
 
   return (
     <View style={styles.item}>
@@ -130,7 +156,7 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen', { userId: item.author });
+                navigation.navigate('ProfileScreen', { userId: item.author.id });
               }}
             >
               <Image
@@ -143,7 +169,7 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen', { user: item.author });
+                    navigation.navigate('ProfileScreen', { user: item.author.id });
                   }}
                   style={{ flex: 1 }}
                 >
@@ -476,7 +502,7 @@ export default function Item({ navigation, item }) {
                     'Xóa bài viết?',
                     'Bạn có thể chỉnh sửa bài viết nếu cần thay đổi.',
                     [
-                      { text: 'XÓA', onPress: () => console.log('OK Pressed') },
+                      { text: 'XÓA', onPress: () => deleteThisPost() },
                       {
                         text: 'CHỈNH SỬA',
                         onPress: () => navigation.navigate('EditPostScreen'),
