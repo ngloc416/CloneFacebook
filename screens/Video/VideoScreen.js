@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,9 +11,27 @@ import {
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Video } from 'expo-av';
 import VideoItem from '../../components/VideoItem';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getVideoList } from '../../services/post.service';
 
 function VideoScreen({ navigation }) {
   const video = React.useRef(null);
+  const [videoList, setVideoList] = useState([]);
+  const [index, setIndex] = useState(0);
+  const [lastId, setLastId] = useState(0);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      const token = await AsyncStorage.getItem('token');
+      const response = await getVideoList({token, lastId, index, count: 20});
+      console.log(response.data.post);
+      if (response.code ==='1000') {
+        setVideoList(response.data.post);
+      }
+    }
+    fetchVideos();
+  }, []);
+
   const videos = [
     {
       author: {
@@ -79,7 +97,7 @@ function VideoScreen({ navigation }) {
         </View>
         <ScrollView bounces={false} style={{ backgroundColor: '#cacad2' }}>
           <View>
-            {videos.map((item, index) => (
+            {videoList.map((item, index) => (
               <View key={index}>
                 <VideoItem navigation={navigation} item={item} key={index} />
               </View>

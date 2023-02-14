@@ -21,6 +21,7 @@ export default function FriendItem(props) {
         props.navigation.navigate('ProfileScreen', {userId: props.userId});
       }}
     >
+      <View>
       <View style={styles.container}>
         <Image source={{ uri: props.urlAvatar }} style={styles.image}></Image>
         <View style={styles.user}>
@@ -125,6 +126,7 @@ export default function FriendItem(props) {
           </TouchableOpacity>
         </View>
       </Modal>
+      </View>
     </TouchableHighlight>
   );
 }

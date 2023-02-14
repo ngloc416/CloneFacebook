@@ -28,4 +28,9 @@ const deletePost = ({ postId, token }) => {
   return axiosClient.post(url, {});
 };
 
-export { getListPost, getPostById, addPost, deletePost };
+const getVideoList = ({ lastId, index, count, token }) => {
+  const url = `/post/get_list_videos?last_id=${lastId}&index=${index}&count=${count}&token=${token}`;
+  return axiosClient.post(url, {});
+};
+
+export { getListPost, getPostById, addPost, deletePost, getVideoList };
