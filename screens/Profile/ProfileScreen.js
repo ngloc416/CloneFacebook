@@ -41,7 +41,7 @@ export default function ProfileScreen({ navigation, route }) {
   const dispatch = useDispatch();
   useEffect(() => {
     const fetchUser = async () => {
-      const userId = route.params.user;
+      const userId = route.params.userId;
       const currentUsers = await AsyncStorage.getItem('user');
       const currentUserData = JSON.parse(currentUsers);
       setCurrentUser(currentUserData);
@@ -81,6 +81,7 @@ export default function ProfileScreen({ navigation, route }) {
         index: 0,
         count: 6,
       });
+      console.log(response.data.friends);
       if (response.code === '1000') {
         setFriends(response.data.friends);
       } else {

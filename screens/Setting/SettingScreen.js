@@ -85,7 +85,7 @@ export default function SettingScreen({ navigation }) {
             }}
           />
           <View>
-            <Text style={styles.name}>{user.name}</Text>
+            <Text style={styles.name}>{user.username}</Text>
             <Text style={{ color: GREY_COLOR, fontSize: 15 }}>
               Xem trang cá nhân của bạn
             </Text>
