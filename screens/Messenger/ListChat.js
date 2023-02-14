@@ -1,69 +1,32 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { Entypo } from '@expo/vector-icons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { WHITE_COLOR } from '../../constants/constants'
 import ChatItem from './ChatItem'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getListChat } from '../../services/chat'
 
 function ListChat({ navigation }) {
-    const messages = [
-        {
-          id: 1,
-          partner: {
-            id: '1',
-            username: 'Nguyễn Đình Lộc',
-            avatar: 'https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-8.jpg'
-          },
-          lastmessage: {
-            message: 'Ok! Thank you ',
-            created: '12323232322123',
-            unread: '0'
-          }
-        },
 
-          {
-            id: 2,
-            partner: {
-              id: '2',
-              username: 'Nguyễn Đức Thắng',
-              avatar: 'https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-8.jpg'
-            },
-            lastmessage: {
-              message: 'You: Please help me!',
-              created: '1672797164',
-              unread: '0'
-            }
-          },
-
-          {
-            id: 3,
-            partner: {
-              id: '3',
-              username: 'Nguyễn Văn Khoa',
-              avatar: 'https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-8.jpg'
-            },
-            lastmessage: {
-              message: 'Hello C',
-              created: '1672797164',
-              unread: '0'
-            }
-          },
-
-          {
-            id: 4,
-            partner: {
-              id: '4',
-              username: 'Vũ Hoàng Long',
-              avatar: 'https://phongreviews.com/wp-content/uploads/2022/11/avatar-facebook-mac-dinh-8.jpg'
-            },
-            lastmessage: {
-              message: 'You: Hello C',
-              created: '1672797164',
-              unread: '0'
-            }
-          }
+    const [messageList, setMessageList] = useState([]);
+    const [user, setUser] = useState({});
     
-      ];
+    useEffect(() => {
+      async function fetchMessage() {
+        const token = await AsyncStorage.getItem('token');
+        const user = await AsyncStorage.getItem('user');
+        const userData = JSON.parse(user);
+        setUser(userData);
+        const response = await getListChat({token, index: 0, count: 20});
+        console.log(response.data[0].lastMessage);
+        console.log(response.data[0].partner);
+        if (response.code === '1000') {
+          setMessageList(response.data);
+        }
+      }
+      fetchMessage();
+    }, [])
   return (
     <>
         <View style={styles.chatHeader}>
@@ -74,7 +37,7 @@ function ListChat({ navigation }) {
                       navigation.navigate('ChatProfile');
                   }}
                 >
-                  <Image source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }} style={styles.userAvatar}></Image>
+                  <Image source={{ uri: user.avatar }} style={styles.userAvatar}></Image>
                 </TouchableOpacity>
                 <Text style={styles.title}>Chats</Text>
             </View>
@@ -90,7 +53,7 @@ function ListChat({ navigation }) {
             </View>
         </View>
         <ScrollView style={styles.listChat}>
-            {messages.map((item, index) => (
+            {messageList.map((item, index) => (
                 <TouchableOpacity key={index} onPress={() => {navigation.navigate('ChatScreen')}}>
                     <ChatItem item={item} key={index}></ChatItem>
                 </TouchableOpacity>
