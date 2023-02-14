@@ -20,7 +20,7 @@ const addPost = ({ token, described, status, formData }) => {
     query = query.concat(`&status=${status}`);
   }
   const url = `/post/add_post?token=${token}${query}`;
-  return axiosFile.post(url, { formData });
+  return axiosFile.post(url, formData);
 };
 
 const deletePost = ({ postId, token }) => {
