@@ -24,17 +24,17 @@ import {
 const fetchUser = async () => {
   const userSaved = await AsyncStorage.getItem('user');
   return JSON.parse(userSaved);
-}
+};
 
 export default function FirstLoginScreen({ navigation }) {
   const [showOption, setShowOption] = useState(false);
-  const [user, setUser] = useState(fetchUser());
+  const [user, setUser] = useState({});
 
   useEffect(() => {
     const fetchUser = async () => {
       const userSaved = await AsyncStorage.getItem('user');
       setUser(JSON.parse(userSaved));
-    }
+    };
     fetchUser();
   }, []);
 
@@ -47,8 +47,7 @@ export default function FirstLoginScreen({ navigation }) {
         style={{ paddingTop: '55%', marginBottom: 20 }}
       />
       <View style={{ width: '100%' }}>
-        {
-          (user) ?
+        {user ? (
           <TouchableHighlight
             style={styles.accountFrame}
             underlayColor={LIGHT_GREY_COLOR}
@@ -57,16 +56,12 @@ export default function FirstLoginScreen({ navigation }) {
             }}
           >
             <View style={styles.account}>
-              <Image
-                style={styles.avatar}
-                source={{uri: user.avatar}}
-              />
+              <Image style={styles.avatar} source={{ uri: user.avatar }} />
 
               <Text style={styles.username}>{user.username}</Text>
             </View>
           </TouchableHighlight>
-          : null
-        }
+        ) : null}
 
         <TouchableHighlight
           style={styles.setting}
@@ -141,7 +136,9 @@ export default function FirstLoginScreen({ navigation }) {
 
       <TouchableHighlight
         style={styles.signupButton}
-        onPress={() => {navigation.navigate('BeginSignup')}}
+        onPress={() => {
+          navigation.navigate('BeginSignup');
+        }}
         underlayColor={LIGHT_GREY_COLOR}
       >
         <Text style={styles.textSignupButton}>TẠO TÀI KHOẢN FACEBOOK MỚI</Text>

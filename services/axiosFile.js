@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosFile = axios.create({
-  baseURL: 'http://192.168.1.193:5000/it4788',
+  baseURL: 'http://172.20.10.2:5000/it4788',
   headers: {
     'content-type': 'multipart/form-data',
   },

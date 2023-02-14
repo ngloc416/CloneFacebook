@@ -18,115 +18,117 @@ export default function FriendItem(props) {
     <TouchableHighlight
       underlayColor={LIGHT_GREY_COLOR}
       onPress={() => {
-        props.navigation.navigate('ProfileScreen', {userId: props.userId});
+        props.navigation.navigate('ProfileScreen', { userId: props.userId });
       }}
     >
-      <View>
-      <View style={styles.container}>
-        <Image source={{ uri: props.urlAvatar }} style={styles.image}></Image>
-        <View style={styles.user}>
-          <View>
-            <Text style={styles.textName}>{props.name}</Text>
-            <Text style={{ color: GREY_COLOR }}>{props.mutual} bạn chung</Text>
+      <>
+        <View style={styles.container}>
+          <Image source={{ uri: props.urlAvatar }} style={styles.image}></Image>
+          <View style={styles.user}>
+            <View>
+              <Text style={styles.textName}>{props.name}</Text>
+              <Text style={{ color: GREY_COLOR }}>
+                {props.mutual} bạn chung
+              </Text>
+            </View>
+            <TouchableOpacity onPress={() => setOptions(true)}>
+              <AntDesign
+                name="ellipsis1"
+                size={26}
+                color={GREY_COLOR}
+                style={styles.buttonOption}
+              />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => setOptions(true)}>
-            <AntDesign
-              name="ellipsis1"
-              size={26}
-              color={GREY_COLOR}
-              style={styles.buttonOption}
-            />
-          </TouchableOpacity>
         </View>
-      </View>
-      {/* options */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={options}
-        onRequestClose={() => {
-          setOptions(!options);
-        }}
-        style={styles.avatarOptionsContainer}
-      >
-        <View style={styles.backdrop}>
-          <TouchableOpacity
-            onPress={() => {
-              setOptions(!options);
-            }}
-            style={{ width: '100%', height: '100%' }}
-          ></TouchableOpacity>
-        </View>
-        <View style={styles.postOptionsWrapper}>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setOptions(!options);
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <AntDesign name="message1" size={24} color="black" />
+        {/* options */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={options}
+          onRequestClose={() => {
+            setOptions(!options);
+          }}
+          style={styles.avatarOptionsContainer}
+        >
+          <View style={styles.backdrop}>
+            <TouchableOpacity
+              onPress={() => {
+                setOptions(!options);
+              }}
+              style={{ width: '100%', height: '100%' }}
+            ></TouchableOpacity>
+          </View>
+          <View style={styles.postOptionsWrapper}>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <AntDesign name="message1" size={24} color="black" />
+                </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Nhắn tin</Text>
+                </View>
               </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Nhắn tin</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+                Alert.alert('', `Chặn trang cá nhân của ${props.name}`, [
+                  { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                  { text: 'CHẶN', onPress: () => console.log('CHẶN Pressed') },
+                ]);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <MaterialCommunityIcons
+                    name="block-helper"
+                    size={24}
+                    color="black"
+                  />
+                </View>
+                <View>
+                  <Text style={styles.postOptionTitle}>Chặn trang cá nhân</Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setOptions(!options);
-              Alert.alert('', `Chặn trang cá nhân của ${props.name}`, [
-                { text: 'HỦY', onPress: () => console.log('OK Pressed') },
-                { text: 'CHẶN', onPress: () => console.log('CHẶN Pressed') },
-              ]);
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <MaterialCommunityIcons
-                  name="block-helper"
-                  size={24}
-                  color="black"
-                />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.postOptionItemWrapper}
+              onPress={() => {
+                setOptions(!options);
+                Alert.alert('', `Hủy kết bạn với `, [
+                  { text: 'HỦY', onPress: () => console.log('OK Pressed') },
+                  {
+                    text: 'XÁC NHẬN',
+                    onPress: () => console.log('HỦY KẾT BẠN Pressed'),
+                  },
+                ]);
+              }}
+            >
+              <View style={styles.postOptionItem}>
+                <View style={styles.optionIcon}>
+                  <MaterialCommunityIcons
+                    name="account-cancel-outline"
+                    size={24}
+                    color="red"
+                  />
+                </View>
+                <View>
+                  <Text style={{ ...styles.postOptionTitle, color: 'red' }}>
+                    Hủy kết bạn
+                  </Text>
+                </View>
               </View>
-              <View>
-                <Text style={styles.postOptionTitle}>Chặn trang cá nhân</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.postOptionItemWrapper}
-            onPress={() => {
-              setOptions(!options);
-              Alert.alert('', `Hủy kết bạn với `, [
-                { text: 'HỦY', onPress: () => console.log('OK Pressed') },
-                {
-                  text: 'XÁC NHẬN',
-                  onPress: () => console.log('HỦY KẾT BẠN Pressed'),
-                },
-              ]);
-            }}
-          >
-            <View style={styles.postOptionItem}>
-              <View style={styles.optionIcon}>
-                <MaterialCommunityIcons
-                  name="account-cancel-outline"
-                  size={24}
-                  color="red"
-                />
-              </View>
-              <View>
-                <Text style={{ ...styles.postOptionTitle, color: 'red' }}>
-                  Hủy kết bạn
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-      </View>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      </>
     </TouchableHighlight>
   );
 }

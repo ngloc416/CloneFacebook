@@ -13,7 +13,7 @@ import { SCREEN_HEIGHT } from '../../constants/constants';
 
 import { getListPost } from '../../services/post.service';
 import PostTool from './PostTool';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import { networkErrorMsg, authMsg } from '../../constants/message.js';
 
 export default function HomeScreen({ navigation }) {
@@ -23,37 +23,19 @@ export default function HomeScreen({ navigation }) {
   const [reload, setReload] = useState(false);
   const dispatch = useDispatch();
 
-
-  const reloadWhenChange = () => {
-    setReload(!reload);
-  }
-
   const [refreshing, setRefreshing] = React.useState(false);
   useEffect(() => {
     async function fetchPostList() {
-      // let response;
-      // const postList = await AsyncStorage.getItem('post_list');
-      // if (postList) {
-      //   setPosts(JSON.parse(postList));
-      //   response = await getListPost({ last_id: lastId, index, count: 20});
-      //   await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts));
-      // } else {
-      //   if (response.code === '1000') {
-      //     response = await getListPost({ last_id: lastId, index, count: 20});
-      //     setPosts(response.data.posts);
-      //     setTimeout(async () => await AsyncStorage.setItem('post_list', JSON.stringify(response.data.posts)), 100);
-      //   }
-      // }
-
       const token = await AsyncStorage.getItem('token');
       const response = await getListPost({
         last_id: 0,
         index,
-        count: 5,
+        count: 10,
         token,
       });
       if (response.code === '1000') {
         setPosts(response.data.posts);
+        return response.data.posts;
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
@@ -71,6 +53,8 @@ export default function HomeScreen({ navigation }) {
       }
     }
     fetchPostList();
+    console.log(posts);
+    return () => setPosts(fetchPostList);
   }, []);
 
   // pull down to reload
@@ -81,7 +65,7 @@ export default function HomeScreen({ navigation }) {
       const response = await getListPost({
         last_id: 0,
         index,
-        count: 5,
+        count: 10,
         token,
       });
       if (response.code === '1000') {
@@ -111,19 +95,24 @@ export default function HomeScreen({ navigation }) {
   const handleLoadMore = React.useCallback(() => {
     async function fetchPostList() {
       const token = await AsyncStorage.getItem('token');
+      console.log(posts);
       const response = await getListPost({
-        last_id: posts[posts.length - 1].id,
+        last_id:
+          posts[posts.length - 1] != undefined ? posts[posts.length - 1].id : 0,
         index,
-        count: 5,
+        count: 10,
         token,
       });
       if (response.code === '1000') {
         console.log(response);
-        if (response.data.new_items > 0) {
+        if (response.data.new_items > posts.length - 1 || lastId == 0) {
+          console.log(posts);
+          if (posts.length == 0) posts.push(response.data.posts[0]);
+          console.log(posts);
           const rs = response.data.posts.splice(1);
           rs.map((item) => posts.push(item));
           setPosts(posts);
-        }
+        } else setPosts(posts);
       } else {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
@@ -143,7 +132,8 @@ export default function HomeScreen({ navigation }) {
     fetchPostList();
   }, []);
 
-  if (posts.length === 0) return <View></View>;
+  if (posts && posts.length === 0) return <View></View>;
+
   return (
     <View>
       <PostTool navigation={navigation}></PostTool>
@@ -160,8 +150,8 @@ export default function HomeScreen({ navigation }) {
         renderItem={({ item }) => (
           <Item item={item} key={index} navigation={navigation}></Item>
         )}
-        initialNumToRender={8}
-        onEndReachedThreshold={2}
+        initialNumToRender={5}
+        onEndReachedThreshold={4}
         onEndReached={() => {
           handleLoadMore();
         }}

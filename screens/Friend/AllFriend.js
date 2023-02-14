@@ -21,7 +21,7 @@ import { LIGHT_GREY_COLOR, BLUE_COLOR } from '../../constants/constants.js';
 import { getUserListFriend } from '../../services/friend.service';
 import FriendItem from '../../components/AllFriendItem';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import { authMsg } from '../../constants/message';
 
 function AllFriend({ navigation }) {

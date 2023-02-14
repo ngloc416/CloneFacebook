@@ -31,7 +31,7 @@ import { getUserInfo } from '../../services/user.service';
 import { getUserListFriend } from '../../services/friend.service';
 import { getListPost } from '../../services/post.service';
 import { authMsg, networkErrorMsg } from '../../constants/message';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 
 export default function ProfileScreen({ navigation, route }) {
   const [user, setUser] = useState({});

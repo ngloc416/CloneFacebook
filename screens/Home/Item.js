@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import {
   View,
   Text,
@@ -89,30 +89,36 @@ export default function Item({ navigation, item }) {
     }
   };
 
-
   const deleteThisPost = async () => {
     const token = await AsyncStorage.getItem('token');
-    const response = await deletePost({token, postId: item.id});
+    const response = await deletePost({ token, postId: item.id });
     console.log(response);
     if (response.code === '1000') {
-      const reloadWhenDelete = reload;
-      reloadWhenDelete();
       navigation.navigate('MainTab');
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
         navigation.navigate('LoginScreen');
-        dispatch(openNotice({ notice: authMsg.badToken, typeNotice: 'warning' }));
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else if (response.code === 'ERR_NETWORK') {
-        dispatch(openNotice({ notice: networkErrorMsg, typeNotice: 'warning' }));
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
-        dispatch(openNotice({ notice: 'Bạn không có quyền xóa bài viết', typeNotice: 'warning' }));
+        dispatch(
+          openNotice({
+            notice: 'Bạn không có quyền xóa bài viết',
+            typeNotice: 'warning',
+          })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
     }
-  }
+  };
 
   const navigateToPostImageDetail = async (postId, index) => {
     const token = await AsyncStorage.getItem('token');
@@ -133,7 +139,6 @@ export default function Item({ navigation, item }) {
       setTimeout(() => dispatch(closeNotice()), 2000);
     }
   };
-
 
   return (
     <View style={styles.item}>
@@ -156,7 +161,9 @@ export default function Item({ navigation, item }) {
             <TouchableOpacity
               activeOpacity={0.5}
               onPress={() => {
-                navigation.navigate('ProfileScreen', { userId: item.author.id });
+                navigation.navigate('ProfileScreen', {
+                  userId: item.author.id,
+                });
               }}
             >
               <Image
@@ -169,7 +176,9 @@ export default function Item({ navigation, item }) {
                 <TouchableHighlight
                   underlayColor={LIGHT_GREY_COLOR}
                   onPress={() => {
-                    navigation.navigate('ProfileScreen', { user: item.author.id });
+                    navigation.navigate('ProfileScreen', {
+                      user: item.author.id,
+                    });
                   }}
                   style={{ flex: 1 }}
                 >
@@ -245,27 +254,35 @@ export default function Item({ navigation, item }) {
         style={{ paddingBottom: 7, paddingLeft: 15, paddingRight: 15 }}
         onPress={expandDescribed}
       >
-        {item.described ? (
-          item.described.length > 150 ? (
-            shortcutDescribed ? (
-              <Text style={styles.paragraph}>
-                {item.described.slice(0, 150)}
-                <Text onPress={expandDescribed} style={styles.describedSupport}>
-                  {` ... Xem thêm`}
+        <>
+          {item.described ? (
+            item.described.length > 150 ? (
+              shortcutDescribed ? (
+                <Text style={styles.paragraph}>
+                  {item.described.slice(0, 150)}
+                  <Text
+                    onPress={expandDescribed}
+                    style={styles.describedSupport}
+                  >
+                    {` ... Xem thêm`}
+                  </Text>
                 </Text>
-              </Text>
+              ) : (
+                <Text style={styles.paragraph}>
+                  {item.described}
+                  <Text
+                    onPress={expandDescribed}
+                    style={styles.describedSupport}
+                  >
+                    {` Ẩn Bớt`}
+                  </Text>
+                </Text>
+              )
             ) : (
-              <Text style={styles.paragraph}>
-                {item.described}
-                <Text onPress={expandDescribed} style={styles.describedSupport}>
-                  {` Ẩn Bớt`}
-                </Text>
-              </Text>
+              <Text style={styles.paragraph}>{item.described}</Text>
             )
-          ) : (
-            <Text style={styles.paragraph}>{item.described}</Text>
-          )
-        ) : null}
+          ) : null}
+        </>
       </TouchableHighlight>
 
       {item.video !== null ? (

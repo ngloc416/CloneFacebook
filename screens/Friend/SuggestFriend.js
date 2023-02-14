@@ -14,7 +14,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { LIGHT_GREY_COLOR } from '../../constants/constants.js';
 import FriendItem from '../../components/FriendItem';
 import { getSuggestedFriendList } from '../../services/friend.service';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import { authMsg } from '../../constants/message';
 
 function SuggestFriend({ navigation }) {

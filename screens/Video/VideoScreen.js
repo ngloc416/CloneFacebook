@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -23,12 +23,11 @@ function VideoScreen({ navigation }) {
   useEffect(() => {
     const fetchVideos = async () => {
       const token = await AsyncStorage.getItem('token');
-      const response = await getVideoList({token, lastId, index, count: 20});
-      console.log(response.data.post);
-      if (response.code ==='1000') {
+      const response = await getVideoList({ token, lastId, index, count: 20 });
+      if (response.code === '1000') {
         setVideoList(response.data.post);
       }
-    }
+    };
     fetchVideos();
   }, []);
 

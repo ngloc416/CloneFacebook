@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import Comment from '../../components/Comment';
 import { setComment, getComment } from '../../services/comment.service';
 

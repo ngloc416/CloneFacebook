@@ -1,3 +1,4 @@
+import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -33,7 +34,7 @@ import {
 import state from '../../constants/state';
 import { addPost } from '../../services/post.service';
 import { authMsg, networkErrorMsg } from '../../constants/message';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 
 export default function AddPostScreen({ navigation }) {
   //   useEffect(() => {
@@ -110,10 +111,11 @@ export default function AddPostScreen({ navigation }) {
             );
           else {
             let imgCount = imageNumber;
-            result.selected.forEach((item) => {
+            result.selected.forEach(async (item) => {
               imgCount++;
               setImageNumber(imgCount);
               imagesURL.push(item.uri);
+
               images.push(item);
             });
           }
@@ -123,10 +125,16 @@ export default function AddPostScreen({ navigation }) {
         if (result.type === 'image' && videoNumber == 0) {
           setImageNumber(imageNumber + 1);
           imagesURL.push(result.uri);
+          // const img = (await fetch(result.uri)).blob()._z._data;
+          // const imgs = { ...img, mimetype: img.type, path: result.uri };
+          // console.log(imgs);
           images.push(result);
         } else if (result.type === 'video' && imageNumber == 0) {
           setVideoNumber(videoNumber + 1);
           imagesURL.push(result.uri);
+          // const img = (await fetch(result.uri)).blob()._z._data;
+          // const imgs = { ...img, mimetype: img.type, path: result.uri };
+          // console.log(imgs);
           images.push(result);
         } else {
           Alert.alert('Cảnh báo', 'Không được chọn cả ảnh và video.', [
@@ -136,6 +144,7 @@ export default function AddPostScreen({ navigation }) {
       }
       setImagesURL(imagesURL);
       setImages(images);
+      console.log(images);
     } else {
       setImagesURL(imagesURL);
       setImages(images);
@@ -156,14 +165,21 @@ export default function AddPostScreen({ navigation }) {
       images.forEach((image) => {
         console.log(image);
         const arr = image.uri.split('.');
-        formData.append('image', {uri: image.uri, name: `${image.uri.slice(arr.length-10, arr.length-5)}.${arr[arr.length - 1]}`, type: `image/${arr[arr.length - 1]}`});
+        formData.append('image', {
+          uri: image.uri,
+          name: `${image.uri.slice(arr.length - 10, arr.length - 5)}.${
+            arr[arr.length - 1]
+          }`,
+          type: `image/${arr[arr.length - 1]}`,
+        });
       });
     }
-    if (videoNumber) {
+    if (videoNumber > 0) {
       images.forEach((image) => {
         formData.append('video', image);
       });
     }
+    if (imageNumber == 0 && videoNumber == 0) formData.append('video', null);
     body.formData = formData;
     const response = await addPost(body);
     console.log(response);

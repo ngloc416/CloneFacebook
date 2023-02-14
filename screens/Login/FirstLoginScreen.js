@@ -24,7 +24,7 @@ import {
 } from '../../constants/constants.js';
 
 import { login } from '../../services/auth.service';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
+import { openNotice, closeNotice } from '../../components/notice.action';
 import { networkErrorMsg, authMsg } from '../../constants/message.js';
 
 export default function FirstLoginScreen({ navigation }) {

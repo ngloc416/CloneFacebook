@@ -16,7 +16,7 @@ import {
 } from '../constants/constants.js';
 
 import { setAcceptFriend, sendRequestFriend } from '../services/friend.service';
-import { openNotice, closeNotice } from '../redux/actions/notice.action';
+import { openNotice, closeNotice } from './notice.action';
 import { authMsg } from '../constants/message';
 
 export default function FriendItem(props) {
@@ -26,7 +26,11 @@ export default function FriendItem(props) {
     const token = await AsyncStorage.getItem('token');
     let response;
     if (props.firstLabel === 'Chấp nhận') {
-      response = await setAcceptFriend({token, userId: props.userId, isAccept: 1});
+      response = await setAcceptFriend({
+        token,
+        userId: props.userId,
+        isAccept: 1,
+      });
       if (response.code === '1000') {
         const reloadRequestedFriendList = props.setReload;
         reloadRequestedFriendList();
@@ -34,17 +38,21 @@ export default function FriendItem(props) {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           props.navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else {
-          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: response.message, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
     }
 
     if (props.firstLabel === 'Thêm bạn bè') {
-      response = await sendRequestFriend({token, userId: props.userId});
+      response = await sendRequestFriend({ token, userId: props.userId });
       if (response === '1000') {
         const changeReloadSuggested = props.setReloadSuggested;
         changeReloadSuggested();
@@ -52,36 +60,46 @@ export default function FriendItem(props) {
         if (response.code === '9995' || response.code === '9998') {
           await AsyncStorage.removeItem('token');
           props.navigation.navigate('LoginScreen');
-          dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else {
-          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: response.message, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
     }
-  }
+  };
 
   const rejectFriend = async () => {
     const token = await AsyncStorage.getItem('token');
-    const response = await setAcceptFriend({token, userId: props.userId, isAccept: 0});
+    const response = await setAcceptFriend({
+      token,
+      userId: props.userId,
+      isAccept: 0,
+    });
     if (response.code === '1000') {
       const reloadRequestedFriendList = props.setReload;
-      reloadRequestedFriendList()
+      reloadRequestedFriendList();
     } else {
       if (response.code === '9995' || response.code === '9998') {
         await AsyncStorage.removeItem('token');
         props.navigation.navigate('LoginScreen');
-        dispatch(openNotice({notice: authMsg.badToken, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: authMsg.badToken, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
     }
-  }
+  };
   return (
     <TouchableHighlight
       underlayColor={LIGHT_GREY_COLOR}
       onPress={() => {
-        props.navigation.navigate('ProfileScreen', {userId: props.userId});
+        props.navigation.navigate('ProfileScreen', { userId: props.userId });
       }}
     >
       <View style={styles.container}>
