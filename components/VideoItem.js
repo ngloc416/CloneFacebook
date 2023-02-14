@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { openNotice, closeNotice } from '../redux/actions/notice.action';
+import { openNotice, closeNotice } from './notice.action';
 import {
   View,
   Text,
@@ -175,27 +175,35 @@ export default function VideoItem({ navigation, item }) {
         style={{ paddingBottom: 7, paddingLeft: 15, paddingRight: 15 }}
         onPress={expandDescribed}
       >
-        {item.described ? (
-          item.described.length > 150 ? (
-            shortcutDescribed ? (
-              <Text style={styles.paragraph}>
-                {item.described.slice(0, 150)}
-                <Text onPress={expandDescribed} style={styles.describedSupport}>
-                  {` ... Xem thêm`}
+        <>
+          {item.described ? (
+            item.described.length > 150 ? (
+              shortcutDescribed ? (
+                <Text style={styles.paragraph}>
+                  {item.described.slice(0, 150)}
+                  <Text
+                    onPress={expandDescribed}
+                    style={styles.describedSupport}
+                  >
+                    {` ... Xem thêm`}
+                  </Text>
                 </Text>
-              </Text>
+              ) : (
+                <Text style={styles.paragraph}>
+                  {item.described}
+                  <Text
+                    onPress={expandDescribed}
+                    style={styles.describedSupport}
+                  >
+                    {` Ẩn Bớt`}
+                  </Text>
+                </Text>
+              )
             ) : (
-              <Text style={styles.paragraph}>
-                {item.described}
-                <Text onPress={expandDescribed} style={styles.describedSupport}>
-                  {` Ẩn Bớt`}
-                </Text>
-              </Text>
+              <Text style={styles.paragraph}>{item.described}</Text>
             )
-          ) : (
-            <Text style={styles.paragraph}>{item.described}</Text>
-          )
-        ) : null}
+          ) : null}
+        </>
       </TouchableHighlight>
 
       <View>

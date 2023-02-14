@@ -58,10 +58,10 @@ import NotificationScreen from './screens/Notification/NotificationScreen';
 import VideoScreen from './screens/Video/VideoScreen';
 import VideoDetailList from './screens/Video/VideoDetailList';
 
-import ChatScreen from './screens/Messenger/ChatScreen'
-import ListChat from './screens/Messenger/ListChat'
-import ChatInfo from './screens/Messenger/ChatInfo'
-import NewChat from './screens/Messenger/NewMessage'
+import ChatScreen from './screens/Messenger/ChatScreen';
+import ListChat from './screens/Messenger/ListChat';
+import ChatInfo from './screens/Messenger/ChatInfo';
+import NewChat from './screens/Messenger/NewMessage';
 
 const Tab = createMaterialTopTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -75,12 +75,8 @@ const AppComponent = () => {
   useEffect(() => {
     const fetchToken = async () => {
       const tokenValue = await AsyncStorage.getItem('token');
-      const user = await AsyncStorage.getItem('user');
       if (tokenValue) {
         setToken(tokenValue);
-      }
-      if (user) {
-        setUser(JSON.parse(user));
       }
     };
     fetchToken();
@@ -300,4 +296,4 @@ export default App = () => {
       <AppComponent />
     </Provider>
   );
-}
+};

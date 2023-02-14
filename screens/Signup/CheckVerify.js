@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   Text,
@@ -24,8 +24,12 @@ import {
 } from '../../constants/constants';
 
 import { authMsg, networkErrorMsg } from '../../constants/message';
-import { openNotice, closeNotice } from '../../redux/actions/notice.action';
-import { checkVerifyCode, getVerifyCode, login } from '../../services/auth.service';
+import { openNotice, closeNotice } from '../../components/notice.action';
+import {
+  checkVerifyCode,
+  getVerifyCode,
+  login,
+} from '../../services/auth.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BeginSignUp({ navigation, route }) {
@@ -33,24 +37,31 @@ export default function BeginSignUp({ navigation, route }) {
   const dispatch = useDispatch();
   useEffect(() => {
     const fetchCode = async () => {
-      const response = await getVerifyCode({phone: route.params.phone});
+      const response = await getVerifyCode({ phone: route.params.phone });
       if (response.code === '1000') {
         setCode(response.data.verifyCode);
       } else {
         if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         } else {
-          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+          dispatch(
+            openNotice({ notice: response.message, typeNotice: 'warning' })
+          );
           setTimeout(() => dispatch(closeNotice()), 2000);
         }
       }
-    }
+    };
     fetchCode();
-  }, [])
+  }, []);
 
   const checkCode = async () => {
-    const response = await checkVerifyCode({phone: route.params.phone, codeVerify: code});
+    const response = await checkVerifyCode({
+      phone: route.params.phone,
+      codeVerify: code,
+    });
     if (response.code === '1000') {
       await AsyncStorage.setItem('token', response.data.token);
       Alert.alert(
@@ -68,35 +79,43 @@ export default function BeginSignUp({ navigation, route }) {
       );
     } else {
       if (response.code === 'ERR_NETWORK') {
-        dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
-        dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
+        dispatch(
+          openNotice({ notice: response.message, typeNotice: 'warning' })
+        );
         setTimeout(() => dispatch(closeNotice()), 2000);
       }
     }
-  }
+  };
 
   const reloadCode = async () => {
-    const response = await getVerifyCode({phone: route.params.phone});
-      if (response.code === '1000') {
-        setCode(response.data.verifyCode);
-        Alert.alert('', 'Chúng tôi đã gửi lại mã cho bạn', [
-          {
-            text: 'OK',
-            onPress: () => {},
-          },
-        ]);
+    const response = await getVerifyCode({ phone: route.params.phone });
+    if (response.code === '1000') {
+      setCode(response.data.verifyCode);
+      Alert.alert('', 'Chúng tôi đã gửi lại mã cho bạn', [
+        {
+          text: 'OK',
+          onPress: () => {},
+        },
+      ]);
+    } else {
+      if (response.code === 'ERR_NETWORK') {
+        dispatch(
+          openNotice({ notice: networkErrorMsg, typeNotice: 'warning' })
+        );
+        setTimeout(() => dispatch(closeNotice()), 2000);
       } else {
-        if (response.code === 'ERR_NETWORK') {
-          dispatch(openNotice({notice: networkErrorMsg, typeNotice: 'warning'}));
-          setTimeout(() => dispatch(closeNotice()), 2000);
-        } else {
-          dispatch(openNotice({notice: response.message, typeNotice: 'warning'}));
-          setTimeout(() => dispatch(closeNotice()), 2000);
-        }
+        dispatch(
+          openNotice({ notice: response.message, typeNotice: 'warning' })
+        );
+        setTimeout(() => dispatch(closeNotice()), 2000);
       }
-  }
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -171,7 +190,7 @@ export default function BeginSignUp({ navigation, route }) {
         <TouchableHighlight
           style={styles.signinButton}
           onPress={() => {
-            checkCode()
+            checkCode();
           }}
           underlayColor={TOUCH_BLUE_COLOR}
         >
@@ -194,7 +213,7 @@ export default function BeginSignUp({ navigation, route }) {
             backgroundColor: LIGHT_GREY_COLOR,
           }}
           onPress={() => {
-            reloadCode()
+            reloadCode();
           }}
         >
           <Text style={{ ...styles.textSigninButton, color: '#000' }}>
