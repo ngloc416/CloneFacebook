@@ -46,10 +46,9 @@ const styles = StyleSheet.create({
   searchInput: {
       borderRadius: 48,
       backgroundColor: '#ddd',
-      width: screenWidth - 60,
       height: 35,
       paddingHorizontal: 15,
-      width: '100%'
+      margin: 10,
   },
   title: {
     fontSize: 24,
