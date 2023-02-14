@@ -13,7 +13,12 @@ export default function HomeScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const [lastId, setLastId] = useState(0);
   const [index, setIndex] = useState(0);
+  const [reload, setReload] = useState(false);
   const dispatch = useDispatch();
+
+  const reloadWhenChange = () => {
+    setReload(!reload);
+  }
   useEffect(() => {
     async function fetchPostList() {
       // let response;
@@ -56,7 +61,7 @@ export default function HomeScreen({ navigation }) {
       }
     }
     fetchPostList();
-  }, []);
+  }, [reload]);
 
   if (posts.length === 0) return <View></View>;
   return (
@@ -71,7 +76,7 @@ export default function HomeScreen({ navigation }) {
         <View>
           {posts.map((item, index) => (
             <View key={index}>
-              <Item item={item} key={index} navigation={navigation}></Item>
+              <Item item={item} key={index} navigation={navigation} reload={reloadWhenChange}></Item>
             </View>
           ))}
         </View>

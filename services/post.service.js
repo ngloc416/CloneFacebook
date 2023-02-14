@@ -23,4 +23,9 @@ const addPost = ({ token, described, status, formData }) => {
   return axiosFile.post(url, { formData });
 };
 
-export { getListPost, getPostById, addPost };
+const deletePost = ({ postId, token }) => {
+  const url = `/post/delete_post?id=${postId}&token=${token}`;
+  return axiosClient.post(url, {});
+};
+
+export { getListPost, getPostById, addPost, deletePost };
