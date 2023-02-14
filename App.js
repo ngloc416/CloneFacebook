@@ -269,7 +269,7 @@ const AppComponent = () => {
             component={PostCommentScreen}
           />
           <rootStack.Screen name="EditPostScreen" component={EditPostScreen} />
-          <rootStack.Screen name="AddPostScreen" component={EditPostScreen} />
+          <rootStack.Screen name="AddPostScreen" component={AddPostScreen} />
           <rootStack.Screen name="AllFriend" component={AllFriend} />
           <rootStack.Screen name="SuggestFriend" component={SuggestFriend} />
           <rootStack.Screen name="SearchScreen" component={SearchScreen} />

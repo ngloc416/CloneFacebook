@@ -154,7 +154,9 @@ export default function AddPostScreen({ navigation }) {
     let formData = new FormData();
     if (imageNumber > 0) {
       images.forEach((image) => {
-        formData.append('image', image);
+        console.log(image);
+        const arr = image.uri.split('.');
+        formData.append('image', {uri: image.uri, name: `${image.uri.slice(arr.length-10, arr.length-5)}.${arr[arr.length - 1]}`, type: `image/${arr[arr.length - 1]}`});
       });
     }
     if (videoNumber) {
@@ -163,7 +165,6 @@ export default function AddPostScreen({ navigation }) {
       });
     }
     body.formData = formData;
-    console.log(formData._parts);
     const response = await addPost(body);
     console.log(response);
     if (response.code === '1000') {
