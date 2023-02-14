@@ -309,7 +309,7 @@ export default function ProfileScreen({ navigation, route }) {
           }}
           underlayColor={LIGHT_GREY_COLOR}
         >
-          <>
+          <View>
             <Text
               style={{
                 fontWeight: '700',
@@ -337,7 +337,7 @@ export default function ProfileScreen({ navigation, route }) {
                 </View>
               </View>
             </View>
-          </>
+          </View>
         </TouchableHighlight>
 
         {posts.map((item, index) => (
