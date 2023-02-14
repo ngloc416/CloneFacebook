@@ -3,7 +3,7 @@ import { View, Image, Text, StyleSheet } from 'react-native'
 import { BLACK_COLOR } from '../../constants/constants'
 
 function ChatItem({ item }) {
-  const time = Date.now() / 1000 - parseInt(item.lastmessage.created);
+  const time = Date.now() / 1000 - parseInt(item.lastMessage.created);
 
   return (
     <View style={styles.chatItemContainer}>
@@ -11,7 +11,7 @@ function ChatItem({ item }) {
         <View style={styles.chatDetailSectionContainer}>
             <Text style={styles.chatName}>{item.partner.username}</Text>
             <View style={styles.messageContainer}>
-                <Text style={styles.chatMessage}>{item.lastmessage.message} •</Text>
+                <Text style={styles.chatMessage}>{item.lastMessage.message} •</Text>
                 <Text style={{ color: BLACK_COLOR, fontSize: 13 }}>
                     {time < 1 * 60 * 60 ? 'Vừa xong' : null}
                     {time >= 1 * 60 * 60 && time < 24 * 60 * 60
