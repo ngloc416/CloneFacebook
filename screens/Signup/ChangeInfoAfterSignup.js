@@ -62,7 +62,7 @@ export default function ChangeInfoAfterSignup({ navigation }) {
   const changeInfo = async () => {
     const token = await AsyncStorage.getItem('token');
     const formData = new FormData();
-    formData.append('image', avatarFile );
+    formData.append('avatar', avatarFile );
     console.log(formData);
     const response = await changeUserInfoAfterSignUp({token, userName: username, formData});
     console.log(response);
