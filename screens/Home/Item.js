@@ -34,7 +34,7 @@ import { likePost } from '../../services/like.service';
 import { getPostById, deletePost } from '../../services/post.service';
 import { authMsg, networkErrorMsg } from '../../constants/message';
 
-export default function Item({ navigation, item, reload }) {
+export default function Item({ navigation, item }) {
   const [shortcutDescribed, setShortcutDescribed] = useState(true);
   const [liked, setLiked] = useState(item.is_liked);
   const [numberOfLike, setNumberOfLike] = useState(parseInt(item.like));
